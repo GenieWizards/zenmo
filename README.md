@@ -17,5 +17,3 @@ cd finance-management-api # navigate to the cloned folder
 bun install # install necessary dependencies using bun package manager
 bun dev # start the server in development mode
 ```
-```
-```
