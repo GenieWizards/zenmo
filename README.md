@@ -1,11 +1,21 @@
-To install dependencies:
-```sh
-bun install
-```
+# Finance Management API
 
-To run:
-```sh
-bun run dev
-```
+<!--toc:start-->
+- [Finance Management API](#finance-management-api)
+    - [To setup locally](#to-setup-locally)
+<!--toc:end-->
 
-open http://localhost:8998
+### To setup locally
+
+- This project uses bun as its package manager, you need to have bun installed in your system.
+- To install bun follow the official guide at https://bun.sh
+
+
+```bash
+git clone https://github.com/GenieWizards/finance-management-api.git # clones the repo in cwd
+cd finance-management-api # navigate to the cloned folder
+bun install # install necessary dependencies using bun package manager
+bun dev # start the server in development mode
+```
+```
+```
