@@ -3,6 +3,7 @@
 <!--toc:start-->
 - [Finance Management API](#finance-management-api)
     - [To setup locally](#to-setup-locally)
+    - [Check API documentation](#check-api-documentation)
 <!--toc:end-->
 
 ### To setup locally
@@ -17,3 +18,7 @@ cd finance-management-api # navigate to the cloned folder
 bun install # install necessary dependencies using bun package manager
 bun dev # start the server in development mode
 ```
+
+### Check API documentation
+
+- The API documentation is available at {{API_URL}}/reference
