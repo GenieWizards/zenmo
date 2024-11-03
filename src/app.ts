@@ -13,5 +13,5 @@ routes.forEach((route) => {
 });
 
 app.get("/", (c) => {
-  return c.text("Hello Hono!");
+  return c.text("Finance Management API!");
 });
