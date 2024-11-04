@@ -23,7 +23,7 @@
     "@scalar/hono-api-reference": "^0.5.158",
     "drizzle-orm": "^0.35.3",
     "drizzle-zod": "^0.5.1",
-    "hono": "^4.6.8",
+    "hono": "^4.6.9",
     "hono-pino": "^0.3.0",
     "pino": "^9.5.0",
     "postgres": "^3.4.5",
