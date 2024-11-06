@@ -14,6 +14,7 @@ const EnvSchema = z.object({
   ]),
   API_TITLE: z.string().default("Finance Management API"),
   DATABASE_URL: z.string().url(),
+  BETTER_AUTH_SECRET: z.string(),
 });
 
 export type env = z.infer<typeof EnvSchema>;
