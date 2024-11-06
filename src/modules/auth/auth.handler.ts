@@ -1,0 +1,81 @@
+import type { AppRouteHandler } from "@/common/lib/types";
+
+import { auth } from "@/common/lib/auth";
+import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
+import * as HTTPStatusPhrases from "@/common/utils/http-status-phrases.util";
+
+import type { RegisterRoute, SessionRoute } from "./auth.route";
+
+export const session: AppRouteHandler<SessionRoute> = async (c) => {
+  const session = c.get("session");
+  const user = c.get("user");
+
+  if (!user || !session) {
+    return c.json(
+      {
+        success: false,
+        message: HTTPStatusPhrases.NOT_FOUND,
+      },
+      HTTPStatusCodes.NOT_FOUND,
+    );
+  }
+
+  return c.json({
+    success: true,
+    message: "Get logged in user details",
+    data: {
+      user,
+      session,
+    },
+  }, HTTPStatusCodes.OK);
+};
+
+// FIXME: The typing is not working for image type
+export const register: AppRouteHandler<RegisterRoute> = async (c) => {
+  const payload = c.req.valid("json");
+  const existingUser = c.get("user");
+
+  if (existingUser) {
+    return c.json({
+      success: false,
+      message: "User already logged in",
+    }, HTTPStatusCodes.BAD_REQUEST);
+  }
+
+  const data = await auth.api.signUpEmail({
+    body: {
+      email: payload.email,
+      password: payload.password || "",
+      name: payload.name || "",
+      image: payload.image || "",
+    },
+  });
+
+  return c.json({
+    success: true,
+    message: "User registered successfully",
+    data: {
+      user: data.user,
+    },
+  }, HTTPStatusCodes.OK);
+};
+
+// export const login: AppRouteHandler<LoginRoute> = async (c) => {
+//   const payload = c.req.valid("json");
+//   const user = c.get("user");
+
+//   if (user) {
+//     return c.json({
+//       success: false,
+//       message: "User already logged in",
+//     }, HTTPStatusCodes.BAD_REQUEST);
+//   }
+
+//   const user = await db.insert(userSchema).values;
+
+//   return c.json({
+//     success: true,
+//     message: "User logged in successfully",
+//     data: user,
+//   }, HTTPStatusCodes.OK);
+// };

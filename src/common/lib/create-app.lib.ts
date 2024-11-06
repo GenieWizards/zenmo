@@ -1,4 +1,7 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { cors } from "hono/cors";
+
+import env from "@/env";
 
 import type { AppBindings } from "./types";
 
@@ -22,6 +25,18 @@ export function createApp() {
 
   app.use(pinoLogger());
   app.use(serveEmojiFavicon("🔥"));
+
+  app.use(
+    "*", // or replace with "*" to enable cors for all routes
+    cors({
+      origin: [env.CLIENT_URL], // replace with your origin
+      allowHeaders: ["Content-Type", "Authorization"],
+      allowMethods: ["POST", "GET", "OPTIONS", "PUT", "PATCH", "DELETE"],
+      exposeHeaders: ["Content-Length"],
+      maxAge: 600,
+      credentials: true,
+    }),
+  );
 
   // global middlewares
   app.notFound(notFoundMiddleware);

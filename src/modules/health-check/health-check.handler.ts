@@ -8,7 +8,7 @@ export const healthCheck: AppRouteHandler<HealthCheckRoute> = (c) => {
   return c.json(
     {
       success: true,
-      message: "Hello Hono!",
+      message: "Finance Management API is up and running!!!",
     },
     HTTPStatusCodes.OK,
   );

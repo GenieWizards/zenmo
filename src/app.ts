@@ -1,17 +1,33 @@
 import { configureOpenAPI } from "./common/lib/configure-open-api.lib";
 import { createApp } from "./common/lib/create-app.lib";
+import { authRouter } from "./modules/auth/auth.index";
 import { healthCheckRouter } from "./modules/health-check/health-check.index";
 
 export const app = createApp();
 
-const routes = [healthCheckRouter];
+const routesV1 = [authRouter];
 
 configureOpenAPI(app);
 
-routes.forEach((route) => {
-  app.route("/", route);
+app.route("/api", healthCheckRouter);
+
+routesV1.forEach((route) => {
+  app.route("/api/v1", route);
 });
 
 app.get("/", (c) => {
   return c.text("Finance Management API!");
+});
+
+app.get("/session", async (c) => {
+  const session = c.get("session");
+  const user = c.get("user");
+
+  if (!user)
+    return c.body(null, 401);
+
+  return c.json({
+    session,
+    user,
+  });
 });
