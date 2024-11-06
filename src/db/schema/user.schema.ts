@@ -36,9 +36,7 @@ const userSchema = pgTable(
       .notNull()
       .defaultNow(),
   },
-  table => ({
-    emailUniqueIndex: uniqueIndex().on(lower(table.email)),
-  }),
+  table => [uniqueIndex().on(lower(table.email))],
 );
 
 // Schema for selecting a user - can be used to validate API responses
