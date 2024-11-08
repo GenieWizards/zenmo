@@ -4,7 +4,7 @@ import { auth } from "@/common/lib/auth";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import * as HTTPStatusPhrases from "@/common/utils/http-status-phrases.util";
 
-import type { RegisterRoute, SessionRoute } from "./auth.route";
+import type { LoginRoute, RegisterRoute, SessionRoute } from "./auth.route";
 
 export const session: AppRouteHandler<SessionRoute> = async (c) => {
   const session = c.get("session");
@@ -30,7 +30,6 @@ export const session: AppRouteHandler<SessionRoute> = async (c) => {
   }, HTTPStatusCodes.OK);
 };
 
-// FIXME: The typing is not working for image type
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   const payload = c.req.valid("json");
   const existingUser = c.get("user");
@@ -51,31 +50,54 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
     },
   });
 
+  if (!data?.user) {
+    return c.json({
+      success: false,
+      message: "User registration failed",
+    }, HTTPStatusCodes.INTERNAL_SERVER_ERROR);
+  }
+
   return c.json({
     success: true,
     message: "User registered successfully",
     data: {
       user: data.user,
     },
-  }, HTTPStatusCodes.OK);
+  }, HTTPStatusCodes.CREATED);
 };
 
-// export const login: AppRouteHandler<LoginRoute> = async (c) => {
-//   const payload = c.req.valid("json");
-//   const user = c.get("user");
+export const login: AppRouteHandler<LoginRoute> = async (c) => {
+  const payload = c.req.valid("json");
+  const existingUser = c.get("user");
 
-//   if (user) {
-//     return c.json({
-//       success: false,
-//       message: "User already logged in",
-//     }, HTTPStatusCodes.BAD_REQUEST);
-//   }
+  if (existingUser) {
+    return c.json({
+      success: false,
+      message: "User already logged in",
+    }, HTTPStatusCodes.BAD_REQUEST);
+  }
 
-//   const user = await db.insert(userSchema).values;
+  let user;
 
-//   return c.json({
-//     success: true,
-//     message: "User logged in successfully",
-//     data: user,
-//   }, HTTPStatusCodes.OK);
-// };
+  if (payload?.password) {
+    user = await auth.api.signInEmail({
+      body: {
+        email: payload.email,
+        password: payload.password,
+      },
+    });
+  }
+
+  if (!user?.user) {
+    return c.json({
+      success: false,
+      message: "Invalid email or password",
+    }, HTTPStatusCodes.BAD_REQUEST);
+  }
+
+  return c.json({
+    success: true,
+    message: "User logged in successfully",
+    data: user.user,
+  }, HTTPStatusCodes.OK);
+};

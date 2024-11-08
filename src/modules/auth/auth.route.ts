@@ -4,7 +4,7 @@ import jsonContentRequired from "@/common/helpers/json-content-required";
 import { jsonContent } from "@/common/helpers/json-content.helper";
 import { notFoundSchema } from "@/common/lib/constants.lib";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
-import { insertUserSchema, selectUserSchema } from "@/db/schemas/user.schema";
+import { insertUserSchema } from "@/db/schemas/user.schema";
 
 import { betterAuthSessionSchema, betterAuthUserSchema } from "./auth.schema";
 
@@ -37,13 +37,19 @@ export const login = createRoute({
   tags,
   method: "post",
   path: "/auth/login",
+  request: {
+    body: jsonContentRequired(
+      insertUserSchema.pick({ email: true, password: true }).required({ password: true }),
+      "User login details",
+    ),
+  },
   responses: {
     [HTTPStatusCodes.OK]: jsonContent(
       z.object({
         success: z.boolean(),
         message: z.string(),
-        data: selectUserSchema,
-      }),
+        data: betterAuthSessionSchema,
+      }).optional(),
       "User logged in successfully",
     ),
     [HTTPStatusCodes.BAD_REQUEST]: jsonContent(
@@ -68,15 +74,15 @@ export const register = createRoute({
     ),
   },
   responses: {
-    [HTTPStatusCodes.OK]: jsonContent(
+    [HTTPStatusCodes.CREATED]: jsonContent(
       z.object({
         success: z.boolean(),
         message: z.string(),
         data: z.object({
-          user: selectUserSchema.omit({ password: true, role: true }),
+          user: betterAuthSessionSchema,
         }),
       }),
-      "User logged in successfully",
+      "User created successfully",
     ),
     [HTTPStatusCodes.BAD_REQUEST]: jsonContent(
       z.object({
@@ -90,7 +96,7 @@ export const register = createRoute({
         success: z.boolean(),
         message: z.string(),
       }),
-      "Server side error",
+      "Server side error(s)",
     ),
   },
 });
