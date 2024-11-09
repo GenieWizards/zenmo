@@ -9,4 +9,7 @@ export const authRouter = createRouter().openapi(
 ).openapi(
   routes.register,
   handlers.register,
+).openapi(
+  routes.login,
+  handlers.login,
 );

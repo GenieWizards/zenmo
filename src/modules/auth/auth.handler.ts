@@ -1,3 +1,5 @@
+import { setCookie } from "hono/cookie";
+
 import type { AppRouteHandler } from "@/common/lib/types";
 
 import { auth } from "@/common/lib/auth";
@@ -20,14 +22,17 @@ export const session: AppRouteHandler<SessionRoute> = async (c) => {
     );
   }
 
-  return c.json({
-    success: true,
-    message: "Get logged in user details",
-    data: {
-      user,
-      session,
+  return c.json(
+    {
+      success: true,
+      message: "Get logged in user details",
+      data: {
+        user,
+        session,
+      },
     },
-  }, HTTPStatusCodes.OK);
+    HTTPStatusCodes.OK,
+  );
 };
 
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
@@ -35,10 +40,13 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   const existingUser = c.get("user");
 
   if (existingUser) {
-    return c.json({
-      success: false,
-      message: "User already logged in",
-    }, HTTPStatusCodes.BAD_REQUEST);
+    return c.json(
+      {
+        success: false,
+        message: "User already logged in",
+      },
+      HTTPStatusCodes.BAD_REQUEST,
+    );
   }
 
   const data = await auth.api.signUpEmail({
@@ -51,19 +59,28 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   });
 
   if (!data?.user) {
-    return c.json({
-      success: false,
-      message: "User registration failed",
-    }, HTTPStatusCodes.INTERNAL_SERVER_ERROR);
+    return c.json(
+      {
+        success: false,
+        message: "User registration failed",
+      },
+      HTTPStatusCodes.INTERNAL_SERVER_ERROR,
+    );
   }
 
-  return c.json({
-    success: true,
-    message: "User registered successfully",
-    data: {
-      user: data.user,
+  data.session
+  && c.header("Set-Cookie", data.session.id, {
+    append: true,
+  });
+
+  return c.json(
+    {
+      success: true,
+      message: "User registered successfully",
+      data: data.user,
     },
-  }, HTTPStatusCodes.CREATED);
+    HTTPStatusCodes.CREATED,
+  );
 };
 
 export const login: AppRouteHandler<LoginRoute> = async (c) => {
@@ -71,10 +88,13 @@ export const login: AppRouteHandler<LoginRoute> = async (c) => {
   const existingUser = c.get("user");
 
   if (existingUser) {
-    return c.json({
-      success: false,
-      message: "User already logged in",
-    }, HTTPStatusCodes.BAD_REQUEST);
+    return c.json(
+      {
+        success: false,
+        message: "User already logged in",
+      },
+      HTTPStatusCodes.BAD_REQUEST,
+    );
   }
 
   let user;
@@ -89,15 +109,28 @@ export const login: AppRouteHandler<LoginRoute> = async (c) => {
   }
 
   if (!user?.user) {
-    return c.json({
-      success: false,
-      message: "Invalid email or password",
-    }, HTTPStatusCodes.BAD_REQUEST);
+    return c.json(
+      {
+        success: false,
+        message: "Invalid email or password",
+      },
+      HTTPStatusCodes.BAD_REQUEST,
+    );
   }
 
-  return c.json({
-    success: true,
-    message: "User logged in successfully",
-    data: user.user,
-  }, HTTPStatusCodes.OK);
+  user.session
+  && setCookie(c, "session_token", user.session.id, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
+
+  return c.json(
+    {
+      success: true,
+      message: "User logged in successfully",
+      data: user.user,
+    },
+    HTTPStatusCodes.OK,
+  );
 };

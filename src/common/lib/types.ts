@@ -3,14 +3,14 @@ import type { PinoLogger } from "hono-pino";
 
 import type { auth } from "./auth";
 
-type AuthSession = typeof auth.$Infer.Session.session;
-type AuthUser = typeof auth.$Infer.Session.user;
+type AuthSession = typeof auth.$Infer.Session.session | null;
+type AuthUser = typeof auth.$Infer.Session.user | null;
 
 export interface AppBindings {
   Variables: {
     logger: PinoLogger;
-    user: AuthSession | null;
-    session: AuthUser | null;
+    user: AuthSession;
+    session: AuthUser;
   };
 };
 

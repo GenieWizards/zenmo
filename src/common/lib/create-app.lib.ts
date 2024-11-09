@@ -13,6 +13,8 @@ import {
 } from "../middlewares";
 import { defaultHook } from "../utils/default-hook.util";
 
+const allowedOrigins = env.ALLOWED_ORIGINS?.split(",") || [];
+
 export function createRouter() {
   return new OpenAPIHono<AppBindings>({
     strict: false,
@@ -27,9 +29,14 @@ export function createApp() {
   app.use(serveEmojiFavicon("🔥"));
 
   app.use(
-    "*", // or replace with "*" to enable cors for all routes
+    "*",
     cors({
-      origin: [env.CLIENT_URL], // replace with your origin
+      origin: (origin, _) => {
+        if (allowedOrigins.includes(origin)) {
+          return origin;
+        }
+        return undefined;
+      },
       allowHeaders: ["Content-Type", "Authorization"],
       allowMethods: ["POST", "GET", "OPTIONS", "PUT", "PATCH", "DELETE"],
       exposeHeaders: ["Content-Length"],

@@ -78,9 +78,7 @@ export const register = createRoute({
       z.object({
         success: z.boolean(),
         message: z.string(),
-        data: z.object({
-          user: betterAuthSessionSchema,
-        }),
+        data: betterAuthSessionSchema,
       }),
       "User created successfully",
     ),
