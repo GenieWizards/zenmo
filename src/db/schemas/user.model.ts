@@ -11,7 +11,7 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
-import { createSelectSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 import { AuthRoles, authRolesArr } from "@/common/enums";
 
@@ -32,13 +32,15 @@ const userModel = pgTable(
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp().notNull().defaultNow(),
   },
-  table => [uniqueIndex().on(lower(table.email))],
+  table => [uniqueIndex("unique_email_idx").on(lower(table.email))],
 );
 
-// Schema for selecting a user - can be used to validate API responses
+// Schema for selecting/inserting a user
 export const selectUserSchema = createSelectSchema(userModel);
+export const insertUserSchema = createInsertSchema(userModel);
 
 export type TSelectUserSchema = z.infer<typeof selectUserSchema>;
+export type TInsertUserSchema = z.infer<typeof insertUserSchema>;
 
 // custom lower function
 export function lower(email: AnyPgColumn): SQL {

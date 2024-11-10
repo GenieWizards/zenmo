@@ -1,7 +1,7 @@
 import type { z } from "zod";
 
 import { pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
-import { createSelectSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 import userModel from "./user.model";
 
@@ -30,7 +30,11 @@ const accountModel = pgTable("account", {
   updatedAt: timestamp().notNull().defaultNow(),
 });
 
+// Schema for selecting/inserting a session
 export const selectAccountSchema = createSelectSchema(accountModel);
+export const insertAccountSchema = createInsertSchema(accountModel);
+
 export type TSelectAccountSchema = z.infer<typeof selectAccountSchema>;
+export type TInsertAccountSchema = z.infer<typeof insertAccountSchema>;
 
 export default accountModel;
