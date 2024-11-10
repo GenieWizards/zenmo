@@ -7,7 +7,7 @@ import {
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
-import { insertUserSchema } from "@/db/schemas/user.model";
+import { insertUserSchema, selectUserSchema } from "@/db/schemas/user.model";
 
 const tags = ["Auth"];
 
@@ -120,7 +120,31 @@ export const logoutRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "User logged out successfully",
+      "You are not authorized, please login",
+    ),
+  },
+});
+
+export const loggedinUserDetails = createRoute({
+  tags,
+  method: "get",
+  path: "/auth/me",
+  middleware: [authMiddleware(), requireAuth()] as const,
+  responses: {
+    [HTTPStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean().default(true),
+        message: z.string(),
+        data: selectUserSchema,
+      }),
+      "Logged in user details",
+    ),
+    [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "You are not authorized, please login",
     ),
   },
 });
@@ -128,3 +152,4 @@ export const logoutRoute = createRoute({
 export type TRegisterRoute = typeof registerRoute;
 export type TLoginRoute = typeof loginRoute;
 export type TLogoutRoute = typeof logoutRoute;
+export type TLoggedInUserDetails = typeof loggedinUserDetails;

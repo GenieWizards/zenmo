@@ -10,14 +10,22 @@ import { db } from "@/db/adapter";
 import { accountModel, sessionModel, userModel } from "@/db/schemas";
 import env from "@/env";
 
-import type { TLoginRoute, TLogoutRoute, TRegisterRoute } from "./auth.routes";
+import type {
+  TLoggedInUserDetails,
+  TLoginRoute,
+  TLogoutRoute,
+  TRegisterRoute,
+} from "./auth.routes";
 
 import { getAccountRepository } from "../accounts/account.repository";
 import {
   createSessionReposiroty,
   deleteSessionRepository,
 } from "../sessions/session.repository";
-import { getUserRepository } from "../users/user.repository";
+import {
+  getUserByEmailRepository,
+  getUserByIdRepository,
+} from "../users/user.repository";
 
 export const register: AppRouteHandler<TRegisterRoute> = async (c) => {
   const payload = c.req.valid("json");
@@ -35,7 +43,7 @@ export const register: AppRouteHandler<TRegisterRoute> = async (c) => {
   // }
 
   // Check if user exists
-  const existingUser = await getUserRepository(payload.email);
+  const existingUser = await getUserByEmailRepository(payload.email);
   if (existingUser) {
     return c.json(
       {
@@ -106,7 +114,7 @@ export const register: AppRouteHandler<TRegisterRoute> = async (c) => {
 export const login: AppRouteHandler<TLoginRoute> = async (c) => {
   const payload = c.req.valid("json");
 
-  const user = await getUserRepository(payload.email);
+  const user = await getUserByEmailRepository(payload.email);
 
   if (!user) {
     return c.json(
@@ -211,5 +219,44 @@ export const logout: AppRouteHandler<TLogoutRoute> = async (c) => {
       message: "Logout successful",
     },
     HTTPStatusCodes.NO_CONTENT,
+  );
+};
+
+export const loggedInUserDetails: AppRouteHandler<
+  TLoggedInUserDetails
+> = async (c) => {
+  const user = c.get("user");
+
+  if (!user) {
+    return c.json(
+      {
+        success: false,
+        message: "You are not authorized, please login",
+      },
+      HTTPStatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  const userDetails = await getUserByIdRepository(user?.id);
+
+  if (!userDetails) {
+    await deleteSessionRepository(user?.id);
+
+    return c.json(
+      {
+        success: false,
+        message: "You are not authorized, please login",
+      },
+      HTTPStatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  return c.json(
+    {
+      success: true,
+      message: "Logged in user details",
+      data: userDetails,
+    },
+    HTTPStatusCodes.OK,
   );
 };

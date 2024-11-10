@@ -11,11 +11,20 @@ export async function createUserRepository(payload: TInsertUserSchema) {
   return user;
 }
 
-export async function getUserRepository(email: string) {
+export async function getUserByEmailRepository(email: string) {
   const [user] = await db
     .select()
     .from(userModel)
     .where(eq(lower(userModel.email), email.toLowerCase()));
+
+  return user;
+}
+
+export async function getUserByIdRepository(userId: string) {
+  const [user] = await db
+    .select()
+    .from(userModel)
+    .where(eq(userModel.id, userId));
 
   return user;
 }
