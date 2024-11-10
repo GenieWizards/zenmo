@@ -20,8 +20,8 @@ const sessionModel = pgTable("session", {
 });
 
 // Schema for selecting/inserting a session
-export const selectSessionSchema = createSelectSchema(userModel);
-export const insertSessionSchema = createInsertSchema(userModel);
+export const selectSessionSchema = createSelectSchema(sessionModel);
+export const insertSessionSchema = createInsertSchema(sessionModel);
 
 export type TSelectSessionSchema = z.infer<typeof selectSessionSchema>;
 export type TInsertSessionSchema = z.infer<typeof insertSessionSchema>;

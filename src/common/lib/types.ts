@@ -1,9 +1,14 @@
 import type { OpenAPIHono, RouteConfig, RouteHandler } from "@hono/zod-openapi";
 import type { PinoLogger } from "hono-pino";
 
+import type { TSelectSessionSchema } from "@/db/schemas/session.model";
+import type { TSelectUserSchema } from "@/db/schemas/user.model";
+
 export interface AppBindings {
   Variables: {
     logger: PinoLogger;
+    user: TSelectUserSchema | null;
+    session: TSelectSessionSchema | null;
   };
 }
 

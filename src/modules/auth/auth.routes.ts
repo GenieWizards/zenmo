@@ -2,6 +2,10 @@ import { createRoute, z } from "@hono/zod-openapi";
 
 import jsonContentRequired from "@/common/helpers/json-content-required";
 import { jsonContent } from "@/common/helpers/json-content.helper";
+import {
+  authMiddleware,
+  requireAuth,
+} from "@/common/middlewares/auth.middleware";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertUserSchema } from "@/db/schemas/user.model";
 
@@ -24,7 +28,7 @@ export const registerRoute = createRoute({
   responses: {
     [HTTPStatusCodes.CREATED]: jsonContent(
       z.object({
-        success: z.boolean(),
+        success: z.boolean().default(true),
         message: z.string(),
         data: insertUserSchema.extend({
           session: z.string(),
@@ -34,21 +38,21 @@ export const registerRoute = createRoute({
     ),
     [HTTPStatusCodes.BAD_REQUEST]: jsonContent(
       z.object({
-        success: z.boolean(),
+        success: z.boolean().default(false),
         message: z.string(),
       }),
       "The validation error(s)",
     ),
     [HTTPStatusCodes.CONFLICT]: jsonContent(
       z.object({
-        success: z.boolean(),
+        success: z.boolean().default(false),
         message: z.string(),
       }),
       "Field already exist(s)",
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
-        success: z.boolean(),
+        success: z.boolean().default(false),
         message: z.string(),
       }),
       "Server side error(s)",
@@ -56,4 +60,71 @@ export const registerRoute = createRoute({
   },
 });
 
-export type RegisterRoute = typeof registerRoute;
+export const loginRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/auth/login",
+  request: {
+    body: jsonContentRequired(
+      insertUserSchema
+        .extend({
+          password: z.string().min(8).max(60),
+        })
+        .omit({ role: true }),
+      "User registration details",
+    ),
+  },
+  responses: {
+    [HTTPStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean().default(true),
+        message: z.string(),
+        data: insertUserSchema.extend({
+          session: z.string(),
+        }),
+      }),
+      "User logged in successfully",
+    ),
+    [HTTPStatusCodes.BAD_REQUEST]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "The validation error(s)",
+    ),
+    [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Server side error(s)",
+    ),
+  },
+});
+
+export const logoutRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/auth/logout",
+  middleware: [authMiddleware(), requireAuth()] as const,
+  responses: {
+    [HTTPStatusCodes.NO_CONTENT]: jsonContent(
+      z.object({
+        success: z.boolean().default(true),
+        message: z.string(),
+      }),
+      "User logged out successfully",
+    ),
+    [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "User logged out successfully",
+    ),
+  },
+});
+
+export type TRegisterRoute = typeof registerRoute;
+export type TLoginRoute = typeof loginRoute;
+export type TLogoutRoute = typeof logoutRoute;
