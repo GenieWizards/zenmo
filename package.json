@@ -23,6 +23,8 @@
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.17.0",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
     "@scalar/hono-api-reference": "^0.5.159",
     "drizzle-orm": "^0.36.1",
     "drizzle-zod": "^0.5.1",
