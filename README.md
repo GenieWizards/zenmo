@@ -20,3 +20,9 @@ bun dev # start the server in development mode
 ### Check API documentation
 
 - The API documentation is available at {{API_URL}}/reference
+
+### If the schema is added/updated then you need to generate/apply the migrations
+```bash
+bun db:generate # generates the migration
+bun db:migrate # applies the migration
+```
