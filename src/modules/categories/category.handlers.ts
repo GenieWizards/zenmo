@@ -64,8 +64,6 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
       );
     }
 
-    console.log();
-
     category = await createCategoryRepository(payload, user.id);
   }
 
