@@ -20,7 +20,8 @@
     "start": "bun src/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "deps:update": "npx npm-check-updates --interactive --format group"
+    "deps:update": "npx npm-check-updates --interactive --format group",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.17.0",
@@ -42,6 +43,8 @@
     "drizzle-kit": "^0.28.0",
     "eslint": "^9.14.0",
     "eslint-plugin-format": "^0.1.2",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
     "pino-pretty": "^13.0.0"
   },
   "maintainers": [
