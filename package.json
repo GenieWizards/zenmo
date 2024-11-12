@@ -53,5 +53,8 @@
       "email": "vijaywargishivam@gmail.com",
       "url": "https://github.com/shivamvijaywargi"
     }
-  ]
+  ],
+  "lint-staged": {
+    "*.ts": "eslint --max-warnings=0"
+  }
 }

@@ -81,6 +81,7 @@ export const getCategoriesRoute = createRoute({
   tags,
   method: "get",
   path: "/categories",
+  middleware: [authMiddleware()] as const,
   responses: {
     [HTTPStatusCodes.OK]: jsonContent(
       z.object({
@@ -97,6 +98,7 @@ export const getCategoryRoute = createRoute({
   tags,
   method: "get",
   path: "/categories/:id",
+  middleware: [authMiddleware()] as const,
   request: {
     params: z.object({
       id: z.string(),

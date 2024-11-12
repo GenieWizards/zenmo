@@ -4,11 +4,16 @@ import type { TSelectCategorySchema } from "@/db/schemas/category.model";
 import { AuthRoles } from "@/common/enums";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
-import type { TCreateCategoryRoute } from "./category.routes";
+import type {
+  TCreateCategoryRoute,
+  TGetCategoriesRoute,
+} from "./category.routes";
 
 import {
   createCategoryRepository,
   getAdminCategory,
+  getAllCategoriesAdmin,
+  getAllCategoriesUser,
   getCategoryRepository,
 } from "./category.repository";
 
@@ -47,7 +52,7 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
 
     category = await createCategoryRepository(payload);
   } else {
-    categoryExists = await getCategoryRepository(payload.name);
+    categoryExists = await getCategoryRepository(payload.name, user.id);
 
     if (categoryExists) {
       return c.json(
@@ -79,5 +84,29 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
       data: category,
     },
     HTTPStatusCodes.CREATED,
+  );
+};
+
+export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
+  c,
+) => {
+  const user = c.get("user");
+
+  let categories: TSelectCategorySchema[] | null = null;
+
+  // TODO: implement pagination
+  if (user?.role === AuthRoles.USER) {
+    categories = await getAllCategoriesUser(user?.id);
+  } else {
+    categories = await getAllCategoriesAdmin();
+  }
+
+  return c.json(
+    {
+      success: true,
+      message: "Categories retrieved successfully",
+      data: categories,
+    },
+    HTTPStatusCodes.OK,
   );
 };

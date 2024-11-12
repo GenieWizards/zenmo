@@ -32,8 +32,15 @@ export async function createCategoryRepository(
   return category;
 }
 
-export async function getAllCategoryAdmin() {
+export async function getAllCategoriesAdmin() {
   return await db.select().from(categoryModel);
+}
+
+export async function getAllCategoriesUser(userId: string) {
+  return await db
+    .select()
+    .from(categoryModel)
+    .where(or(eq(categoryModel.userId, userId), isNull(categoryModel.userId)));
 }
 
 export async function getAdminCategory(categoryIdOrName: string) {
@@ -53,16 +60,26 @@ export async function getAdminCategory(categoryIdOrName: string) {
   return category;
 }
 
-export async function getCategoryRepository(categoryIdOrName: string) {
+export async function getCategoryRepository(
+  categoryIdOrName: string,
+  userId?: string,
+) {
+  const conditions = [
+    or(
+      eq(categoryModel.id, categoryIdOrName),
+      eq(lower(categoryModel.name), categoryIdOrName.toLowerCase()),
+    ),
+  ];
+
+  // Only add userId condition if userId is provided
+  if (userId !== undefined) {
+    conditions.push(eq(categoryModel.userId, userId));
+  }
+
   const [category] = await db
     .select()
     .from(categoryModel)
-    .where(
-      or(
-        eq(categoryModel.id, categoryIdOrName),
-        eq(lower(categoryModel.name), categoryIdOrName.toLowerCase()),
-      ),
-    );
+    .where(and(...conditions));
 
   return category;
 }
