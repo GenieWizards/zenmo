@@ -13,7 +13,7 @@
     "Spend Tracker"
   ],
   "scripts": {
-    "build": "bun start",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun",
     "dev": "bun run --watch src/index.ts",
     "lint": "eslint .",
     "lint:fix": "bun lint --fix",
