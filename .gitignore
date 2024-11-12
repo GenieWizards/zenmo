@@ -6,3 +6,6 @@ node_modules/
 #logs
 logs
 *.log
+
+dist
+build
