@@ -34,7 +34,7 @@ const accountModel = pgTable(
   table => [unique().on(table.userId, table.providerId)],
 );
 
-// Schema for selecting/inserting a session
+// Schema for selecting/inserting a account
 export const selectAccountSchema = createSelectSchema(accountModel);
 export const insertAccountSchema = createInsertSchema(accountModel);
 

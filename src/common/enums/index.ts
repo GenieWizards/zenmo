@@ -1,8 +1,7 @@
 // NOTE: Updating the array will auto update the AuthRoles object
 export const authRolesArr = ["user", "admin"] as const;
 
-type AuthRolesTuple = typeof authRolesArr;
-type AuthRolesValues = AuthRolesTuple[number];
+type AuthRolesValues = (typeof authRolesArr)[number];
 type AuthRolesType = {
   [K in Uppercase<AuthRolesValues>]: Lowercase<K>;
 };
@@ -17,3 +16,33 @@ export const AuthRoles = authRolesArr.reduce(
 
 export type UpperCaseAuthRole = keyof typeof AuthRoles;
 export type AuthRole = (typeof AuthRoles)[UpperCaseAuthRole];
+
+export const groupStatusArr = ["settled", "unsettled"] as const;
+
+type GroupStatusValues = (typeof groupStatusArr)[number];
+type GroupStatusType = {
+  [K in Uppercase<GroupStatusValues>]: Lowercase<K>;
+};
+
+export const GroupStatus = groupStatusArr.reduce(
+  (acc, status) => ({
+    ...acc,
+    [status.toUpperCase()]: status,
+  }),
+  {} as GroupStatusType,
+);
+
+export const splitTypeArr = ["even", "uneven", "proportional"] as const;
+
+type SplitTypeValues = (typeof splitTypeArr)[number];
+type SplitTypeType = {
+  [K in Uppercase<SplitTypeValues>]: Lowercase<K>;
+};
+
+export const SplitType = splitTypeArr.reduce(
+  (acc, type) => ({
+    ...acc,
+    [type.toUpperCase()]: type,
+  }),
+  {} as SplitTypeType,
+);
