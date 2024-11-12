@@ -2,7 +2,7 @@ import type { SQL } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import type { z } from "zod";
 
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   pgEnum,
@@ -14,6 +14,8 @@ import {
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 import { AuthRoles, authRolesArr } from "@/common/enums";
+
+import categoryModel from "./category.model";
 
 export const authRolesEnum = pgEnum("role", authRolesArr);
 
@@ -34,6 +36,10 @@ const userModel = pgTable(
   },
   table => [uniqueIndex("unique_email_idx").on(lower(table.email))],
 );
+
+export const usersRelations = relations(userModel, ({ many }) => ({
+  categories: many(categoryModel),
+}));
 
 // Schema for selecting/inserting a user
 export const selectUserSchema = createSelectSchema(userModel);
