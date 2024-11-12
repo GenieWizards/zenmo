@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1731242609778,
-      "tag": "0000_open_black_crow",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1731252209989,
-      "tag": "0001_nasty_cobalt_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1731254072910,
-      "tag": "0002_equal_grandmaster",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1731254128189,
-      "tag": "0003_colorful_virginia_dare",
+      "when": 1731427380088,
+      "tag": "0000_smart_firebrand",
       "breakpoints": true
     }
   ]

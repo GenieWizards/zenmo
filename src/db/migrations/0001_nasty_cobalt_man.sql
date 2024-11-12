@@ -1,1 +1,0 @@
-ALTER TABLE "session" ALTER COLUMN "id" SET DATA TYPE varchar(80);
