@@ -32,18 +32,18 @@ export async function createCategoryRepository(
   return category;
 }
 
-export async function getAllCategoriesAdmin() {
+export async function getAllCategoriesAdminRepository() {
   return await db.select().from(categoryModel);
 }
 
-export async function getAllCategoriesUser(userId: string) {
+export async function getAllCategoriesUserRepository(userId: string) {
   return await db
     .select()
     .from(categoryModel)
     .where(or(eq(categoryModel.userId, userId), isNull(categoryModel.userId)));
 }
 
-export async function getAdminCategory(categoryIdOrName: string) {
+export async function getAdminCategoryRepository(categoryIdOrName: string) {
   const [category] = await db
     .select()
     .from(categoryModel)

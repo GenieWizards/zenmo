@@ -11,9 +11,9 @@ import type {
 
 import {
   createCategoryRepository,
-  getAdminCategory,
-  getAllCategoriesAdmin,
-  getAllCategoriesUser,
+  getAdminCategoryRepository,
+  getAllCategoriesAdminRepository,
+  getAllCategoriesUserRepository,
   getCategoryRepository,
 } from "./category.repository";
 
@@ -38,7 +38,7 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
   let category: TSelectCategorySchema | null = null;
 
   if (user.role !== AuthRoles.USER) {
-    categoryExists = await getAdminCategory(payload.name);
+    categoryExists = await getAdminCategoryRepository(payload.name);
 
     if (categoryExists) {
       return c.json(
@@ -96,9 +96,9 @@ export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
 
   // TODO: implement pagination
   if (user?.role === AuthRoles.USER) {
-    categories = await getAllCategoriesUser(user?.id);
+    categories = await getAllCategoriesUserRepository(user?.id);
   } else {
-    categories = await getAllCategoriesAdmin();
+    categories = await getAllCategoriesAdminRepository();
   }
 
   return c.json(
