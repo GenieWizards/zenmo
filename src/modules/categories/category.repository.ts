@@ -87,7 +87,7 @@ export async function getAdminCategoryRepository(categoryIdOrName: string) {
 
 export async function getCategoryRepository(
   categoryIdOrName: string,
-  userId?: string,
+  userId?: string | undefined,
 ) {
   const conditions = [
     or(
@@ -105,6 +105,40 @@ export async function getCategoryRepository(
     .select()
     .from(categoryModel)
     .where(and(...conditions));
+
+  return category;
+}
+
+export async function getCategoryByIdOrNameRepository(
+  categoryIdOrName: string,
+  userId?: string | undefined,
+) {
+  const conditions = [
+    or(
+      eq(categoryModel.id, categoryIdOrName),
+      eq(lower(categoryModel.name), categoryIdOrName.toLowerCase()),
+    ),
+  ];
+
+  // Only add userId condition if userId is provided
+  if (userId !== undefined) {
+    const [category] = await db
+      .select()
+      .from(categoryModel)
+      .where(
+        and(
+          ...conditions,
+          or(eq(categoryModel.userId, userId), isNull(categoryModel.userId)),
+        ),
+      );
+
+    return category;
+  }
+
+  const [category] = await db
+    .select()
+    .from(categoryModel)
+    .where(or(...conditions, isNull(categoryModel.userId)));
 
   return category;
 }
