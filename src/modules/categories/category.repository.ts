@@ -1,4 +1,4 @@
-import { and, eq, isNull, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, or, sql } from "drizzle-orm";
 
 import type { TInsertCategorySchema } from "@/db/schemas/category.model";
 
@@ -7,6 +7,8 @@ import { categoryModel } from "@/db/schemas";
 import { lower } from "@/db/schemas/user.model";
 
 import type { TCategoryQuery } from "./category.schema";
+
+import { categorySortBy } from "./category.util";
 
 export async function createCategoryRepository(
   categoryPayload: TInsertCategorySchema,
@@ -42,7 +44,7 @@ export async function getAllCategoriesUserRepository(
   userId: string,
   queryParams: TCategoryQuery,
 ) {
-  const { page, limit, isActive } = queryParams;
+  const { page, limit, isActive, sortBy, sortOrder } = queryParams;
   const offset = (page - 1) * limit;
   const whereConditions = [
     or(eq(categoryModel.userId, userId), isNull(categoryModel.userId)),
@@ -52,12 +54,16 @@ export async function getAllCategoriesUserRepository(
     .select({ count: sql<number>`count(*)` })
     .from(categoryModel)
     .where(and(...whereConditions));
+
+  const sortField = categorySortBy(sortBy);
+
   const categories = await db
     .select()
     .from(categoryModel)
     .where(and(...whereConditions))
     .limit(limit)
-    .offset(offset);
+    .offset(offset)
+    .orderBy(sortOrder === "desc" ? desc(sortField) : asc(sortField));
 
   return { totalCount: totalCount[0].count, categories };
 }

@@ -19,7 +19,11 @@ export const metadataSchema = z.object({
     .positive()
     .default(10)
     .describe("Number of items per page"),
-  sortBy: z.string().optional().describe("Field to sort by"),
+  sortBy: z
+    .string()
+    .default("createdAt")
+    .optional()
+    .describe("Field to sort by"),
   sortOrder: z
     .enum(["asc", "desc"])
     .default("asc")
