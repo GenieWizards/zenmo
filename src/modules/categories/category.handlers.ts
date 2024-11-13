@@ -2,6 +2,7 @@ import type { AppRouteHandler } from "@/common/lib/types";
 import type { TSelectCategorySchema } from "@/db/schemas/category.model";
 
 import { AuthRoles } from "@/common/enums";
+import { generateMetadata } from "@/common/helpers/metadata.helper";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
 import type {
@@ -96,7 +97,6 @@ export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
   let totalCount: number = 0;
   let categories: TSelectCategorySchema[] | null = null;
 
-  // TODO: implement pagination
   if (user?.role === AuthRoles.USER) {
     const fetchedCategories = await getAllCategoriesUserRepository(
       user?.id,
@@ -109,23 +109,17 @@ export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
     categories = await getAllCategoriesAdminRepository();
   }
 
-  const totalPages = Math.ceil(totalCount / queryParams.limit);
+  const metadata = generateMetadata({
+    ...queryParams,
+    totalCount,
+  });
 
   return c.json(
     {
       success: true,
       message: "Categories retrieved successfully",
       data: categories,
-      metadata: {
-        totalCount,
-        page: queryParams.page,
-        limit: queryParams.limit,
-        sortOrder: queryParams.sortOrder,
-        totalPages,
-        hasNextPage: queryParams.page < totalPages,
-        hasPrevPage: queryParams.page > 1,
-        curentCount: categories.length,
-      },
+      metadata,
     },
     HTTPStatusCodes.OK,
   );
