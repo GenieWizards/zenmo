@@ -1,1 +1,2 @@
+bun check-types
 bun lint:fix
