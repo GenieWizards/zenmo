@@ -1,10 +1,12 @@
-import { and, eq, isNull, or } from "drizzle-orm";
+import { and, eq, isNull, or, sql } from "drizzle-orm";
 
 import type { TInsertCategorySchema } from "@/db/schemas/category.model";
 
 import { db } from "@/db/adapter";
 import { categoryModel } from "@/db/schemas";
 import { lower } from "@/db/schemas/user.model";
+
+import type { TCategoryQuery } from "./category.schema";
 
 export async function createCategoryRepository(
   categoryPayload: TInsertCategorySchema,
@@ -36,11 +38,28 @@ export async function getAllCategoriesAdminRepository() {
   return await db.select().from(categoryModel);
 }
 
-export async function getAllCategoriesUserRepository(userId: string) {
-  return await db
+export async function getAllCategoriesUserRepository(
+  userId: string,
+  queryParams: TCategoryQuery,
+) {
+  const { page, limit, isActive } = queryParams;
+  const offset = (page - 1) * limit;
+  const whereConditions = [
+    or(eq(categoryModel.userId, userId), isNull(categoryModel.userId)),
+    eq(categoryModel.isActive, isActive),
+  ];
+  const totalCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(categoryModel)
+    .where(and(...whereConditions));
+  const categories = await db
     .select()
     .from(categoryModel)
-    .where(or(eq(categoryModel.userId, userId), isNull(categoryModel.userId)));
+    .where(and(...whereConditions))
+    .limit(limit)
+    .offset(offset);
+
+  return { totalCount: totalCount[0].count, categories };
 }
 
 export async function getAdminCategoryRepository(categoryIdOrName: string) {

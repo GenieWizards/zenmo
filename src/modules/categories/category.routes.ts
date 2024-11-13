@@ -9,11 +9,14 @@ import {
   checkRoleGuard,
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
+import { metadataSchema } from "@/common/schema/metadata.schema";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import {
   insertCategorySchema,
   selectCategorySchema,
 } from "@/db/schemas/category.model";
+
+import { categoryQuerySchema } from "./category.schema";
 
 const tags = ["Categories"];
 
@@ -82,12 +85,16 @@ export const getCategoriesRoute = createRoute({
   method: "get",
   path: "/categories",
   middleware: [authMiddleware()] as const,
+  request: {
+    query: categoryQuerySchema,
+  },
   responses: {
     [HTTPStatusCodes.OK]: jsonContent(
       z.object({
         success: z.boolean().default(true),
         message: z.string(),
         data: z.array(selectCategorySchema),
+        metadata: metadataSchema,
       }),
       "Categories retrieved successfully",
     ),

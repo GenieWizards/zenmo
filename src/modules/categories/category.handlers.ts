@@ -91,21 +91,41 @@ export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
   c,
 ) => {
   const user = c.get("user");
+  const queryParams = c.req.valid("query");
 
+  let totalCount: number = 0;
   let categories: TSelectCategorySchema[] | null = null;
 
   // TODO: implement pagination
   if (user?.role === AuthRoles.USER) {
-    categories = await getAllCategoriesUserRepository(user?.id);
+    const fetchedCategories = await getAllCategoriesUserRepository(
+      user?.id,
+      queryParams,
+    );
+
+    categories = fetchedCategories.categories;
+    totalCount = fetchedCategories.totalCount;
   } else {
     categories = await getAllCategoriesAdminRepository();
   }
+
+  const totalPages = Math.ceil(totalCount / queryParams.limit);
 
   return c.json(
     {
       success: true,
       message: "Categories retrieved successfully",
       data: categories,
+      metadata: {
+        totalCount,
+        page: queryParams.page,
+        limit: queryParams.limit,
+        sortOrder: queryParams.sortOrder,
+        totalPages,
+        hasNextPage: queryParams.page < totalPages,
+        hasPrevPage: queryParams.page > 1,
+        curentCount: categories.length,
+      },
     },
     HTTPStatusCodes.OK,
   );
