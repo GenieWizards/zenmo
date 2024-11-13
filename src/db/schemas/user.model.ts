@@ -42,8 +42,32 @@ export const usersRelations = relations(userModel, ({ many }) => ({
 }));
 
 // Schema for selecting/inserting a user
-export const selectUserSchema = createSelectSchema(userModel);
-export const insertUserSchema = createInsertSchema(userModel);
+export const selectUserSchema = createSelectSchema(userModel, {
+  id: schema => schema.id.describe("Unique identifier for the user"),
+  email: schema => schema.email.describe("User's email address (unique)"),
+  emailVerified: schema =>
+    schema.emailVerified.describe("Whether the user's email has been verified"),
+  fullName: schema => schema.fullName.describe("User's full name"),
+  role: schema =>
+    schema.role.describe("User's role in the system (e.g., USER, ADMIN)"),
+  createdAt: schema =>
+    schema.createdAt.describe("Timestamp when the user was created"),
+  updatedAt: schema =>
+    schema.updatedAt.describe("Timestamp when the user was last updated"),
+});
+export const insertUserSchema = createInsertSchema(userModel, {
+  id: schema => schema.id.describe("Unique identifier for the user"),
+  email: schema => schema.email.describe("User's email address (unique)"),
+  emailVerified: schema =>
+    schema.emailVerified.describe("Whether the user's email has been verified"),
+  fullName: schema => schema.fullName.describe("User's full name"),
+  role: schema =>
+    schema.role.describe("User's role in the system (e.g., USER, ADMIN)"),
+  createdAt: schema =>
+    schema.createdAt.describe("Timestamp when the user was created"),
+  updatedAt: schema =>
+    schema.updatedAt.describe("Timestamp when the user was last updated"),
+});
 
 export type TSelectUserSchema = z.infer<typeof selectUserSchema>;
 export type TInsertUserSchema = z.infer<typeof insertUserSchema>;

@@ -48,8 +48,36 @@ export const categoryRelations = relations(categoryModel, ({ one }) => ({
 }));
 
 // Schema for selecting/inserting a category
-export const selectCategorySchema = createSelectSchema(categoryModel);
-export const insertCategorySchema = createInsertSchema(categoryModel);
+export const selectCategorySchema = createSelectSchema(categoryModel, {
+  id: schema => schema.id.describe("Unique identifier for the category"),
+  name: schema => schema.name.min(2).describe("Name of the category"),
+  description: schema =>
+    schema.description.describe("Detailed description of the category"),
+  userId: schema =>
+    schema.userId.describe("ID of the user who owns this category (If any)"),
+  isActive: schema =>
+    schema.isActive.describe("Whether the category is active or archived"),
+  icon: schema => schema.icon.describe("Icon identifier for the category"),
+  createdAt: schema =>
+    schema.createdAt.describe("Timestamp when the category was created"),
+  updatedAt: schema =>
+    schema.updatedAt.describe("Timestamp when the category was last updated"),
+});
+export const insertCategorySchema = createInsertSchema(categoryModel, {
+  id: schema => schema.id.describe("Unique identifier for the category"),
+  name: schema => schema.name.min(2).describe("Name of the category"),
+  description: schema =>
+    schema.description.describe("Detailed description of the category"),
+  userId: schema =>
+    schema.userId.describe("ID of the user who owns this category (If any)"),
+  isActive: schema =>
+    schema.isActive.describe("Whether the category is active or archived"),
+  icon: schema => schema.icon.describe("Icon identifier for the category"),
+  createdAt: schema =>
+    schema.createdAt.describe("Timestamp when the category was created"),
+  updatedAt: schema =>
+    schema.updatedAt.describe("Timestamp when the category was last updated"),
+});
 
 export type TSelectCategorySchema = z.infer<typeof selectCategorySchema>;
 export type TInsertCategorySchema = z.infer<typeof insertCategorySchema>;

@@ -50,8 +50,54 @@ const expenseModel = pgTable("expense", {
 });
 
 // Schema for selecting/inserting a expense
-export const selectExpenseSchema = createSelectSchema(expenseModel);
-export const insertExpenseSchema = createInsertSchema(expenseModel);
+export const selectExpenseSchema = createSelectSchema(expenseModel, {
+  id: schema => schema.id.describe("Unique identifier for the expense"),
+  payerId: schema =>
+    schema.payerId.describe("Reference to the user who paid for the expense"),
+  categoryId: schema =>
+    schema.categoryId.describe("Reference to the category of the expense"),
+  groupId: schema =>
+    schema.groupId.describe(
+      "Reference to the group the expense belongs to (optional)",
+    ),
+  amount: schema => schema.amount.describe("Amount of the expense"),
+  currency: schema =>
+    schema.currency.describe("Three-letter currency code (e.g., USD, INR)"),
+  splitType: schema =>
+    schema.splitType.describe(
+      "Type of split applied to the expense (equal, percentage, etc)",
+    ),
+  description: schema =>
+    schema.description.describe("Additional details about the expense"),
+  createdAt: schema =>
+    schema.createdAt.describe("Timestamp when the expense was created"),
+  updatedAt: schema =>
+    schema.updatedAt.describe("Timestamp when the expense was last updated"),
+});
+export const insertExpenseSchema = createInsertSchema(expenseModel, {
+  id: schema => schema.id.describe("Unique identifier for the expense"),
+  payerId: schema =>
+    schema.payerId.describe("Reference to the user who paid for the expense"),
+  categoryId: schema =>
+    schema.categoryId.describe("Reference to the category of the expense"),
+  groupId: schema =>
+    schema.groupId.describe(
+      "Reference to the group the expense belongs to (optional)",
+    ),
+  amount: schema => schema.amount.describe("Amount of the expense"),
+  currency: schema =>
+    schema.currency.describe("Three-letter currency code (e.g., USD, INR)"),
+  splitType: schema =>
+    schema.splitType.describe(
+      "Type of split applied to the expense (equal, percentage, etc)",
+    ),
+  description: schema =>
+    schema.description.describe("Additional details about the expense"),
+  createdAt: schema =>
+    schema.createdAt.describe("Timestamp when the expense was created"),
+  updatedAt: schema =>
+    schema.updatedAt.describe("Timestamp when the expense was last updated"),
+});
 
 export type TSelectExpenseSchema = z.infer<typeof selectExpenseSchema>;
 export type TInsertExpenseSchema = z.infer<typeof insertExpenseSchema>;
