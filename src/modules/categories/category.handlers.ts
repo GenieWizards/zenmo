@@ -8,6 +8,7 @@ import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import type {
   TCreateCategoryRoute,
   TGetCategoriesRoute,
+  TGetCategoryRoute,
 } from "./category.routes";
 
 import {
@@ -15,6 +16,7 @@ import {
   getAdminCategoryRepository,
   getAllCategoriesAdminRepository,
   getAllCategoriesUserRepository,
+  getCategoryByIdOrNameRepository,
   getCategoryRepository,
 } from "./category.repository";
 
@@ -120,6 +122,35 @@ export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
       message: "Categories retrieved successfully",
       data: categories,
       metadata,
+    },
+    HTTPStatusCodes.OK,
+  );
+};
+
+export const getCategory: AppRouteHandler<TGetCategoryRoute> = async (c) => {
+  const user = c.get("user");
+  const params = c.req.valid("param");
+
+  const category = await getCategoryByIdOrNameRepository(
+    params.category,
+    user?.id,
+  );
+
+  if (!category) {
+    return c.json(
+      {
+        success: false,
+        message: "Category not found",
+      },
+      HTTPStatusCodes.NOT_FOUND,
+    );
+  }
+
+  return c.json(
+    {
+      success: true,
+      message: "Category retrieved successfully",
+      data: category,
     },
     HTTPStatusCodes.OK,
   );

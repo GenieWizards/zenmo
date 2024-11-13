@@ -15,6 +15,11 @@ export const categoryQuerySchema = commonQuerySchema.merge(
       .optional()
       .default(true)
       .describe("Filter by active status"),
+    sortBy: z
+      .enum(["name", "createdAt", "updatedAt"])
+      .optional()
+      .default("createdAt")
+      .describe("Sort by field"),
   }),
 );
 

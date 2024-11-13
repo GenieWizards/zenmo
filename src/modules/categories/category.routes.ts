@@ -104,11 +104,11 @@ export const getCategoriesRoute = createRoute({
 export const getCategoryRoute = createRoute({
   tags,
   method: "get",
-  path: "/categories/:id",
+  path: "/categories/:category",
   middleware: [authMiddleware()] as const,
   request: {
     params: z.object({
-      id: z.string(),
+      category: z.string(),
     }),
   },
   responses: {
