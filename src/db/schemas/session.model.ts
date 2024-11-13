@@ -20,8 +20,32 @@ const sessionModel = pgTable("session", {
 });
 
 // Schema for selecting/inserting a session
-export const selectSessionSchema = createSelectSchema(sessionModel);
-export const insertSessionSchema = createInsertSchema(sessionModel);
+export const selectSessionSchema = createSelectSchema(sessionModel, {
+  id: schema => schema.id.describe("Unique identifier for the session"),
+  expiresAt: schema =>
+    schema.expiresAt.describe("Timestamp when the session expires"),
+  ipAddress: schema =>
+    schema.ipAddress.describe(
+      "IP address of the client when session was created",
+    ),
+  userAgent: schema =>
+    schema.userAgent.describe("Browser/client user agent string"),
+  userId: schema =>
+    schema.userId.describe("Reference to the user this session belongs to"),
+});
+export const insertSessionSchema = createInsertSchema(sessionModel, {
+  id: schema => schema.id.describe("Unique identifier for the session"),
+  expiresAt: schema =>
+    schema.expiresAt.describe("Timestamp when the session expires"),
+  ipAddress: schema =>
+    schema.ipAddress.describe(
+      "IP address of the client when session was created",
+    ),
+  userAgent: schema =>
+    schema.userAgent.describe("Browser/client user agent string"),
+  userId: schema =>
+    schema.userId.describe("Reference to the user this session belongs to"),
+});
 
 export type TSelectSessionSchema = z.infer<typeof selectSessionSchema>;
 export type TInsertSessionSchema = z.infer<typeof insertSessionSchema>;

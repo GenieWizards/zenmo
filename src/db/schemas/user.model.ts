@@ -2,7 +2,7 @@ import type { SQL } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import type { z } from "zod";
 
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   pgEnum,
@@ -14,6 +14,8 @@ import {
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 import { AuthRoles, authRolesArr } from "@/common/enums";
+
+import categoryModel from "./category.model";
 
 export const authRolesEnum = pgEnum("role", authRolesArr);
 
@@ -35,9 +37,37 @@ const userModel = pgTable(
   table => [uniqueIndex("unique_email_idx").on(lower(table.email))],
 );
 
+export const usersRelations = relations(userModel, ({ many }) => ({
+  categories: many(categoryModel),
+}));
+
 // Schema for selecting/inserting a user
-export const selectUserSchema = createSelectSchema(userModel);
-export const insertUserSchema = createInsertSchema(userModel);
+export const selectUserSchema = createSelectSchema(userModel, {
+  id: schema => schema.id.describe("Unique identifier for the user"),
+  email: schema => schema.email.describe("User's email address (unique)"),
+  emailVerified: schema =>
+    schema.emailVerified.describe("Whether the user's email has been verified"),
+  fullName: schema => schema.fullName.describe("User's full name"),
+  role: schema =>
+    schema.role.describe("User's role in the system (e.g., USER, ADMIN)"),
+  createdAt: schema =>
+    schema.createdAt.describe("Timestamp when the user was created"),
+  updatedAt: schema =>
+    schema.updatedAt.describe("Timestamp when the user was last updated"),
+});
+export const insertUserSchema = createInsertSchema(userModel, {
+  id: schema => schema.id.describe("Unique identifier for the user"),
+  email: schema => schema.email.describe("User's email address (unique)"),
+  emailVerified: schema =>
+    schema.emailVerified.describe("Whether the user's email has been verified"),
+  fullName: schema => schema.fullName.describe("User's full name"),
+  role: schema =>
+    schema.role.describe("User's role in the system (e.g., USER, ADMIN)"),
+  createdAt: schema =>
+    schema.createdAt.describe("Timestamp when the user was created"),
+  updatedAt: schema =>
+    schema.updatedAt.describe("Timestamp when the user was last updated"),
+});
 
 export type TSelectUserSchema = z.infer<typeof selectUserSchema>;
 export type TInsertUserSchema = z.infer<typeof insertUserSchema>;

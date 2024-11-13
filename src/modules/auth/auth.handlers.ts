@@ -3,7 +3,11 @@ import { deleteCookie, setCookie } from "hono/cookie";
 import type { AppRouteHandler } from "@/common/lib/types";
 
 import { AuthRoles } from "@/common/enums";
-import { hashPassword, verifyPasswordHash } from "@/common/utils/crypto.lib";
+import {
+  hashPassword,
+  verifyPasswordHash,
+  verifyPasswordStrength,
+} from "@/common/utils/crypto.lib";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { generateSessionToken } from "@/common/utils/sessions.util";
 import { db } from "@/db/adapter";
@@ -30,17 +34,17 @@ import {
 export const register: AppRouteHandler<TRegisterRoute> = async (c) => {
   const payload = c.req.valid("json");
 
-  // NOTE: Checks for password strength
-  // const strongPassword = await verifyPasswordStrength(payload.password);
-  // if (!strongPassword) {
-  //   return c.json(
-  //     {
-  //       success: false,
-  //       message: "Password is not strong enough",
-  //     },
-  //     HTTPStatusCodes.BAD_REQUEST,
-  //   );
-  // }
+  // Checks for password strength
+  const strongPassword = await verifyPasswordStrength(payload.password);
+  if (!strongPassword) {
+    return c.json(
+      {
+        success: false,
+        message: "Password is not strong enough",
+      },
+      HTTPStatusCodes.BAD_REQUEST,
+    );
+  }
 
   // Check if user exists
   const existingUser = await getUserByEmailRepository(payload.email);

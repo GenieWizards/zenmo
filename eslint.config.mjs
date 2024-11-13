@@ -30,9 +30,17 @@ export default antfu(
         "error",
         {
           case: "kebabCase",
-          ignore: ["README.md"],
+          ignore: ["README.md", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md"],
         },
       ],
+      "@stylistic/brace-style": ["error", "1tbs", { allowSingleLine: true }],
+    },
+  },
+  // Override for specific folder
+  {
+    files: ["src/db/migrations/**/*"],
+    rules: {
+      "unicorn/filename-case": "off",
     },
   },
 );
