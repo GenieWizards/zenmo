@@ -23,10 +23,12 @@ import {
 export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
   c,
 ) => {
+  const logger = c.get("logger");
   const user = c.get("user");
   const payload = c.req.valid("json");
 
   if (!user) {
+    logger.debug("User is not authorized to create category");
     return c.json(
       {
         success: false,
@@ -44,6 +46,7 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
     categoryExists = await getAdminCategoryRepository(payload.name);
 
     if (categoryExists) {
+      logger.debug("Category already exists");
       return c.json(
         {
           success: false,
@@ -58,6 +61,7 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
     categoryExists = await getCategoryRepository(payload.name, user.id);
 
     if (categoryExists) {
+      logger.debug("Category already exists");
       return c.json(
         {
           success: false,
@@ -71,6 +75,7 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
   }
 
   if (!category) {
+    logger.error("Failed to create category");
     return c.json(
       {
         success: false,
@@ -79,6 +84,8 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
       HTTPStatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
+
+  logger.debug(`Category created successfully with name ${category.name}`);
 
   return c.json(
     {
@@ -93,6 +100,7 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
 export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
   c,
 ) => {
+  const logger = c.get("logger");
   const user = c.get("user");
   const queryParams = c.req.valid("query");
 
@@ -116,6 +124,7 @@ export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
     totalCount,
   });
 
+  logger.info("Categories retrieved successfully");
   return c.json(
     {
       success: true,
@@ -128,15 +137,20 @@ export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
 };
 
 export const getCategory: AppRouteHandler<TGetCategoryRoute> = async (c) => {
+  const logger = c.get("logger");
   const user = c.get("user");
   const params = c.req.valid("param");
 
-  const category = await getCategoryByIdOrNameRepository(
-    params.category,
-    user?.id,
-  );
+  let category: TSelectCategorySchema | null = null;
+
+  if (user?.role !== AuthRoles.USER) {
+    category = await getCategoryByIdOrNameRepository(params.category);
+  } else {
+    category = await getCategoryByIdOrNameRepository(params.category, user?.id);
+  }
 
   if (!category) {
+    logger.debug("Category not found");
     return c.json(
       {
         success: false,
