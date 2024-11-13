@@ -1,22 +1,49 @@
 import { z } from "zod";
 
 export const metadataSchema = z.object({
-  total: z.number().int().nonnegative().describe("Total number of records"),
-  page: z.number().int().positive().optional().describe("Current page number"),
-  limit: z
+  totalCount: z.coerce
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe("Total number of records"),
+  page: z.coerce
     .number()
     .int()
     .positive()
-    .optional()
+    .default(1)
+    .describe("Current page number"),
+  limit: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(10)
     .describe("Number of items per page"),
   sortBy: z.string().optional().describe("Field to sort by"),
-  sortOrder: z.enum(["asc", "desc"]).optional().describe("Sort order"),
-  totalPages: z.number().int().nonnegative().describe("Total number of pages"),
-  hasNextPage: z.boolean().describe("Whether there is a next page"),
-  hasPrevPage: z.boolean().describe("Whether there is a previous page"),
+  sortOrder: z
+    .enum(["asc", "desc"])
+    .default("asc")
+    .optional()
+    .describe("Sort order"),
+  totalPages: z.coerce
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe("Total number of pages"),
+  hasNextPage: z.boolean().optional().describe("Whether there is a next page"),
+  hasPrevPage: z
+    .boolean()
+    .optional()
+    .describe("Whether there is a previous page"),
   // Optional additional metadata fields that might be useful
-  offset: z.number().int().nonnegative().optional().describe("Current offset"),
-  count: z
+  offset: z.coerce
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe("Current offset"),
+  currentCount: z.coerce
     .number()
     .int()
     .nonnegative()
@@ -24,8 +51,16 @@ export const metadataSchema = z.object({
     .describe("Number of items in current page"),
 });
 
+export const commonQuerySchema = metadataSchema.omit({
+  totalCount: true,
+  totalPages: true,
+  hasNextPage: true,
+  hasPrevPage: true,
+  currentCount: true,
+});
+
 export type TMetadata = z.infer<typeof metadataSchema>;
-export type TQueryMetadataSchema = Omit<
+export type TCommonQueryMetadata = Omit<
   TMetadata,
-  "total" | "totalPages" | "hasNextPage" | "hasPrevPage" | "count"
+  "totalCount" | "totalPages" | "hasNextPage" | "hasPrevPage" | "currentCount"
 >;
