@@ -1,1 +1,0 @@
-ALTER TABLE "account" ALTER COLUMN "id" SET DATA TYPE varchar(60);

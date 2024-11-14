@@ -10,15 +10,13 @@ A backend repository for the finance management system.
 - [Check API Documentation](#check-api-documentation)
 - [Database Migrations](#database-migrations)
 
-   
-
 ## Tech Stack
 
 - **Language:** TypeScript ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
 - **Runtime:** Bun ![Bun](https://img.shields.io/badge/Bun-000000?style=flat&logo=bun&logoColor=white)
 - **Package Manager:** Bun ![Bun](https://img.shields.io/badge/Bun-000000?style=flat&logo=bun&logoColor=white)
 - **Auth:** Lucia Auth ![Lucia Auth](https://img.shields.io/badge/Lucia_Auth-4B8BBE?style=flat&logo=auth0&logoColor=white)
-- **Database:** PostgreSQL ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white) 
+- **Database:** PostgreSQL ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white)
 - **ORM/ODM:** Drizzle ![Drizzle](https://img.shields.io/badge/Drizzle-000000?style=flat&logo=drizzle&logoColor=white)
 - **Testing:** Bun ![Bun](https://img.shields.io/badge/Bun-000000?style=flat&logo=bun&logoColor=white)
 - **Documentation:** OpenAPI/Scalar ![OpenAPI](https://img.shields.io/badge/OpenAPI-6BA539?style=flat&logo=openapi-initiative&logoColor=white) ![Scalar](https://img.shields.io/badge/Scalar-000000?style=flat&logo=scalar&logoColor=white)

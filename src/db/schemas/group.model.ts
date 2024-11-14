@@ -30,8 +30,34 @@ const groupModel = pgTable("group", {
 });
 
 // Schema for selecting/inserting a group
-export const selectGroupSchema = createSelectSchema(groupModel);
-export const insertGroupSchema = createInsertSchema(groupModel);
+export const selectGroupSchema = createSelectSchema(groupModel, {
+  id: schema => schema.id.describe("Unique identifier for the group"),
+  name: schema => schema.name.describe("Name of the group"),
+  creatorId: schema =>
+    schema.creatorId.describe("Reference to the user who created the group"),
+  status: schema =>
+    schema.status.describe(
+      "Current status of the group (settled or unsettled)",
+    ),
+  createdAt: schema =>
+    schema.createdAt.describe("Timestamp when the group was created"),
+  updatedAt: schema =>
+    schema.updatedAt.describe("Timestamp when the group was last updated"),
+});
+export const insertGroupSchema = createInsertSchema(groupModel, {
+  id: schema => schema.id.describe("Unique identifier for the group"),
+  name: schema => schema.name.describe("Name of the group"),
+  creatorId: schema =>
+    schema.creatorId.describe("Reference to the user who created the group"),
+  status: schema =>
+    schema.status.describe(
+      "Current status of the group (settled or unsettled)",
+    ),
+  createdAt: schema =>
+    schema.createdAt.describe("Timestamp when the group was created"),
+  updatedAt: schema =>
+    schema.updatedAt.describe("Timestamp when the group was last updated"),
+});
 
 export type TSelectGroupSchema = z.infer<typeof selectGroupSchema>;
 export type TInsertGroupSchema = z.infer<typeof insertGroupSchema>;

@@ -1,6 +1,6 @@
 import { createRoute, z } from "@hono/zod-openapi";
 
-import jsonContentRequired from "@/common/helpers/json-content-required";
+import jsonContentRequired from "@/common/helpers/json-content-required.helper";
 import { jsonContent } from "@/common/helpers/json-content.helper";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertUserSchema, selectUserSchema } from "@/db/schemas/user.model";
