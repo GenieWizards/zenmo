@@ -132,7 +132,7 @@ export const login: AppRouteHandler<TLoginRoute> = async (c) => {
 
   const account = await getAccountRepository(user.id, "credentials");
 
-  if (!account || !account.password) {
+  if (!account?.password) {
     return c.json(
       {
         success: false,

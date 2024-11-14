@@ -2,11 +2,13 @@ import type { AppRouteHandler } from "@/common/lib/types";
 import type { TSelectCategorySchema } from "@/db/schemas/category.model";
 
 import { AuthRoles } from "@/common/enums";
+import { generateMetadata } from "@/common/helpers/metadata.helper";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
 import type {
   TCreateCategoryRoute,
   TGetCategoriesRoute,
+  TGetCategoryRoute,
 } from "./category.routes";
 
 import {
@@ -14,16 +16,19 @@ import {
   getAdminCategoryRepository,
   getAllCategoriesAdminRepository,
   getAllCategoriesUserRepository,
+  getCategoryByIdOrNameRepository,
   getCategoryRepository,
 } from "./category.repository";
 
 export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
   c,
 ) => {
+  const logger = c.get("logger");
   const user = c.get("user");
   const payload = c.req.valid("json");
 
   if (!user) {
+    logger.debug("User is not authorized to create category");
     return c.json(
       {
         success: false,
@@ -41,6 +46,7 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
     categoryExists = await getAdminCategoryRepository(payload.name);
 
     if (categoryExists) {
+      logger.debug("Category already exists");
       return c.json(
         {
           success: false,
@@ -55,6 +61,7 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
     categoryExists = await getCategoryRepository(payload.name, user.id);
 
     if (categoryExists) {
+      logger.debug("Category already exists");
       return c.json(
         {
           success: false,
@@ -68,6 +75,7 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
   }
 
   if (!category) {
+    logger.error("Failed to create category");
     return c.json(
       {
         success: false,
@@ -76,6 +84,8 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
       HTTPStatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
+
+  logger.debug(`Category created successfully with name ${category.name}`);
 
   return c.json(
     {
@@ -90,13 +100,13 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
 export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
   c,
 ) => {
+  const logger = c.get("logger");
   const user = c.get("user");
   const queryParams = c.req.valid("query");
 
   let totalCount: number = 0;
   let categories: TSelectCategorySchema[] | null = null;
 
-  // TODO: implement pagination
   if (user?.role === AuthRoles.USER) {
     const fetchedCategories = await getAllCategoriesUserRepository(
       user?.id,
@@ -109,23 +119,52 @@ export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
     categories = await getAllCategoriesAdminRepository();
   }
 
-  const totalPages = Math.ceil(totalCount / queryParams.limit);
+  const metadata = generateMetadata({
+    ...queryParams,
+    totalCount,
+  });
 
+  logger.info("Categories retrieved successfully");
   return c.json(
     {
       success: true,
       message: "Categories retrieved successfully",
       data: categories,
-      metadata: {
-        totalCount,
-        page: queryParams.page,
-        limit: queryParams.limit,
-        sortOrder: queryParams.sortOrder,
-        totalPages,
-        hasNextPage: queryParams.page < totalPages,
-        hasPrevPage: queryParams.page > 1,
-        curentCount: categories.length,
+      metadata,
+    },
+    HTTPStatusCodes.OK,
+  );
+};
+
+export const getCategory: AppRouteHandler<TGetCategoryRoute> = async (c) => {
+  const logger = c.get("logger");
+  const user = c.get("user");
+  const params = c.req.valid("param");
+
+  let category: TSelectCategorySchema | null = null;
+
+  if (user?.role !== AuthRoles.USER) {
+    category = await getCategoryByIdOrNameRepository(params.category);
+  } else {
+    category = await getCategoryByIdOrNameRepository(params.category, user?.id);
+  }
+
+  if (!category) {
+    logger.debug("Category not found");
+    return c.json(
+      {
+        success: false,
+        message: "Category not found",
       },
+      HTTPStatusCodes.NOT_FOUND,
+    );
+  }
+
+  return c.json(
+    {
+      success: true,
+      message: "Category retrieved successfully",
+      data: category,
     },
     HTTPStatusCodes.OK,
   );
