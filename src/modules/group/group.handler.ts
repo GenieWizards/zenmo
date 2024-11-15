@@ -13,7 +13,7 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   const logger = c.get("logger");
 
   if (!user) {
-    logger.debug("User is not authorized to create group");
+    logger.error("User is not authorized to create group");
     return c.json(
       {
         success: false,
@@ -26,7 +26,7 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   const group: TSelectGroupSchema | null = await createGroupRepository(payload);
 
   if (!group) {
-    logger.debug("Failed to create group");
+    logger.error("Failed to create group");
     return c.json(
       {
         success: false,
@@ -54,7 +54,7 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
   const logger = c.get("logger");
 
   if (!user) {
-    logger.debug("User is not authorized to delete group");
+    logger.error("User is not authorized to delete group");
     return c.json(
       {
         success: false,
@@ -67,7 +67,7 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
   const deletedGroupId: string | null = await deleteGroupRepository(params.id);
 
   if (!deletedGroupId) {
-    logger.debug(`Group with ${params.id} not found`);
+    logger.error(`Group with ${params.id} not found`);
     return c.json(
       {
         success: false,
