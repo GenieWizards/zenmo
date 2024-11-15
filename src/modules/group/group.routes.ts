@@ -13,7 +13,7 @@ const tags = ["Groups"];
 export const createGroupRoute = createRoute({
   tags,
   method: "post",
-  path: "/groups",
+  path: "/group",
   middleware: [
     authMiddleware(),
     requireAuth(),
@@ -63,4 +63,58 @@ export const createGroupRoute = createRoute({
   },
 });
 
+export const deleteGroupRoute = createRoute({
+  tags,
+  method: "delete",
+  path: "group/:id",
+  middleware: [
+    authMiddleware(),
+    requireAuth(),
+    checkRoleGuard(AuthRoles.ADMIN, AuthRoles.USER),
+  ] as const,
+  request: {
+    params: z.object({
+      id: z.string(),
+    }),
+  },
+  responses: {
+    [HTTPStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean().default(true),
+        message: z.string(),
+      }),
+      "Group deleted successfully",
+    ),
+    [HTTPStatusCodes.NOT_FOUND]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Group with id does not exist",
+    ),
+    [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "You are not authorized, please login",
+    ),
+    [HTTPStatusCodes.FORBIDDEN]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "You are not allowed to perform this action",
+    ),
+    [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Something went wrong, please try again later",
+    ),
+  },
+});
+
 export type TCreateGroupRoute = typeof createGroupRoute;
+export type TDeleteGroupRoute = typeof deleteGroupRoute;

@@ -1,3 +1,5 @@
+import { eq } from "drizzle-orm";
+
 import type { TInsertGroupSchema } from "@/db/schemas/group.model";
 
 import { db } from "@/db/adapter";
@@ -12,4 +14,15 @@ export async function createGroupRepository(
     .returning();
 
   return group;
+}
+
+export async function deleteGroupRepository(
+  groupId: string,
+) {
+  const [deletedGroups] = await db
+    .delete(groupModel)
+    .where(eq(groupModel.id, groupId))
+    .returning();
+
+  return deletedGroups?.id || null;
 }
