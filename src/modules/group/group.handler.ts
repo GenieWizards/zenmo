@@ -10,8 +10,10 @@ import { createGroupRepository, deleteGroupRepository } from "./group.repository
 export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   const user = c.get("user");
   const payload = c.req.valid("json");
+  const logger = c.get("logger");
 
   if (!user) {
+    logger.debug("User is not authorized to create group");
     return c.json(
       {
         success: false,
@@ -21,10 +23,10 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     );
   }
 
-  let group: TSelectGroupSchema | null = null;
-  group = await createGroupRepository(payload);
+  const group: TSelectGroupSchema | null = await createGroupRepository(payload);
 
   if (!group) {
+    logger.debug("Failed to create group");
     return c.json(
       {
         success: false,
@@ -33,6 +35,8 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
       HTTPStatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
+
+  logger.debug(`Group created successfully with name ${group.name}`);
 
   return c.json(
     {
@@ -47,8 +51,10 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
 export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
   const user = c.get("user");
   const params = c.req.valid("param");
+  const logger = c.get("logger");
 
   if (!user) {
+    logger.debug("User is not authorized to delete group");
     return c.json(
       {
         success: false,
@@ -58,10 +64,10 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
     );
   }
 
-  let deletedGroupId: string | null = null;
-  deletedGroupId = await deleteGroupRepository(params.id);
+  const deletedGroupId: string | null = await deleteGroupRepository(params.id);
 
   if (!deletedGroupId) {
+    logger.debug(`Group with ${params.id} not found`);
     return c.json(
       {
         success: false,
@@ -70,6 +76,8 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
       HTTPStatusCodes.NOT_FOUND,
     );
   }
+
+  logger.debug(`Group with ${deletedGroupId} deleted successfully`);
 
   return c.json(
     {
