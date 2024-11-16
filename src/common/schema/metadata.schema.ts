@@ -19,6 +19,7 @@ export const metadataSchema = z.object({
     .positive()
     .default(10)
     .describe("Number of items per page"),
+  search: z.string().optional().describe("Search query"),
   sortBy: z
     .string()
     .default("createdAt")
