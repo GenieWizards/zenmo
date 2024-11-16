@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, isNull, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
 
 import type { TInsertCategorySchema } from "@/db/schemas/category.model";
 
@@ -44,12 +44,19 @@ export async function getAllCategoriesUserRepository(
   userId: string,
   queryParams: TCategoryQuery,
 ) {
-  const { page, limit, isActive, sortBy, sortOrder } = queryParams;
+  const { page, limit, isActive, sortBy, sortOrder, search } = queryParams;
   const offset = (page - 1) * limit;
   const whereConditions = [
     or(eq(categoryModel.userId, userId), isNull(categoryModel.userId)),
     eq(categoryModel.isActive, isActive),
   ];
+
+  if (search) {
+    whereConditions.push(
+      ilike(categoryModel.name, `%${search.toLowerCase()}%`),
+    );
+  }
+
   const totalCount = await db
     .select({ count: sql<number>`count(*)` })
     .from(categoryModel)
