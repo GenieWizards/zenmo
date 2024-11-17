@@ -192,6 +192,13 @@ export const updateCategoryRoute = createRoute({
       }),
       "You are not allowed to perform this action",
     ),
+    [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Failed to update category",
+    ),
   },
 });
 

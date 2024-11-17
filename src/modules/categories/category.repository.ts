@@ -193,16 +193,11 @@ export async function getCategoryByIdOrNameRepository(
   return category;
 }
 
-export async function updateCategoryByIdAndUserIdRepository(
+export async function updateCategoryByIdRepository(
   categoryId: string,
   categoryPayload: Partial<TInsertCategorySchema>,
-  userId?: string,
 ) {
   const whereCondition = [eq(categoryModel.id, categoryId)];
-
-  if (userId) {
-    whereCondition.push(eq(categoryModel.userId, userId));
-  }
 
   categoryPayload.name = categoryPayload?.name?.toLowerCase();
   categoryPayload.updatedAt = new Date();
