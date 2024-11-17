@@ -13,7 +13,6 @@ export const categoryQuerySchema = commonQuerySchema.merge(
         return val;
       })
       .optional()
-      .default(true)
       .describe("Filter by active status"),
     sortBy: z
       .enum(["name", "createdAt", "updatedAt"])

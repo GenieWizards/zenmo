@@ -1,3 +1,5 @@
+import type { SQL } from "drizzle-orm";
+
 import { and, asc, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
 
 import type { TInsertCategorySchema } from "@/db/schemas/category.model";
@@ -36,15 +38,56 @@ export async function createCategoryRepository(
   return category;
 }
 
-export async function getAllCategoriesAdminRepository() {
-  return await db.select().from(categoryModel);
+export async function getAllCategoriesAdminRepository(
+  queryParams: TCategoryQuery,
+) {
+  const { page, limit, isActive, sortBy, sortOrder, search } = queryParams;
+  const offset = (page - 1) * limit;
+  const whereConditions: SQL<unknown>[] = [];
+
+  if (search) {
+    whereConditions.push(
+      ilike(categoryModel.name, `%${search.toLowerCase()}%`),
+    );
+  }
+
+  if (isActive !== undefined) {
+    whereConditions.push(eq(categoryModel.isActive, isActive));
+  }
+
+  const totalCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(categoryModel)
+    .where(and(...whereConditions));
+
+  const sortField = categorySortBy(sortBy);
+
+  const categories = await db
+    .select()
+    .from(categoryModel)
+    .where(and(...whereConditions))
+    .limit(limit)
+    .offset(offset)
+    .orderBy(sortOrder === "desc" ? desc(sortField) : asc(sortField));
+
+  return {
+    totalCount: totalCount[0].count,
+    categories,
+  };
 }
 
 export async function getAllCategoriesUserRepository(
   userId: string,
   queryParams: TCategoryQuery,
 ) {
-  const { page, limit, isActive, sortBy, sortOrder, search } = queryParams;
+  const {
+    page,
+    limit,
+    isActive = true,
+    sortBy,
+    sortOrder,
+    search,
+  } = queryParams;
   const offset = (page - 1) * limit;
   const whereConditions = [
     or(eq(categoryModel.userId, userId), isNull(categoryModel.userId)),
