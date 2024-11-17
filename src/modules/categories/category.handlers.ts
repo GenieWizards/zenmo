@@ -19,7 +19,7 @@ import {
   getAllCategoriesUserRepository,
   getCategoryByIdOrNameRepository,
   getCategoryRepository,
-  updateCategoryByIdAndUserIdRepository,
+  updateCategoryByIdRepository,
 } from "./category.repository";
 
 export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
@@ -184,37 +184,56 @@ export const updateCategory: AppRouteHandler<TUpdateCategoryRoute> = async (
   const { categoryId } = c.req.valid("param");
   const payload = c.req.valid("json");
 
-  let category: TSelectCategorySchema | null = null;
-
-  if (user?.role !== AuthRoles.ADMIN) {
-    logger.debug("Non admin user can only update their own categories");
-
-    category = await updateCategoryByIdAndUserIdRepository(
-      categoryId,
-      payload,
-      user?.id,
-    );
-  } else if (user?.role === AuthRoles.ADMIN) {
-    category = await updateCategoryByIdAndUserIdRepository(categoryId, payload);
-  }
+  const category = await getCategoryRepository(categoryId);
 
   if (!category) {
-    logger.error("Failed to update category");
+    logger.error(`Category with id ${categoryId} not found`);
     return c.json(
       {
         success: false,
-        message: "Invalid category id or you are not allowed to update",
+        message: "Category not found",
       },
       HTTPStatusCodes.NOT_FOUND,
     );
   }
 
-  logger.info(`Category updated successfully with name ${category.name}`);
+  if (user?.role !== AuthRoles.ADMIN && category.userId !== user?.id) {
+    logger.error(
+      `User ${user?.id} not authorized to update category ${categoryId}`,
+    );
+    return c.json(
+      {
+        success: false,
+        message: "You are not authorized to update this category",
+      },
+      HTTPStatusCodes.FORBIDDEN,
+    );
+  }
+
+  const updatedCategory = await updateCategoryByIdRepository(
+    categoryId,
+    payload,
+  );
+
+  if (!updatedCategory) {
+    logger.error("Failed to update category");
+    return c.json(
+      {
+        success: false,
+        message: "Failed to update category",
+      },
+      HTTPStatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  logger.info(
+    `Category updated successfully with name ${updatedCategory.name}`,
+  );
   return c.json(
     {
       success: true,
       message: "Category updated successfully",
-      data: category,
+      data: updatedCategory,
     },
     HTTPStatusCodes.OK,
   );
