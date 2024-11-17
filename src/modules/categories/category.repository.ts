@@ -192,3 +192,26 @@ export async function getCategoryByIdOrNameRepository(
 
   return category;
 }
+
+export async function updateCategoryByIdAndUserIdRepository(
+  categoryId: string,
+  categoryPayload: Partial<TInsertCategorySchema>,
+  userId?: string,
+) {
+  const whereCondition = [eq(categoryModel.id, categoryId)];
+
+  if (userId) {
+    whereCondition.push(eq(categoryModel.userId, userId));
+  }
+
+  categoryPayload.name = categoryPayload?.name?.toLowerCase();
+  categoryPayload.updatedAt = new Date();
+
+  const [category] = await db
+    .update(categoryModel)
+    .set(categoryPayload)
+    .where(and(...whereCondition))
+    .returning();
+
+  return category;
+}

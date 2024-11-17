@@ -9,6 +9,7 @@ import type {
   TCreateCategoryRoute,
   TGetCategoriesRoute,
   TGetCategoryRoute,
+  TUpdateCategoryRoute,
 } from "./category.routes";
 
 import {
@@ -18,6 +19,7 @@ import {
   getAllCategoriesUserRepository,
   getCategoryByIdOrNameRepository,
   getCategoryRepository,
+  updateCategoryByIdAndUserIdRepository,
 } from "./category.repository";
 
 export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
@@ -168,6 +170,50 @@ export const getCategory: AppRouteHandler<TGetCategoryRoute> = async (c) => {
     {
       success: true,
       message: "Category retrieved successfully",
+      data: category,
+    },
+    HTTPStatusCodes.OK,
+  );
+};
+
+export const updateCategory: AppRouteHandler<TUpdateCategoryRoute> = async (
+  c,
+) => {
+  const logger = c.get("logger");
+  const user = c.get("user");
+  const { categoryId } = c.req.valid("param");
+  const payload = c.req.valid("json");
+
+  let category: TSelectCategorySchema | null = null;
+
+  if (user?.role !== AuthRoles.ADMIN) {
+    logger.debug("Non admin user can only update their own categories");
+
+    category = await updateCategoryByIdAndUserIdRepository(
+      categoryId,
+      payload,
+      user?.id,
+    );
+  } else if (user?.role === AuthRoles.ADMIN) {
+    category = await updateCategoryByIdAndUserIdRepository(categoryId, payload);
+  }
+
+  if (!category) {
+    logger.error("Failed to update category");
+    return c.json(
+      {
+        success: false,
+        message: "Invalid category id or you are not allowed to update",
+      },
+      HTTPStatusCodes.NOT_FOUND,
+    );
+  }
+
+  logger.info(`Category updated successfully with name ${category.name}`);
+  return c.json(
+    {
+      success: true,
+      message: "Category updated successfully",
       data: category,
     },
     HTTPStatusCodes.OK,
