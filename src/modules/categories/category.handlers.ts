@@ -116,7 +116,11 @@ export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
     categories = fetchedCategories.categories;
     totalCount = fetchedCategories.totalCount;
   } else {
-    categories = await getAllCategoriesAdminRepository();
+    const fetchedCategories
+      = await getAllCategoriesAdminRepository(queryParams);
+
+    categories = fetchedCategories.categories;
+    totalCount = fetchedCategories.totalCount;
   }
 
   const metadata = generateMetadata({
