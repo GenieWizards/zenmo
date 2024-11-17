@@ -133,7 +133,7 @@ export const getCategoryRoute = createRoute({
 export const updateCategoryRoute = createRoute({
   tags,
   method: "put",
-  path: "/categories/:id",
+  path: "/categories/:categoryId",
   middleware: [
     authMiddleware(),
     requireAuth(),
@@ -141,7 +141,7 @@ export const updateCategoryRoute = createRoute({
   ] as const,
   request: {
     params: z.object({
-      id: z.string(),
+      categoryId: z.string(),
     }),
     body: jsonContentRequired(
       insertCategorySchema
