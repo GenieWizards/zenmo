@@ -210,3 +210,12 @@ export async function updateCategoryByIdRepository(
 
   return category;
 }
+
+export async function deleteCategoryByIdRepository(categoryId: string) {
+  const [category] = await db
+    .delete(categoryModel)
+    .where(eq(categoryModel.id, categoryId))
+    .returning();
+
+  return category;
+}

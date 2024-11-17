@@ -205,7 +205,7 @@ export const updateCategoryRoute = createRoute({
 export const deleteCategoryRoute = createRoute({
   tags,
   method: "delete",
-  path: "/categories/:id",
+  path: "/categories/:categoryId",
   middleware: [
     authMiddleware(),
     requireAuth(),
@@ -213,7 +213,7 @@ export const deleteCategoryRoute = createRoute({
   ] as const,
   request: {
     params: z.object({
-      id: z.string(),
+      categoryId: z.string(),
     }),
   },
   responses: {
@@ -245,6 +245,13 @@ export const deleteCategoryRoute = createRoute({
         message: z.string(),
       }),
       "You are not allowed to perform this action",
+    ),
+    [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Failed to delete category",
     ),
   },
 });
