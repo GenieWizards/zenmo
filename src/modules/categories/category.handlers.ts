@@ -7,6 +7,7 @@ import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
 import type {
   TCreateCategoryRoute,
+  TDeleteCategoryRoute,
   TGetCategoriesRoute,
   TGetCategoryRoute,
   TUpdateCategoryRoute,
@@ -14,6 +15,7 @@ import type {
 
 import {
   createCategoryRepository,
+  deleteCategoryByIdRepository,
   getAdminCategoryRepository,
   getAllCategoriesAdminRepository,
   getAllCategoriesUserRepository,
@@ -234,6 +236,63 @@ export const updateCategory: AppRouteHandler<TUpdateCategoryRoute> = async (
       success: true,
       message: "Category updated successfully",
       data: updatedCategory,
+    },
+    HTTPStatusCodes.OK,
+  );
+};
+
+export const deleteCategory: AppRouteHandler<TDeleteCategoryRoute> = async (
+  c,
+) => {
+  const logger = c.get("logger");
+  const user = c.get("user");
+  const { categoryId } = c.req.valid("param");
+
+  const category = await getCategoryRepository(categoryId);
+
+  if (!category) {
+    logger.error(`Category with id ${categoryId} not found`);
+    return c.json(
+      {
+        success: false,
+        message: "Category not found",
+      },
+      HTTPStatusCodes.NOT_FOUND,
+    );
+  }
+
+  if (user?.role !== AuthRoles.ADMIN && category.userId !== user?.id) {
+    logger.error(
+      `User ${user?.id} not authorized to delete category ${categoryId}`,
+    );
+    return c.json(
+      {
+        success: false,
+        message: "You are not authorized to delete this category",
+      },
+      HTTPStatusCodes.FORBIDDEN,
+    );
+  }
+
+  const deletedCategory = await deleteCategoryByIdRepository(categoryId);
+
+  if (!deletedCategory) {
+    logger.error("Failed to delete category");
+    return c.json(
+      {
+        success: false,
+        message: "Failed to delete category",
+      },
+      HTTPStatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  logger.info(`Category with id ${categoryId} deleted successfully`);
+  return c.json(
+    {
+      success: true,
+      message: "Category deleted successfully",
+      data: deletedCategory,
     },
     HTTPStatusCodes.OK,
   );
