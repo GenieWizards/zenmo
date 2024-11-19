@@ -1,7 +1,8 @@
 import type { AppRouteHandler } from "@/common/lib/types";
 import type { TSelectCategorySchema } from "@/db/schemas/category.model";
 
-import { AuthRoles } from "@/common/enums";
+import { ActivityType, AuthRoles } from "@/common/enums";
+import { logActivity } from "@/common/helpers/activity-log.helper";
 import { generateMetadata } from "@/common/helpers/metadata.helper";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
@@ -89,6 +90,14 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
     );
   }
 
+  void logActivity({
+    type: ActivityType.CATEGORY_CREATED,
+    metadata: {
+      categoryName: category.name,
+      actorId: user.id,
+      actorName: user.fullName || "",
+    },
+  });
   logger.debug(`Category created successfully with name ${category.name}`);
 
   return c.json(

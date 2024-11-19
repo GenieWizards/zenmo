@@ -1,10 +1,19 @@
 import type { z } from "zod";
 
-import { pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import {
+  jsonb,
+  pgEnum,
+  pgTable,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
+import { activityTypeArr } from "@/common/enums";
+
 import groupModel from "./group.model";
-import userModel from "./user.model";
+
+export const ActivityTypeEnum = pgEnum("activityType", activityTypeArr);
 
 const activityModel = pgTable("activity", {
   id: varchar({ length: 60 })
@@ -12,18 +21,10 @@ const activityModel = pgTable("activity", {
     .primaryKey()
     .notNull(),
 
-  activity: text().notNull(),
+  type: ActivityTypeEnum("activity_type").notNull(),
+  metadata: jsonb().notNull(),
 
-  userId: varchar({ length: 60 })
-    .notNull()
-    .references(() => userModel.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
-  groupId: varchar({ length: 60 }).references(() => groupModel.id, {
-    onDelete: "cascade",
-    onUpdate: "cascade",
-  }),
+  groupId: varchar({ length: 60 }).references(() => groupModel.id),
 
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
@@ -32,10 +33,10 @@ const activityModel = pgTable("activity", {
 // Schema for selecting/inserting a activity
 export const selectActivitySchema = createSelectSchema(activityModel, {
   id: schema => schema.id.describe("Unique identifier for the activity"),
-  activity: schema =>
-    schema.activity.describe("Description of the activity/action performed"),
-  userId: schema =>
-    schema.userId.describe("Reference to the user who performed the activity"),
+  type: schema =>
+    schema.type.describe("Type of the activity/action performed"),
+  metadata: schema =>
+    schema.metadata.describe("Metadata associated with the activity"),
   groupId: schema =>
     schema.groupId.describe(
       "Reference to the group where activity was performed (optional)",
@@ -47,10 +48,10 @@ export const selectActivitySchema = createSelectSchema(activityModel, {
 });
 export const insertActivitySchema = createInsertSchema(activityModel, {
   id: schema => schema.id.describe("Unique identifier for the activity"),
-  activity: schema =>
-    schema.activity.describe("Description of the activity/action performed"),
-  userId: schema =>
-    schema.userId.describe("Reference to the user who performed the activity"),
+  type: schema =>
+    schema.type.describe("Type of the activity/action performed"),
+  metadata: schema =>
+    schema.metadata.describe("Metadata associated with the activity"),
   groupId: schema =>
     schema.groupId.describe(
       "Reference to the group where activity was performed (optional)",

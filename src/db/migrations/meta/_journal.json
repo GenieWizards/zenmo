@@ -8,6 +8,20 @@
       "when": 1731427380088,
       "tag": "0000_smart_firebrand",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1731854972728,
+      "tag": "0001_bored_microchip",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1732032250539,
+      "tag": "0002_futuristic_gorilla_man",
+      "breakpoints": true
     }
   ]
 }
