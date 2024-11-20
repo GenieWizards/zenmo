@@ -100,12 +100,12 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
       actorName: user.fullName || "",
     },
   });
-  logger.debug(`Group with ${deletedGroup.id} deleted successfully`);
+  logger.debug(`Group ${deletedGroup.name} deleted successfully`);
 
   return c.json(
     {
       success: true,
-      message: `Group with ${deletedGroup.id} deleted successfully`,
+      message: `Group ${deletedGroup.name} deleted successfully`,
     },
     HTTPStatusCodes.OK,
   );
