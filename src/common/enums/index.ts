@@ -49,6 +49,8 @@ export const SplitType = splitTypeArr.reduce(
 
 export const activityTypeArr = [
   "category_created",
+  "category_updated",
+  "category_deleted",
   "group_member_added",
   "group_member_removed",
   "expense_added",

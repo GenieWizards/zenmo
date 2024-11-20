@@ -237,9 +237,18 @@ export const updateCategory: AppRouteHandler<TUpdateCategoryRoute> = async (
     );
   }
 
+  void logActivity({
+    type: ActivityType.CATEGORY_UPDATED,
+    metadata: {
+      categoryName: category.name,
+      actorId: user.id,
+      actorName: user.fullName || "",
+    },
+  });
   logger.info(
     `Category updated successfully with name ${updatedCategory.name}`,
   );
+
   return c.json(
     {
       success: true,
@@ -296,7 +305,16 @@ export const deleteCategory: AppRouteHandler<TDeleteCategoryRoute> = async (
     );
   }
 
+  void logActivity({
+    type: ActivityType.CATEGORY_DELETED,
+    metadata: {
+      categoryName: category.name,
+      actorId: user.id,
+      actorName: user.fullName || "",
+    },
+  });
   logger.info(`Category with id ${categoryId} deleted successfully`);
+
   return c.json(
     {
       success: true,

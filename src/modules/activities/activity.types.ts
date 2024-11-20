@@ -7,4 +7,5 @@ export interface IActivityMetadata {
   groupName?: string;
   categoryName?: string;
   expenseName?: string;
+  msg?: string;
 }

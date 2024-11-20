@@ -1,5 +1,5 @@
 {
-  "id": "cf072212-1629-4871-abd9-6743daf63a0d",
+  "id": "a6f18855-b109-472e-b87a-5a44cd1b016d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -118,15 +118,15 @@
           "primaryKey": true,
           "notNull": true
         },
-        "activity": {
-          "name": "activity",
-          "type": "text",
+        "type": {
+          "name": "type",
+          "type": "varchar(60)",
           "primaryKey": false,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "varchar(60)",
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": true
         },
@@ -153,19 +153,6 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "activity_user_id_users_id_fk": {
-          "name": "activity_user_id_users_id_fk",
-          "tableFrom": "activity",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "activity_group_id_group_id_fk": {
           "name": "activity_group_id_group_id_fk",
           "tableFrom": "activity",
@@ -176,8 +163,8 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -757,6 +744,20 @@
     }
   },
   "enums": {
+    "public.activityType": {
+      "name": "activityType",
+      "schema": "public",
+      "values": [
+        "category_created",
+        "category_updated",
+        "category_deleted",
+        "group_member_added",
+        "group_member_removed",
+        "expense_added",
+        "expense_updated",
+        "expense_deleted"
+      ]
+    },
     "public.splitType": {
       "name": "splitType",
       "schema": "public",

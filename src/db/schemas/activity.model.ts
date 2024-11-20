@@ -14,6 +14,7 @@ import { activityTypeArr } from "@/common/enums";
 import groupModel from "./group.model";
 
 export const ActivityTypeEnum = pgEnum("activityType", activityTypeArr);
+export type ActivityType = (typeof activityTypeArr)[number];
 
 const activityModel = pgTable("activity", {
   id: varchar({ length: 60 })
@@ -21,7 +22,7 @@ const activityModel = pgTable("activity", {
     .primaryKey()
     .notNull(),
 
-  type: ActivityTypeEnum("activity_type").notNull(),
+  type: varchar({ length: 60 }).notNull().$type<ActivityType>(),
   metadata: jsonb().notNull(),
 
   groupId: varchar({ length: 60 }).references(() => groupModel.id),
@@ -62,7 +63,15 @@ export const insertActivitySchema = createInsertSchema(activityModel, {
     schema.updatedAt.describe("Timestamp when the activity was last updated"),
 });
 
-export type TSelectActivitySchema = z.infer<typeof selectActivitySchema>;
-export type TInsertActivitySchema = z.infer<typeof insertActivitySchema>;
+type SelectActivitySchema = z.infer<typeof selectActivitySchema>;
+type InsertActivitySchema = z.infer<typeof insertActivitySchema>;
+
+// This is necessary otherwise typescript will complain about type field
+export type TSelectActivitySchema = Omit<SelectActivitySchema, "type"> & {
+  type: ActivityType;
+};
+export type TInsertActivitySchema = Omit<InsertActivitySchema, "type"> & {
+  type: ActivityType;
+};
 
 export default activityModel;
