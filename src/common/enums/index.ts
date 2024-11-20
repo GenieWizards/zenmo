@@ -46,3 +46,27 @@ export const SplitType = splitTypeArr.reduce(
   }),
   {} as SplitTypeType,
 );
+
+export const activityTypeArr = [
+  "category_created",
+  "category_updated",
+  "category_deleted",
+  "group_member_added",
+  "group_member_removed",
+  "expense_added",
+  "expense_updated",
+  "expense_deleted",
+] as const;
+
+export type ActivityTypeValues = (typeof activityTypeArr)[number];
+type ActivityTypeType = {
+  [K in Uppercase<ActivityTypeValues>]: Lowercase<K>;
+};
+
+export const ActivityType = activityTypeArr.reduce(
+  (acc, type) => ({
+    ...acc,
+    [type.toUpperCase()]: type,
+  }),
+  {} as ActivityTypeType,
+);

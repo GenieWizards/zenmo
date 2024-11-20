@@ -132,7 +132,7 @@ export const getCategoryRoute = createRoute({
 
 export const updateCategoryRoute = createRoute({
   tags,
-  method: "put",
+  method: "patch",
   path: "/categories/:categoryId",
   middleware: [
     authMiddleware(),
