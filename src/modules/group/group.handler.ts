@@ -1,11 +1,16 @@
 import type { AppRouteHandler } from "@/common/lib/types";
 import type { TSelectGroupSchema } from "@/db/schemas/group.model";
 
+import { ActivityType } from "@/common/enums";
+import { logActivity } from "@/common/helpers/activity-log.helper";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
 import type { TCreateGroupRoute, TDeleteGroupRoute } from "./group.routes";
 
-import { createGroupRepository, deleteGroupRepository } from "./group.repository";
+import {
+  createGroupRepository,
+  deleteGroupRepository,
+} from "./group.repository";
 
 export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   const user = c.get("user");
@@ -23,6 +28,8 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     );
   }
 
+  payload.creatorId = user.id;
+
   const group: TSelectGroupSchema | null = await createGroupRepository(payload);
 
   if (!group) {
@@ -36,6 +43,14 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     );
   }
 
+  void logActivity({
+    type: ActivityType.GROUP_CREATED,
+    metadata: {
+      groupName: group.name,
+      actorId: user.id,
+      actorName: user.fullName || "",
+    },
+  });
   logger.debug(`Group created successfully with name ${group.name}`);
 
   return c.json(
@@ -64,9 +79,9 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
     );
   }
 
-  const deletedGroupId: string | null = await deleteGroupRepository(params.id);
+  const deletedGroup = await deleteGroupRepository(params.id);
 
-  if (!deletedGroupId) {
+  if (!deletedGroup) {
     logger.error(`Group with ${params.id} not found`);
     return c.json(
       {
@@ -77,12 +92,20 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
     );
   }
 
-  logger.debug(`Group with ${deletedGroupId} deleted successfully`);
+  void logActivity({
+    type: ActivityType.GROUP_DELETED,
+    metadata: {
+      groupName: deletedGroup.name,
+      actorId: user.id,
+      actorName: user.fullName || "",
+    },
+  });
+  logger.debug(`Group with ${deletedGroup.id} deleted successfully`);
 
   return c.json(
     {
       success: true,
-      message: `Group with ${deletedGroupId} deleted successfully`,
+      message: `Group with ${deletedGroup.id} deleted successfully`,
     },
     HTTPStatusCodes.OK,
   );

@@ -4,7 +4,11 @@ import { z } from "zod";
 import { AuthRoles } from "@/common/enums";
 import jsonContentRequired from "@/common/helpers/json-content-required.helper";
 import { jsonContent } from "@/common/helpers/json-content.helper";
-import { authMiddleware, checkRoleGuard, requireAuth } from "@/common/middlewares/auth.middleware";
+import {
+  authMiddleware,
+  checkRoleGuard,
+  requireAuth,
+} from "@/common/middlewares/auth.middleware";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertGroupSchema, selectGroupSchema } from "@/db/schemas/group.model";
 
