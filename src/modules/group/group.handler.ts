@@ -46,7 +46,9 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   void logActivity({
     type: ActivityType.GROUP_CREATED,
     metadata: {
-      groupName: group.name,
+      action: "create",
+      resourceType: "group",
+      resourceName: group.name,
       actorId: user.id,
       actorName: user.fullName || "",
     },
@@ -95,7 +97,9 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
   void logActivity({
     type: ActivityType.GROUP_DELETED,
     metadata: {
-      groupName: deletedGroup.name,
+      action: "delete",
+      resourceType: "group",
+      resourceName: deletedGroup.name,
       actorId: user.id,
       actorName: user.fullName || "",
     },

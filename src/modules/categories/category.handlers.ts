@@ -93,7 +93,9 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
   void logActivity({
     type: ActivityType.CATEGORY_CREATED,
     metadata: {
-      categoryName: category.name,
+      action: "create",
+      resourceType: "category",
+      resourceName: category.name,
       actorId: user.id,
       actorName: user.fullName || "",
     },
@@ -117,7 +119,7 @@ export const getCategories: AppRouteHandler<TGetCategoriesRoute> = async (
   const user = c.get("user");
   const queryParams = c.req.valid("query");
 
-  let totalCount: number = 0;
+  let totalCount = 0;
   let categories: TSelectCategorySchema[] | null = null;
 
   if (user?.role === AuthRoles.USER) {
@@ -240,7 +242,9 @@ export const updateCategory: AppRouteHandler<TUpdateCategoryRoute> = async (
   void logActivity({
     type: ActivityType.CATEGORY_UPDATED,
     metadata: {
-      categoryName: category.name,
+      action: "update",
+      resourceType: "category",
+      resourceName: category.name,
       actorId: user.id,
       actorName: user.fullName || "",
     },
@@ -308,7 +312,9 @@ export const deleteCategory: AppRouteHandler<TDeleteCategoryRoute> = async (
   void logActivity({
     type: ActivityType.CATEGORY_DELETED,
     metadata: {
-      categoryName: category.name,
+      action: "delete",
+      resourceType: "category",
+      resourceName: category.name,
       actorId: user.id,
       actorName: user.fullName || "",
     },
