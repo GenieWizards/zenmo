@@ -1,11 +1,11 @@
 export interface IActivityMetadata {
+  action: "create" | "update" | "delete";
   actorId: string;
   actorName: string;
   targetId?: string;
   targetName?: string;
   amount?: number;
-  groupName?: string;
-  categoryName?: string;
-  expenseName?: string;
+  resourceType?: string;
+  resourceName?: string;
   msg?: string;
 }

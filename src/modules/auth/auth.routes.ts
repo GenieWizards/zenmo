@@ -21,7 +21,13 @@ export const registerRoute = createRoute({
         .extend({
           password: z.string().min(8).max(60),
         })
-        .omit({ role: true }),
+        .omit({
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+          emailVerified: true,
+          id: true,
+        }),
       "User registration details",
     ),
   },
@@ -70,7 +76,14 @@ export const loginRoute = createRoute({
         .extend({
           password: z.string().min(8).max(60),
         })
-        .omit({ role: true }),
+        .omit({
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+          emailVerified: true,
+          id: true,
+          fullName: true,
+        }),
       "User registration details",
     ),
   },

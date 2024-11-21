@@ -17,6 +17,7 @@ export const metadataSchema = z.object({
     .number()
     .int()
     .positive()
+    .max(200)
     .default(10)
     .describe("Number of items per page"),
   search: z.string().optional().describe("Search query"),
