@@ -9,6 +9,7 @@ import {
   checkRoleGuard,
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
+import createErrorSchema from "@/common/schema/create-error.schema";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertGroupSchema, selectGroupSchema } from "@/db/schemas/group.model";
 
@@ -56,6 +57,10 @@ export const createGroupRoute = createRoute({
         message: z.string(),
       }),
       "You are not authorized, please login",
+    ),
+    [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(insertGroupSchema),
+      "The validation error(s)",
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
