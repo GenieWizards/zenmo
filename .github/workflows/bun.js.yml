@@ -12,6 +12,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/finance-management-api-test-db"  # Changed to match URL format
+      LOG_LEVEL: "silent"  # This matches one of the allowed enum values
+      NODE_ENV: "test"
 
     # Add PostgreSQL service
     services:
@@ -49,6 +53,12 @@ jobs:
 
       - name: Run ESLint
         run: bun lint:fix
+
+      - name: Debug env
+        run: |
+          echo "Database URL format check"
+          echo "DATABASE_URL: $DATABASE_URL"
+          echo "LOG_LEVEL: $LOG_LEVEL"
 
       - name: Run tests
         run: bun run test
