@@ -51,4 +51,8 @@ jobs:
         run: bun lint:fix
 
       - name: Run tests
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/finance-management-api-test-db
+          NODE_ENV: test
+          LOG_LEVEL: silent
         run: bun run test
