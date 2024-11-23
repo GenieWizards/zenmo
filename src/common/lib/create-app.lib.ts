@@ -1,6 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 
-import type { AppBindings } from "./types";
+import type { AppBindings, AppOpenAPI } from "./types";
 
 import {
   notFoundMiddleware,
@@ -28,4 +28,12 @@ export function createApp() {
   app.onError(onErrorMiddleware);
 
   return app;
+}
+
+export function createTestApp(router: AppOpenAPI) {
+  const testApp = createApp();
+
+  testApp.route("/", router);
+
+  return testApp;
 }

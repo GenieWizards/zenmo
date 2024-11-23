@@ -9,7 +9,7 @@ export default defineConfig({
   dbCredentials: {
     url: env.DATABASE_URL,
   },
-  verbose: true,
+  verbose: env.NODE_ENV === "development",
   strict: true,
   casing: "snake_case",
 });

@@ -18,11 +18,13 @@
     "lint": "eslint .",
     "lint:fix": "bun lint --fix",
     "start": "bun src/index.ts",
+    "db:clear": "NODE_ENV=test bun run src/db/scripts/clear-db.script.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "deps:update": "npx npm-check-updates --interactive --format group",
     "prepare": "husky",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "LOG_LEVEL=silent bun test"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.17.0",
