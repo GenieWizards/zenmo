@@ -6,6 +6,7 @@ import {
   authMiddleware,
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
+import createErrorSchema from "@/common/schema/create-error.schema";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertUserSchema, selectUserSchema } from "@/db/schemas/user.model";
 
@@ -55,6 +56,14 @@ export const registerRoute = createRoute({
         message: z.string(),
       }),
       "Field already exist(s)",
+    ),
+    [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(
+        insertUserSchema.extend({
+          password: z.string().min(8).max(60),
+        }),
+      ),
+      "The validation error(s)",
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
