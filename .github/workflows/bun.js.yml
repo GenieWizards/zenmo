@@ -54,11 +54,5 @@ jobs:
       - name: Run ESLint
         run: bun lint:fix
 
-      - name: Debug env
-        run: |
-          echo "Database URL format check"
-          echo "DATABASE_URL: $DATABASE_URL"
-          echo "LOG_LEVEL: $LOG_LEVEL"
-
       - name: Run tests
         run: bun run test
