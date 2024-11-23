@@ -98,8 +98,12 @@ describe("Activities List", () => {
     );
 
     expect(response.status).toBe(401);
-    const json = await response.json();
-    expect(json.message).toBe("You are not authorized, please login");
+
+    if (response.status === 401) {
+      const json = await response.json();
+
+      expect(json.message).toBe("You are not authorized, please login");
+    }
   });
 
   it("should return activities with correct metadata structure", async () => {
@@ -167,5 +171,26 @@ describe("Activities List", () => {
       expect(json.metadata.page).toBe(2);
       expect(json.metadata.limit).toBe(5);
     }
+  });
+
+  it("should handle invalid page numbers gracefully", async () => {
+    const response = await activityClient.activities.$get(
+      {
+        query: {
+          page: "-1",
+          limit: "10",
+        },
+      },
+      {
+        headers: {
+          session: sessionToken,
+        },
+      },
+    );
+
+    const json = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(json.success).toBe(false);
   });
 });
