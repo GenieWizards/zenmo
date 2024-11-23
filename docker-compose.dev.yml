@@ -32,7 +32,7 @@ services:
     ports:
       - "5432:5432"
     healthcheck: # Add health check
-      test: ["CMD-SHELL", "pg_isready -U root -d finance-management-api-dev"]
+      test: [CMD-SHELL, pg_isready -U root -d finance-management-api-dev]
       interval: 5s
       timeout: 5s
       retries: 5
