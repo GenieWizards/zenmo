@@ -2,39 +2,15 @@ services:
   api:
     build:
       context: .
-      target: production
+      target: release
     ports:
       - "8998:8998"
     env_file:
-      - .env
+      - .env.production
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://root:root@db:5432/finance-management-api
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - finance-management-api-network
-    command: sh -c "sleep 5 && bun run db:migrate && bun run src/index.ts"
-
-  db:
-    image: postgres:17
-    environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=finance-management-api
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - finance-management-api-network
-    ports:
-      - "5432:5432"
-    healthcheck: # Add health check
-      test: [CMD-SHELL, pg_isready -U root -d finance-management-api]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
 
 networks:
   finance-management-api-network:
