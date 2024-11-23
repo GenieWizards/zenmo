@@ -13,6 +13,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: "postgres://postgres:postgres@localhost:5432/finance-management-api-test-db"
+      LOG_LEVEL: "silent"
+      NODE_ENV: "test"
+
     # Add PostgreSQL service
     services:
       postgres:
@@ -51,8 +56,4 @@ jobs:
         run: bun lint:fix
 
       - name: Run tests
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/finance-management-api-test-db
-          NODE_ENV: test
-          LOG_LEVEL: silent
         run: bun run test
