@@ -4,12 +4,31 @@ docker-compose*
 .dockerignore
 .git
 .gitignore
-README.md
-LICENSE
-.vscode
 Makefile
 helm-charts
 .env
+.env.*
+*.env
 .editorconfig
-.idea
 coverage*
+
+# Development files
+.vscode
+.idea
+*.log
+npm-debug.log*
+
+# Build outputs
+dist
+build
+*.tsbuildinfo
+
+# Test files
+coverage
+*.test.ts
+
+# Other unnecessary files
+README.md
+LICENSE
+*.md
+.DS_Store

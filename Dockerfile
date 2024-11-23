@@ -7,7 +7,10 @@ WORKDIR /usr/src/app
 FROM base AS development
 COPY package.json bun.lockb ./
 RUN bun install
-COPY . .
+COPY ./src ./src
+COPY ./package.json .
+COPY ./tsconfig.json .
+COPY ./drizzle.config.ts .
 CMD ["bun", "--hot", "run", "src/index.ts"]
 
 # install dependencies into temp directory
@@ -28,7 +31,10 @@ RUN bun install --frozen-lockfile --production
 # then copy all (non-ignored) project files into the image
 FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
-COPY . .
+COPY ./src ./src
+COPY ./package.json .
+COPY ./tsconfig.json .
+COPY ./drizzle.config.ts .
 
 # copy production dependencies and source code into final image
 FROM base AS release

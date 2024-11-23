@@ -45,13 +45,13 @@ ps: ## List running containers
 	$(DC) ps
 
 migrate: ## Run database migrations
-	$(DC) exec api bun x drizzle-kit push:pg
+	$(DC) exec api bun run db:migrate
 
 shell: ## Open a shell in the api container
 	$(DC) exec api /bin/sh
 
 test: ## Run tests
-	$(DC) exec api bun test
+	$(DC) exec api bun run test
 
 rebuild: clean build up ## Clean everything, rebuild, and start the application
 
