@@ -20,7 +20,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: finance-management-api-test
+          POSTGRES_DB: finance-management-api-test-db
         ports:
           - 5432:5432
         options: >-
