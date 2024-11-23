@@ -101,4 +101,71 @@ describe("Activities List", () => {
     const json = await response.json();
     expect(json.message).toBe("You are not authorized, please login");
   });
+
+  it("should return activities with correct metadata structure", async () => {
+    const response = await activityClient.activities.$get(
+      {
+        query: {
+          page: "1",
+          limit: "10",
+        },
+      },
+      {
+        headers: {
+          session: sessionToken,
+        },
+      },
+    );
+
+    if (response.status === 200) {
+      const json = await response.json();
+
+      expect(json.metadata).toHaveProperty("page");
+      expect(json.metadata).toHaveProperty("limit");
+      expect(json.metadata).toHaveProperty("totalCount");
+    }
+  });
+
+  it("should return empty array when no activities exist", async () => {
+    const response = await activityClient.activities.$get(
+      {
+        query: {},
+      },
+      {
+        headers: {
+          session: sessionToken,
+        },
+      },
+    );
+
+    if (response.status === 200) {
+      const json = await response.json();
+
+      expect(json.data).toBeArray();
+      expect(json.data).toHaveLength(0);
+    }
+  });
+
+  it("should properly handle pagination parameters", async () => {
+    const response = await activityClient.activities.$get(
+      {
+        query: {
+          page: "2",
+          limit: "5",
+        },
+      },
+      {
+        headers: {
+          session: sessionToken,
+        },
+      },
+    );
+
+    if (response.status === 200) {
+      const json = await response.json();
+
+      expect(json.metadata.page).toBe(2);
+      expect(json.metadata.limit).toBe(5);
+    }
+  });
 });
