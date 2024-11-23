@@ -84,4 +84,21 @@ describe("Activities List", () => {
       expect(json.data).toBeArray();
     }
   });
+
+  it("should return 401 when user is not logged in", async () => {
+    const response = await activityClient.activities.$get(
+      {
+        query: {},
+      },
+      {
+        headers: {
+          session: "invalid-session-token",
+        },
+      },
+    );
+
+    expect(response.status).toBe(401);
+    const json = await response.json();
+    expect(json.message).toBe("You are not authorized, please login");
+  });
 });
