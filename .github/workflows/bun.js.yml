@@ -15,7 +15,7 @@ jobs:
 
     env:
       DATABASE_URL: "postgres://postgres:postgres@localhost:5432/finance-management-api-test-db"
-      LOG_LEVEL: "silent"
+      LOG_LEVEL: ${{ secrets.TEST_LOG_LEVEL }}
       NODE_ENV: "test"
 
     # Add PostgreSQL service
