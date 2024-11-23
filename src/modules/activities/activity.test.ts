@@ -1,4 +1,12 @@
-import { beforeEach, describe, expect, it } from "bun:test";
+import { $ } from "bun";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "bun:test";
 import { testClient } from "hono/testing";
 
 import { createApp, createTestApp } from "@/common/lib/create-app.lib";
@@ -16,6 +24,30 @@ const activityClient = testClient(createApp().route("/", activityRouter));
 describe("Activities List", () => {
   let sessionToken = "";
 
+  beforeAll(async () => {
+    await $`bun drizzle-kit push --force`;
+
+    const testAuthRouter = createTestApp(authRouter);
+
+    const userResponse = await testAuthRouter.request("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "user1@yopmail.com",
+        password: "ksjhdfjh&*^&%^5675",
+      }),
+      headers: new Headers({ "Content-Type": "application/json" }),
+    });
+
+    const userResult = await userResponse.json();
+
+    // @ts-expect-error session is available
+    sessionToken = userResult.data.session;
+  });
+
+  afterAll(async () => {
+    await $`bun run db:clear`;
+  });
+
   beforeEach(async () => {
     const testAuthRouter = createTestApp(authRouter);
 
@@ -23,7 +55,7 @@ describe("Activities List", () => {
       method: "POST",
       body: JSON.stringify({
         email: "user1@yopmail.com",
-        password: "12345678",
+        password: "ksjhdfjh&*^&%^5675",
       }),
       headers: new Headers({ "Content-Type": "application/json" }),
     });
