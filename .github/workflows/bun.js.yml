@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/finance-management-api-test-db"  # Changed to match URL format
-      LOG_LEVEL: "silent"  # This matches one of the allowed enum values
+      LOG_LEVEL: "silent"
       NODE_ENV: "test"
 
     # Add PostgreSQL service
@@ -62,7 +62,3 @@ jobs:
 
       - name: Run tests
         run: bun run test
-        env:
-          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/finance-management-api-test-db"
-          LOG_LEVEL: ${{ secrets.TEST_LOG_LEVEL }}
-          NODE_ENV: "test"
