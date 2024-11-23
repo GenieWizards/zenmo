@@ -13,11 +13,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      DATABASE_URL: "postgres://postgres:postgres@localhost:5432/finance-management-api-test-db"
-      LOG_LEVEL: ${{ secrets.TEST_LOG_LEVEL }}
-      NODE_ENV: "test"
-
     # Add PostgreSQL service
     services:
       postgres:
@@ -57,3 +52,7 @@ jobs:
 
       - name: Run tests
         run: bun run test
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/finance-management-api-test-db"
+          LOG_LEVEL: ${{ secrets.TEST_LOG_LEVEL }}
+          NODE_ENV: "test"
