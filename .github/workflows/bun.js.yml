@@ -13,9 +13,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/finance-management-api-test-db"  # Changed to match URL format
-      LOG_LEVEL: "silent"
-      NODE_ENV: "test"
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/finance-management-api-test-db" # Changed to match URL format
+      LOG_LEVEL: silent
+      NODE_ENV: test
 
     # Add PostgreSQL service
     services:

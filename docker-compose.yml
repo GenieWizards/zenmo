@@ -1,16 +1,16 @@
 services:
-  db:
-    image: postgres:17
+  api:
+    build:
+      context: .
+      target: release
+    ports:
+      - "8998:8998"
+    env_file:
+      - .env.production
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=finance-management-api
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - NODE_ENV=production
     networks:
       - finance-management-api-network
-    ports:
-      - "5432:5432"
 
 networks:
   finance-management-api-network:

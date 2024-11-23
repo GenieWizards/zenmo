@@ -20,6 +20,7 @@ A backend repository for the finance management system.
 - **ORM/ODM:** Drizzle ![Drizzle](https://img.shields.io/badge/Drizzle-000000?style=flat&logo=drizzle&logoColor=white)
 - **Testing:** Bun ![Bun](https://img.shields.io/badge/Bun-000000?style=flat&logo=bun&logoColor=white)
 - **Documentation:** OpenAPI/Scalar ![OpenAPI](https://img.shields.io/badge/OpenAPI-6BA539?style=flat&logo=openapi-initiative&logoColor=white) ![Scalar](https://img.shields.io/badge/Scalar-000000?style=flat&logo=scalar&logoColor=white)
+- **Containerization:** Docker ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white) Docker Compose ![Docker Compose](https://img.shields.io/badge/Docker_Compose-2496ED?style=flat&logo=docker&logoColor=white)
 
 ## To Setup Locally
 
@@ -32,6 +33,110 @@ cd finance-management-api # Navigate to the cloned folder
 bun install # Install necessary dependencies using Bun package manager
 bun dev # Start the server in development mode
 ```
+
+## 🐳 Docker Development Setup
+
+This project uses Docker for both development and production environments. Below are the instructions to get started.
+
+### Prerequisites
+
+- Docker and Docker Compose installed on your machine
+- Make (usually pre-installed on macOS/Linux)
+
+### Available Make Commands
+
+```bash
+# Show all available commands
+make help
+
+# Development Commands
+make dev-build    # Build development environment
+make dev-up       # Start development environment
+make dev-down     # Stop development environment
+
+# Production Commands
+make build        # Build production environment
+make up           # Start production environment
+make down         # Stop production environment
+make restart      # Restart the application
+
+# Utility Commands
+make logs         # View logs from all containers
+make ps           # List running containers
+make shell        # Open a shell in the API container
+make migrate      # Run database migrations
+make clean        # Stop containers, remove volumes, and prune system
+```
+
+### Quick Start (Development)
+
+1. Clone the repository
+2. Copy the environment file:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Start the development environment:
+   ```bash
+   make dev-build
+   make dev-up
+   ```
+
+The application will be available at `http://localhost:8998`
+
+### Development Notes
+
+- The development environment includes hot reloading. Any changes to the source code will automatically reflect in the running application.
+- When adding new dependencies (`bun add <package>`), you'll need to rebuild the containers:
+  ```bash
+  make dev-down
+  make dev-build
+  make dev-up
+  ```
+
+### Database
+
+- PostgreSQL is available at `localhost:5432`
+- Default credentials (development):
+  ```
+  User: root
+  Password: root
+  Database: finance-management-api-dev
+  ```
+- Migrations are run automatically when the container starts
+
+### Troubleshooting
+
+If you encounter any issues:
+
+1. Clean Docker resources:
+
+   ```bash
+   make clean
+   ```
+
+2. Rebuild everything:
+
+   ```bash
+   make rebuild
+   ```
+
+3. Check logs:
+   ```bash
+   make logs
+   ```
+
+### Production Deployment
+
+For production deployment:
+
+```bash
+make build
+make up
+```
+
+Note: Make sure to set appropriate environment variables for production use.
 
 ## Check API Documentation
 
