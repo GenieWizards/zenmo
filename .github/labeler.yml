@@ -51,3 +51,12 @@ tooling:
 security:
   - src/common/utils/crypto.lib.ts
   - "src/modules/auth/**/*"
+
+enhancement:
+  - head-branch: [^feature, feature, ^feat, feat]
+
+bug:
+  - head-branch: [^bug, bug, ^bugfix, bugfix, fix, issue]
+
+release:
+  - base-branch: main
