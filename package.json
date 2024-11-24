@@ -24,7 +24,8 @@
     "deps:update": "npx npm-check-updates --interactive --format group",
     "prepare": "husky || true",
     "check-types": "tsc --noEmit",
-    "test": "LOG_LEVEL=silent bun test"
+    "test": "LOG_LEVEL=silent bun test",
+    "db:studio": "drizzle-kit studio --port=4000"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.17.0",
