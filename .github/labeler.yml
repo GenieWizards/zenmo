@@ -3,3 +3,7 @@ documentation:
 
 workflows:
   - ".github/workflows/**/*"
+
+test:
+  - "**/*.test.ts"
+  - "**/*.spec.ts"
