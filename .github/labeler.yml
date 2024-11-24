@@ -1,9 +1,53 @@
+# API Documentation
 documentation:
   - "**/*.md"
+  - src/common/lib/configure-open-api.lib.ts
 
+# Database related changes
+database:
+  - "src/db/**/*"
+  - drizzle.config.ts
+  - "migrations/**/*"
+
+config:
+  - "*.config.*"
+  - ".env*"
+  - tsconfig.json
+  - ".eslintrc*"
+  - ".prettierrc*"
+  - .dockerignore
+  - .gitignore
+  - ".vscode/**/*"
+
+# Docker related changes
+docker:
+  - Dockerfile
+  - "docker-compose*.yml"
+  - .dockerignore
+
+# GitHub Actions
 workflows:
-  - ".github/workflows/**/*"
+  - ".github/**/*"
 
-test:
+# Testing
+tests:
   - "**/*.test.ts"
   - "**/*.spec.ts"
+  - src/db/scripts/clear-db.script.ts
+
+# Dependencies
+dependencies:
+  - package.json
+  - bun.lockb
+
+# Development tooling
+tooling:
+  - Makefile
+  - ".husky/**/*"
+  - ".vscode/**/*"
+  - .editorconfig
+
+# Security related changes
+security:
+  - src/common/utils/crypto.lib.ts
+  - "src/modules/auth/**/*"
