@@ -53,10 +53,10 @@ security:
   - "src/modules/auth/**/*"
 
 enhancement:
-  - head-branch: ["^feature", "feature", "^feat", "feat"]
+  - head-branch: [^feature, feature, ^feat, feat]
 
 bug:
-  - head-branch: ["^bug", "bug", "^bugfix", "bugfix", "fix", "issue"]
+  - head-branch: [^bug, bug, ^bugfix, bugfix, fix, issue]
 
 release:
-  - base-branch: "main"
+  - base-branch: main
