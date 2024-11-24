@@ -127,6 +127,28 @@ If you encounter any issues:
    make logs
    ```
 
+### Test Environment Setup
+
+1. Create a test environment file:
+
+   ```bash
+   cp .env.example .env.test
+   ```
+
+2. Update the `.env.test` file with the following configurations:
+
+   ```env
+   LOG_LEVEL=silent
+   DATABASE_URL=postgres://root:root@localhost:5432/finance-management-api-test
+   ```
+
+3. When running tests, the application will automatically use `.env.test` configuration:
+   ```bash
+   bun run test
+   ```
+
+Note: The test database will be automatically created and migrated when running tests.
+
 ### Production Deployment
 
 For production deployment:
