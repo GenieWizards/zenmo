@@ -16,6 +16,7 @@ export function generateMetadata({
   sortBy?: string | undefined;
 }): z.infer<typeof metadataSchema> {
   const totalPages = Math.ceil(totalCount / limit);
+  const currentCount = Math.min(limit, totalCount - (page - 1) * limit);
 
   return {
     totalCount,
@@ -27,6 +28,6 @@ export function generateMetadata({
     hasNextPage: page < totalPages,
     hasPrevPage: page > 1,
     offset: (page - 1) * limit,
-    currentCount: Math.min(limit, totalCount - (page - 1) * limit),
+    currentCount: currentCount > 0 ? currentCount : 0,
   };
 }
