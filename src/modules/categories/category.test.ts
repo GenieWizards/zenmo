@@ -1,5 +1,4 @@
-import { $ } from "bun";
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { beforeAll, describe, expect, it } from "bun:test";
 import { testClient } from "hono/testing";
 
 import { AuthRoles } from "@/common/enums";
@@ -20,8 +19,6 @@ describe("categories", () => {
   let adminSessionToken = "";
 
   beforeAll(async () => {
-    await $`bun drizzle-kit push --force`;
-
     const testUser = await createTestUser({
       email: "user@sample.com",
       password: "12345678",
@@ -39,10 +36,6 @@ describe("categories", () => {
     });
 
     adminSessionToken = adminUser.session;
-  });
-
-  afterAll(async () => {
-    await $`bun run db:clear`;
   });
 
   describe("POST /categories", () => {
@@ -117,7 +110,86 @@ describe("categories", () => {
       if (response.status === 401) {
         const json = await response.json();
 
+        expect(json.success).toBe(false);
         expect(json.message).toBe("You are not authorized, please login");
+      }
+    });
+
+    it("should return 409 when user trying to create a category with same name", async () => {
+      await categoryClient.categories.$post(
+        {
+          json: {
+            name: "Test user category",
+            description: "Test user category description",
+          },
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      const response = await categoryClient.categories.$post(
+        {
+          json: {
+            name: "Test user category",
+            description: "Test user category description",
+          },
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(409);
+
+      if (response.status === 409) {
+        const json = await response.json();
+
+        expect(json.success).toBe(false);
+        expect(json.message).toBe("Category already exists");
+      }
+    });
+
+    it("should return 409 when admin trying to create a category with same name", async () => {
+      await categoryClient.categories.$post(
+        {
+          json: {
+            name: "Test admin category",
+            description: "Test admin category description",
+          },
+        },
+        {
+          headers: {
+            session: adminSessionToken,
+          },
+        },
+      );
+
+      const response = await categoryClient.categories.$post(
+        {
+          json: {
+            name: "Test admin category",
+            description: "Test admin category description",
+          },
+        },
+        {
+          headers: {
+            session: adminSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(409);
+
+      if (response.status === 409) {
+        const json = await response.json();
+
+        expect(json.success).toBe(false);
+        expect(json.message).toBe("Category already exists");
       }
     });
   });
