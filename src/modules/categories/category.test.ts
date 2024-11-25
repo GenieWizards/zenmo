@@ -64,6 +64,7 @@ describe("categories", () => {
           "description",
           "Test user category description",
         );
+        expect(json.data.isActive).toBeTrue();
         expect(json.data).toHaveProperty("userId");
       }
     });
@@ -93,6 +94,7 @@ describe("categories", () => {
           "description",
           "Test admin category description",
         );
+        expect(json.data.isActive).toBeTrue();
         expect(json.data.userId).toBeNull();
       }
     });
@@ -190,6 +192,113 @@ describe("categories", () => {
 
         expect(json.success).toBe(false);
         expect(json.message).toBe("Category already exists");
+      }
+    });
+  });
+
+  describe("GET /categories", () => {
+    it("should get categories successfully as a user", async () => {
+      const response = await categoryClient.categories.$get(
+        {
+          query: {},
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(200);
+
+      if (response.status === 200) {
+        const json = await response.json();
+
+        expect(json.success).toBe(true);
+        expect(json.message).toBe("Categories retrieved successfully");
+        expect(json.data).toBeArray();
+        expect(json.metadata).toHaveProperty("page");
+        expect(json.metadata).toHaveProperty("limit");
+        expect(json.metadata).toHaveProperty("totalPages");
+        expect(json.metadata).toHaveProperty("totalCount");
+      }
+    });
+
+    it("should get categories successfully as an admin", async () => {
+      const response = await categoryClient.categories.$get(
+        {
+          query: {},
+        },
+        {
+          headers: {
+            session: adminSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(200);
+
+      if (response.status === 200) {
+        const json = await response.json();
+
+        expect(json.success).toBe(true);
+        expect(json.message).toBe("Categories retrieved successfully");
+        expect(Array.isArray(json.data)).toBe(true);
+        expect(json.metadata).toHaveProperty("page");
+        expect(json.metadata).toHaveProperty("limit");
+        expect(json.metadata).toHaveProperty("totalPages");
+        expect(json.metadata).toHaveProperty("totalCount");
+      }
+    });
+
+    it("should handle pagination parameters correctly", async () => {
+      const response = await categoryClient.categories.$get(
+        {
+          query: {
+            page: 2,
+            limit: 5,
+          },
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(200);
+
+      if (response.status === 200) {
+        const json = await response.json();
+
+        expect(json.metadata.page).toBe(2);
+        expect(json.metadata.limit).toBe(5);
+      }
+    });
+
+    it("should handle search parameter correctly", async () => {
+      const response = await categoryClient.categories.$get(
+        {
+          query: {
+            search: "test",
+          },
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(200);
+
+      if (response.status === 200) {
+        const json = await response.json();
+
+        expect(Array.isArray(json.data)).toBe(true);
+        json.data.forEach((category) => {
+          expect(category.name.toLowerCase()).toContain("test");
+        });
       }
     });
   });
