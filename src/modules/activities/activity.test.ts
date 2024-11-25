@@ -110,8 +110,8 @@ describe("Activities List", () => {
     const response = await activityClient.activities.$get(
       {
         query: {
-          page: "1",
-          limit: "10",
+          page: 1,
+          limit: 10,
         },
       },
       {
@@ -154,8 +154,8 @@ describe("Activities List", () => {
     const response = await activityClient.activities.$get(
       {
         query: {
-          page: "2",
-          limit: "5",
+          page: 2,
+          limit: 5,
         },
       },
       {
@@ -177,8 +177,8 @@ describe("Activities List", () => {
     const response = await activityClient.activities.$get(
       {
         query: {
-          page: "-1",
-          limit: "10",
+          page: -1,
+          limit: 10,
         },
       },
       {
