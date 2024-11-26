@@ -13,6 +13,8 @@ import createErrorSchema from "@/common/schema/create-error.schema";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertGroupSchema, selectGroupSchema } from "@/db/schemas/group.model";
 
+import { groupQuerySchema } from "./group.schema";
+
 const tags = ["Groups"];
 
 export const createGroupRoute = createRoute({
@@ -72,6 +74,37 @@ export const createGroupRoute = createRoute({
   },
 });
 
+export const getAllGroupsRoute = createRoute({
+  tags,
+  method: "get",
+  path: "/groups",
+  middleware: [
+    authMiddleware(),
+    requireAuth(),
+    checkRoleGuard(AuthRoles.ADMIN, AuthRoles.USER),
+  ] as const,
+  request: {
+    query: groupQuerySchema,
+  },
+  responses: {
+    [HTTPStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean().default(true),
+        message: z.string(),
+        data: z.array(selectGroupSchema),
+      }),
+      "List of Groups received successfully",
+    ),
+    [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "You are not authorized, please login",
+    ),
+  },
+});
+
 export const deleteGroupRoute = createRoute({
   tags,
   method: "delete",
@@ -126,4 +159,5 @@ export const deleteGroupRoute = createRoute({
 });
 
 export type TCreateGroupRoute = typeof createGroupRoute;
+export type TGetAllGroupsRoute = typeof getAllGroupsRoute;
 export type TDeleteGroupRoute = typeof deleteGroupRoute;

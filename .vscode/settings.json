@@ -46,7 +46,10 @@
     "pcss",
     "postcss"
   ],
-  "cSpell.words": ["openapi"],
+  "cSpell.words": [
+    "ilike",
+    "openapi"
+  ],
   // If support for Bun should be added to the default "JavaScript Debug Terminal".
   "bun.debugTerminal.enabled": true,
 

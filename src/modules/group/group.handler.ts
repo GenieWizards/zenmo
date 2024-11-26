@@ -3,13 +3,15 @@ import type { TSelectGroupSchema } from "@/db/schemas/group.model";
 
 import { ActivityType } from "@/common/enums";
 import { logActivity } from "@/common/helpers/activity-log.helper";
+import { generateMetadata } from "@/common/helpers/metadata.helper";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
-import type { TCreateGroupRoute, TDeleteGroupRoute } from "./group.routes";
+import type { TCreateGroupRoute, TDeleteGroupRoute, TGetAllGroupsRoute } from "./group.routes";
 
 import {
   createGroupRepository,
   deleteGroupRepository,
+  getAllGroupsRepository,
 } from "./group.repository";
 
 export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
@@ -62,6 +64,43 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
       data: group,
     },
     HTTPStatusCodes.CREATED,
+  );
+};
+
+export const getAllGroups: AppRouteHandler<TGetAllGroupsRoute> = async (c) => {
+  const user = c.get("user");
+  const query = c.req.valid("query");
+  const logger = c.get("logger");
+
+  if (!user) {
+    logger.error("User is not authorized to access group data");
+    return c.json(
+      {
+        success: false,
+        message: "You are not authorized, please login",
+      },
+      HTTPStatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  const fetchedGroups = await getAllGroupsRepository(query);
+  const totalCount: number = fetchedGroups.totalCount;
+  const groups: TSelectGroupSchema[] | null = fetchedGroups.groups;
+
+  const metadata = generateMetadata({
+    ...query,
+    totalCount,
+  });
+
+  logger.info("Groups data received successfully");
+  return c.json(
+    {
+      success: true,
+      message: "Groups data received successfully",
+      data: groups,
+      metadata,
+    },
+    HTTPStatusCodes.OK,
   );
 };
 
