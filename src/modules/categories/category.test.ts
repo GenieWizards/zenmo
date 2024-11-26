@@ -303,7 +303,7 @@ describe("categories", () => {
     });
   });
 
-  describe("PATH categories/:categoryId", () => {
+  describe("PATCH categories/:categoryId", () => {
     let userCategoryId: string;
     let adminCategoryId: string;
 
@@ -780,6 +780,253 @@ describe("categories", () => {
         expect(json.message).toBe(
           "You are not authorized to update this category",
         );
+      }
+    });
+  });
+
+  describe("DELETE /categories/:categoryId", () => {
+    let userCategoryId: string;
+    let adminCategoryId: string;
+
+    beforeEach(async () => {
+      // Create a category as user
+      const userCategoryResponse = await categoryClient.categories.$post(
+        {
+          json: {
+            name: "Test Delete User Category",
+            description: "Test User Category Description",
+          },
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      if (userCategoryResponse.status === 201) {
+        const userCategory = await userCategoryResponse.json();
+        userCategoryId = userCategory.data.id;
+      }
+
+      // Create a category as admin
+      const adminCategoryResponse = await categoryClient.categories.$post(
+        {
+          json: {
+            name: "Test Delete Admin Category",
+            description: "Test Admin Category Description",
+          },
+        },
+        {
+          headers: {
+            session: adminSessionToken,
+          },
+        },
+      );
+
+      if (adminCategoryResponse.status === 201) {
+        const adminCategory = await adminCategoryResponse.json();
+        adminCategoryId = adminCategory.data.id;
+      }
+    });
+
+    it("should delete category successfully as owner", async () => {
+      const response = await categoryClient.categories[":categoryId"].$delete(
+        {
+          param: {
+            categoryId: userCategoryId,
+          },
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(200);
+
+      if (response.status === 200) {
+        const json = await response.json();
+        expect(json.success).toBe(true);
+        expect(json.message).toBe("Category deleted successfully");
+      }
+    });
+
+    it("should delete any category successfully as admin", async () => {
+      const response = await categoryClient.categories[":categoryId"].$delete(
+        {
+          param: {
+            categoryId: userCategoryId, // Admin deleting user's category
+          },
+        },
+        {
+          headers: {
+            session: adminSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(200);
+
+      if (response.status === 200) {
+        const json = await response.json();
+        expect(json.success).toBe(true);
+        expect(json.message).toBe("Category deleted successfully");
+      }
+    });
+
+    it("should return 403 when non-owner user tries to delete category", async () => {
+      // Create another user session
+      const anotherUserResponse = await createTestUser({
+        email: "another-delete@test.com",
+        password: "password123",
+        fullName: "Another Test User",
+      });
+
+      const anotherUserToken = anotherUserResponse.session;
+
+      const response = await categoryClient.categories[":categoryId"].$delete(
+        {
+          param: {
+            categoryId: userCategoryId,
+          },
+        },
+        {
+          headers: {
+            session: anotherUserToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(403);
+
+      if (response.status === 403) {
+        const json = await response.json();
+        expect(json.success).toBe(false);
+        expect(json.message).toBe(
+          "You are not authorized to delete this category",
+        );
+      }
+    });
+
+    it("should return 404 when category does not exist", async () => {
+      const response = await categoryClient.categories[":categoryId"].$delete(
+        {
+          param: {
+            categoryId: "non-existent-id",
+          },
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(404);
+
+      if (response.status === 404) {
+        const json = await response.json();
+        expect(json.success).toBe(false);
+        expect(json.message).toBe("Category not found");
+      }
+    });
+
+    it("should return 401 when user is not authenticated", async () => {
+      const response = await categoryClient.categories[":categoryId"].$delete({
+        param: {
+          categoryId: userCategoryId,
+        },
+      });
+
+      expect(response.status).toBe(401);
+
+      if (response.status === 401) {
+        const json = await response.json();
+        expect(json.success).toBe(false);
+        expect(json.message).toBe("You are not authorized, please login");
+      }
+    });
+
+    it("should allow admin to delete their own category", async () => {
+      const response = await categoryClient.categories[":categoryId"].$delete(
+        {
+          param: {
+            categoryId: adminCategoryId,
+          },
+        },
+        {
+          headers: {
+            session: adminSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(200);
+
+      if (response.status === 200) {
+        const json = await response.json();
+        expect(json.success).toBe(true);
+        expect(json.message).toBe("Category deleted successfully");
+      }
+    });
+
+    it("should not allow regular user to delete admin-created category", async () => {
+      const response = await categoryClient.categories[":categoryId"].$delete(
+        {
+          param: {
+            categoryId: adminCategoryId,
+          },
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(403);
+
+      if (response.status === 403) {
+        const json = await response.json();
+        expect(json.success).toBe(false);
+        expect(json.message).toBe(
+          "You are not authorized to delete this category",
+        );
+      }
+    });
+
+    it("should allow another admin to delete admin-created category", async () => {
+      // Create another admin user
+      const anotherAdminResponse = await createTestUser({
+        email: "another-admin-delete@test.com",
+        password: "password123",
+        fullName: "Another Admin User",
+        role: AuthRoles.ADMIN,
+      });
+
+      const anotherAdminToken = anotherAdminResponse.session;
+
+      const response = await categoryClient.categories[":categoryId"].$delete(
+        {
+          param: {
+            categoryId: adminCategoryId,
+          },
+        },
+        {
+          headers: {
+            session: anotherAdminToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(200);
+
+      if (response.status === 200) {
+        const json = await response.json();
+        expect(json.success).toBe(true);
+        expect(json.message).toBe("Category deleted successfully");
       }
     });
   });
