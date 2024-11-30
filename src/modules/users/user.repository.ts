@@ -1,8 +1,7 @@
 import { eq } from "drizzle-orm";
 
-import type { TInsertUserSchema } from "@/db/schemas/user.model";
-
 import { db } from "@/db/adapter";
+import type { TInsertUserSchema } from "@/db/schemas/user.model";
 import userModel, { lower } from "@/db/schemas/user.model";
 
 export async function createUserRepository(payload: TInsertUserSchema) {

@@ -1,8 +1,7 @@
 import { deleteCookie, setCookie } from "hono/cookie";
 
-import type { AppRouteHandler } from "@/common/lib/types";
-
 import { AuthRoles } from "@/common/enums";
+import type { AppRouteHandler } from "@/common/lib/types";
 import {
   hashPassword,
   verifyPasswordHash,
@@ -14,13 +13,6 @@ import { db } from "@/db/adapter";
 import { accountModel, sessionModel, userModel } from "@/db/schemas";
 import env from "@/env";
 
-import type {
-  TLoggedInUserDetails,
-  TLoginRoute,
-  TLogoutRoute,
-  TRegisterRoute,
-} from "./auth.routes";
-
 import { getAccountRepository } from "../accounts/account.repository";
 import {
   createSessionReposiroty,
@@ -30,6 +22,12 @@ import {
   getUserByEmailRepository,
   getUserByIdRepository,
 } from "../users/user.repository";
+import type {
+  TLoggedInUserDetails,
+  TLoginRoute,
+  TLogoutRoute,
+  TRegisterRoute,
+} from "./auth.routes";
 
 export const register: AppRouteHandler<TRegisterRoute> = async (c) => {
   const payload = c.req.valid("json");

@@ -23,7 +23,29 @@ export default antfu(
       "perfectionist/sort-imports": [
         "error",
         {
-          internalPattern: ["@/**"],
+          groups: [
+            ["external-type", "builtin", "external"],
+            ["internal-type", "internal"],
+            [
+              "parent-type",
+              "parent",
+              "sibling-type",
+              "sibling",
+              "index-type",
+              "index",
+            ],
+          ],
+          customGroups: {
+            type: {
+              internal: "^@/.*",
+              external: "^@(?!/).*",
+            },
+            value: {
+              internal: "^@/.*",
+              external: "^@(?!/).*",
+            },
+          },
+          newlinesBetween: "always",
         },
       ],
       "unicorn/filename-case": [

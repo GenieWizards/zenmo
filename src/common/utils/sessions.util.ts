@@ -1,11 +1,10 @@
 import { encodeBase32LowerCaseNoPadding } from "@oslojs/encoding";
 import { eq } from "drizzle-orm";
 
-import type { TSelectSessionSchema } from "@/db/schemas/session.model";
-import type { TSelectUserSchema } from "@/db/schemas/user.model";
-
 import { db } from "@/db/adapter";
+import type { TSelectSessionSchema } from "@/db/schemas/session.model";
 import sessionModel from "@/db/schemas/session.model";
+import type { TSelectUserSchema } from "@/db/schemas/user.model";
 import userModel from "@/db/schemas/user.model";
 
 export type SessionValidationResult =

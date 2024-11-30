@@ -1,16 +1,14 @@
-import type { AppRouteHandler } from "@/common/lib/types";
-import type { TSelectGroupSchema } from "@/db/schemas/group.model";
-
 import { ActivityType } from "@/common/enums";
 import { logActivity } from "@/common/helpers/activity-log.helper";
+import type { AppRouteHandler } from "@/common/lib/types";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
-
-import type { TCreateGroupRoute, TDeleteGroupRoute } from "./group.routes";
+import type { TSelectGroupSchema } from "@/db/schemas/group.model";
 
 import {
   createGroupRepository,
   deleteGroupRepository,
 } from "./group.repository";
+import type { TCreateGroupRoute, TDeleteGroupRoute } from "./group.routes";
 
 export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   const user = c.get("user");

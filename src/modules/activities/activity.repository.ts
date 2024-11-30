@@ -1,14 +1,11 @@
 import type { SQL } from "drizzle-orm";
-
 import { and, asc, desc, sql } from "drizzle-orm";
 
-import type { TInsertActivitySchema } from "@/db/schemas/activity.model";
-
 import { db } from "@/db/adapter";
+import type { TInsertActivitySchema } from "@/db/schemas/activity.model";
 import activityModel from "@/db/schemas/activity.model";
 
 import type { TActivityQuery } from "./activity.schema";
-
 import { activitySortBy } from "./activity.utils";
 
 export async function createActivityRepository(payload: TInsertActivitySchema) {
