@@ -1,7 +1,6 @@
-import type { z } from "zod";
-
 import { pgEnum, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import type { z } from "zod";
 
 import { GroupStatus, groupStatusArr } from "@/common/enums";
 

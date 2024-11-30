@@ -1,6 +1,5 @@
-import type { TSelectActivitySchema } from "@/db/schemas/activity.model";
-
 import { activityModel } from "@/db/schemas";
+import type { TSelectActivitySchema } from "@/db/schemas/activity.model";
 
 import type { IActivityMetadata } from "./activity.types";
 

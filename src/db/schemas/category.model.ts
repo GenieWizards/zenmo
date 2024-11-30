@@ -1,5 +1,3 @@
-import type { z } from "zod";
-
 import { relations } from "drizzle-orm";
 import {
   boolean,
@@ -10,6 +8,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import type { z } from "zod";
 
 import userModel, { lower } from "./user.model";
 

@@ -1,10 +1,8 @@
-import type { IActivityMetadata } from "@/modules/activities/activity.types";
-
 import { db } from "@/db/adapter";
 import { activityModel } from "@/db/schemas";
+import type { IActivityMetadata } from "@/modules/activities/activity.types";
 
 import type { ActivityTypeValues } from "../enums";
-
 import { customLogger } from "../middlewares";
 
 export async function logActivity(params: {

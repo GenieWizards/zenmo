@@ -1,5 +1,3 @@
-import type { z } from "zod";
-
 import {
   jsonb,
   pgEnum,
@@ -8,6 +6,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import type { z } from "zod";
 
 import { activityTypeArr } from "@/common/enums";
 

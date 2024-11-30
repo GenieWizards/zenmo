@@ -1,8 +1,6 @@
 import type { SQL } from "drizzle-orm";
-import type { AnyPgColumn } from "drizzle-orm/pg-core";
-import type { z } from "zod";
-
 import { relations, sql } from "drizzle-orm";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import {
   boolean,
   pgEnum,
@@ -12,6 +10,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import type { z } from "zod";
 
 import { AuthRoles, authRolesArr } from "@/common/enums";
 

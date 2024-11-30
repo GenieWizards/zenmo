@@ -1,8 +1,7 @@
 import { eq } from "drizzle-orm";
 
-import type { TInsertGroupSchema } from "@/db/schemas/group.model";
-
 import { db } from "@/db/adapter";
+import type { TInsertGroupSchema } from "@/db/schemas/group.model";
 import groupModel from "@/db/schemas/group.model";
 
 export async function createGroupRepository(groupPayload: TInsertGroupSchema) {

@@ -1,11 +1,9 @@
 import type { ErrorHandler } from "hono";
-import type { z } from "zod";
-
 import { HTTPException } from "hono/http-exception";
+import type { z } from "zod";
 import { ZodError } from "zod";
 
 import type { ErrorSchema } from "../schema/error-object.schema";
-
 import * as HTTP_CODE from "../utils/http-status-codes.util";
 import * as HTTP_PHRASE from "../utils/http-status-phrases.util";
 
