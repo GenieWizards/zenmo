@@ -23,19 +23,22 @@ const expenseModel = pgTable("expense", {
     .$defaultFn(() => Bun.randomUUIDv7())
     .primaryKey()
     .notNull(),
-
   payerId: varchar({ length: 60 })
     .notNull()
     .references(() => userModel.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  categoryId: varchar({ length: 60 })
+  creatorId: varchar({ length: 60 })
     .notNull()
-    .references(() => categoryModel.id, {
+    .references(() => userModel.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
+  categoryId: varchar({ length: 60 }).references(() => categoryModel.id, {
+    onDelete: "cascade",
+    onUpdate: "cascade",
+  }),
   groupId: varchar({ length: 60 }).references(() => groupModel.id, {
     onDelete: "cascade",
     onUpdate: "cascade",
@@ -54,6 +57,8 @@ export const selectExpenseSchema = createSelectSchema(expenseModel, {
   id: schema => schema.id.describe("Unique identifier for the expense"),
   payerId: schema =>
     schema.payerId.describe("Reference to the user who paid for the expense"),
+  creatorId: schema =>
+    schema.creatorId.describe("Reference to the user who created the expense"),
   categoryId: schema =>
     schema.categoryId.describe("Reference to the category of the expense"),
   groupId: schema =>
@@ -77,7 +82,7 @@ export const selectExpenseSchema = createSelectSchema(expenseModel, {
 export const insertExpenseSchema = createInsertSchema(expenseModel, {
   id: schema => schema.id.describe("Unique identifier for the expense"),
   payerId: schema =>
-    schema.payerId.describe("Reference to the user who paid for the expense"),
+    schema.payerId.describe("Reference to the user who paid for the expense. (Note: In case of admin user, this field is required.)"),
   categoryId: schema =>
     schema.categoryId.describe("Reference to the category of the expense"),
   groupId: schema =>
