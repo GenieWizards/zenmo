@@ -6,7 +6,8 @@ export const groupQuerySchema = commonQuerySchema.merge(
   z.object({
     status: z
       .enum(["settled", "unsettled"])
-      .describe("Filter by status"),
+      .describe("Filter by status")
+      .default("unsettled"),
   }),
 );
 

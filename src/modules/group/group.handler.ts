@@ -83,7 +83,7 @@ export const getAllGroups: AppRouteHandler<TGetAllGroupsRoute> = async (c) => {
     );
   }
 
-  const fetchedGroups = await getAllGroupsRepository(query);
+  const fetchedGroups = await getAllGroupsRepository(query, user);
   const totalCount: number = fetchedGroups.totalCount;
   const groups: TSelectGroupSchema[] | null = fetchedGroups.groups;
 
@@ -96,7 +96,7 @@ export const getAllGroups: AppRouteHandler<TGetAllGroupsRoute> = async (c) => {
   return c.json(
     {
       success: true,
-      message: "Groups data received successfully",
+      message: "List of groups received successfully",
       data: groups,
       metadata,
     },
