@@ -9,7 +9,6 @@ import {
   checkRoleGuard,
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
-import createErrorSchema from "@/common/schema/create-error.schema";
 import { metadataSchema } from "@/common/schema/metadata.schema";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import {
@@ -70,10 +69,6 @@ export const createCategoryRoute = createRoute({
         message: z.string(),
       }),
       "Category already exists",
-    ),
-    [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(insertCategorySchema),
-      "The validation error(s)",
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({

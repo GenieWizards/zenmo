@@ -3,17 +3,10 @@ import type { TInsertExpenseSchema } from "@/db/schemas/expense.model";
 import { db } from "@/db/adapter";
 import expenseModel from "@/db/schemas/expense.model";
 
-interface IExpensePayload {
-  amount: TInsertExpenseSchema["amount"];
-  currency: TInsertExpenseSchema["currency"];
-  splitType: TInsertExpenseSchema["splitType"];
-  creatorId: TInsertExpenseSchema["creatorId"];
-  payerId: TInsertExpenseSchema["payerId"];
-  description?: TInsertExpenseSchema["description"];
-}
+type TExpensePayload = Pick<TInsertExpenseSchema, "amount" | "currency" | "splitType" | "creatorId" | "payerId" | "description" >;
 
 export async function createExpenseRepository(
-  expensePayload: IExpensePayload,
+  expensePayload: TExpensePayload,
 ) {
   const [expense] = await db
     .insert(expenseModel)

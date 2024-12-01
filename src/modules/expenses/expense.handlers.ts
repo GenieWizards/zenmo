@@ -135,7 +135,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
         success: false,
         message: "Failed to create expense",
       },
-      HTTPStatusCodes.UNPROCESSABLE_ENTITY,
+      HTTPStatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
 
