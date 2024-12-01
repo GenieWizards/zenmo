@@ -229,7 +229,7 @@ export const deleteGroupRoute = createRoute({
   middleware: [
     authMiddleware(),
     requireAuth(),
-    checkRoleGuard(AuthRoles.ADMIN, AuthRoles.USER),
+    checkRoleGuard(AuthRoles.USER),
   ] as const,
   request: {
     params: z.object({
