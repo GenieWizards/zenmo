@@ -1,6 +1,5 @@
-import { z } from "zod";
-
 import { commonQuerySchema } from "@/common/schema/metadata.schema";
+import { z } from "zod";
 
 export const groupQuerySchema = commonQuerySchema.merge(
   z.object({
