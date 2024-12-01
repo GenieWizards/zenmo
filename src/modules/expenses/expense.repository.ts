@@ -3,47 +3,21 @@ import type { TInsertExpenseSchema } from "@/db/schemas/expense.model";
 import { db } from "@/db/adapter";
 import expenseModel from "@/db/schemas/expense.model";
 
-interface TExpensePayloadUser {
+interface IExpensePayload {
   amount: TInsertExpenseSchema["amount"];
   currency: TInsertExpenseSchema["currency"];
   splitType: TInsertExpenseSchema["splitType"];
-  description?: TInsertExpenseSchema["description"];
-}
-
-interface TExpensePayloadAdmin {
-  amount: TInsertExpenseSchema["amount"];
-  currency: TInsertExpenseSchema["currency"];
-  splitType: TInsertExpenseSchema["splitType"];
+  creatorId: TInsertExpenseSchema["creatorId"];
   payerId: TInsertExpenseSchema["payerId"];
   description?: TInsertExpenseSchema["description"];
 }
 
-export async function createExpenseRepositoryViaUser(
-  expensePayload: TExpensePayloadUser,
-  userId: string,
+export async function createExpenseRepository(
+  expensePayload: IExpensePayload,
 ) {
   const [expense] = await db
     .insert(expenseModel)
-    .values({
-      ...expensePayload,
-      payerId: userId,
-      creatorId: userId,
-    })
-    .returning();
-
-  return expense;
-}
-
-export async function createExpenseRepositoryViaAdmin(
-  expensePayload: TExpensePayloadAdmin,
-  userId: string,
-) {
-  const [expense] = await db
-    .insert(expenseModel)
-    .values({
-      ...expensePayload,
-      creatorId: userId,
-    })
+    .values(expensePayload)
     .returning();
 
   return expense;

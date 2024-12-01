@@ -1,12 +1,10 @@
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 
-import { AuthRoles } from "@/common/enums";
 import jsonContentRequired from "@/common/helpers/json-content-required.helper";
 import { jsonContent } from "@/common/helpers/json-content.helper";
 import {
   authMiddleware,
-  checkRoleGuard,
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
@@ -24,7 +22,6 @@ export const createExpenseRoute = createRoute({
   middleware: [
     authMiddleware(),
     requireAuth(),
-    checkRoleGuard(AuthRoles.ADMIN, AuthRoles.USER),
   ] as const,
   request: {
     body: jsonContentRequired(

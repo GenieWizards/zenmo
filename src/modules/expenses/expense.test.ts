@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "bun:test";
 import { testClient } from "hono/testing";
 
-import { AuthRoles } from "@/common/enums";
+import { AuthRoles, SplitType } from "@/common/enums";
 import { createApp } from "@/common/lib/create-app.lib";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { createTestCategory, createTestUser } from "@/common/utils/test.util";
@@ -39,6 +39,13 @@ describe("expenses", () => {
     id: "",
   };
 
+  const expenseTestCommonFields = {
+    amount: 100,
+    currency: "USD",
+    splitType: SplitType.EVEN,
+    description: "expense description",
+  };
+
   beforeAll(async () => {
     testUser = await createTestUser({
       email: "testUser@sample.com",
@@ -66,14 +73,11 @@ describe("expenses", () => {
   });
 
   describe("POST /expenses", () => {
-    it("should create an expense as user", async () => {
+    it("should create an expense as user ", async () => {
       const response = await expenseClient.expenses.$post(
         {
           json: {
-            amount: 100,
-            currency: "USD",
-            splitType: "even",
-            description: "expense description",
+            ...expenseTestCommonFields,
             categoryId: testCategory.id,
           },
         },
@@ -91,9 +95,38 @@ describe("expenses", () => {
         expect(json.message).toBe("Expense created successfully");
         expect(json.data).toHaveProperty("amount", 100);
         expect(json.data).toHaveProperty("currency", "USD");
-        expect(json.data).toHaveProperty("splitType", "even");
+        expect(json.data).toHaveProperty("splitType", SplitType.EVEN);
         expect(json.data).toHaveProperty("categoryId", testCategory.id);
         expect(json.data).toHaveProperty("payerId", testUser.id);
+      }
+    });
+
+    it("should create an expense as user with payerId", async () => {
+      const response = await expenseClient.expenses.$post(
+        {
+          json: {
+            ...expenseTestCommonFields,
+            categoryId: testCategory.id,
+            payerId: testUser2.id,
+          },
+        },
+        {
+          headers: {
+            session: testUser.session,
+          },
+        },
+      );
+
+      if (response.status === HTTPStatusCodes.CREATED) {
+        const json = await response.json();
+
+        expect(json.success).toBe(true);
+        expect(json.message).toBe("Expense created successfully");
+        expect(json.data).toHaveProperty("amount", 100);
+        expect(json.data).toHaveProperty("currency", "USD");
+        expect(json.data).toHaveProperty("splitType", SplitType.EVEN);
+        expect(json.data).toHaveProperty("categoryId", testCategory.id);
+        expect(json.data).toHaveProperty("payerId", testUser2.id);
       }
     });
 
@@ -101,10 +134,7 @@ describe("expenses", () => {
       const response = await expenseClient.expenses.$post(
         {
           json: {
-            amount: 100,
-            currency: "USD",
-            splitType: "even",
-            description: "expense description",
+            ...expenseTestCommonFields,
             payerId: testUser.id,
             categoryId: testCategory.id,
           },
@@ -123,10 +153,58 @@ describe("expenses", () => {
         expect(json.message).toBe("Expense created successfully");
         expect(json.data).toHaveProperty("amount", 100);
         expect(json.data).toHaveProperty("currency", "USD");
-        expect(json.data).toHaveProperty("splitType", "even");
+        expect(json.data).toHaveProperty("splitType", SplitType.EVEN);
         expect(json.data).toHaveProperty("creatorId", adminUser.id);
         expect(json.data).toHaveProperty("categoryId", testCategory.id);
         expect(json.data).toHaveProperty("payerId", testUser.id);
+      }
+    });
+
+    it("should return 400 when user creates expense with an invalid payer id", async () => {
+      const response = await expenseClient.expenses.$post(
+        {
+          json: {
+            ...expenseTestCommonFields,
+            categoryId: testCategory.id,
+            payerId: "invalid payer id",
+          },
+        },
+        {
+          headers: {
+            session: testUser.session,
+          },
+        },
+      );
+
+      if (response.status === HTTPStatusCodes.BAD_REQUEST) {
+        const json = await response.json();
+
+        expect(json.success).toBe(false);
+        expect(json.message).toBe("Payer not found");
+      }
+    });
+
+    it("should return 400 when admin creates expense with an invalid payer id", async () => {
+      const response = await expenseClient.expenses.$post(
+        {
+          json: {
+            ...expenseTestCommonFields,
+            categoryId: testCategory.id,
+            payerId: "invalid payer id",
+          },
+        },
+        {
+          headers: {
+            session: adminUser.session,
+          },
+        },
+      );
+
+      if (response.status === HTTPStatusCodes.BAD_REQUEST) {
+        const json = await response.json();
+
+        expect(json.success).toBe(false);
+        expect(json.message).toBe("Payer not found");
       }
     });
 
@@ -134,10 +212,7 @@ describe("expenses", () => {
       const response = await expenseClient.expenses.$post(
         {
           json: {
-            amount: 100,
-            currency: "USD",
-            splitType: "even",
-            description: "expense description",
+            ...expenseTestCommonFields,
           },
         },
         {
@@ -159,10 +234,7 @@ describe("expenses", () => {
       const response = await expenseClient.expenses.$post(
         {
           json: {
-            amount: 100,
-            currency: "USD",
-            splitType: "even",
-            description: "expense description",
+            ...expenseTestCommonFields,
             categoryId: testCategory2.id,
           },
         },
@@ -185,10 +257,7 @@ describe("expenses", () => {
       const response = await expenseClient.expenses.$post(
         {
           json: {
-            amount: 100,
-            currency: "USD",
-            splitType: "even",
-            description: "expense description",
+            ...expenseTestCommonFields,
             payerId: testUser.id,
             categoryId: testCategory2.id,
           },
@@ -211,10 +280,7 @@ describe("expenses", () => {
     it("should return 401 when user is not logged in", async () => {
       const response = await expenseClient.expenses.$post({
         json: {
-          amount: 100,
-          currency: "USD",
-          splitType: "even",
-          description: "expense description",
+          ...expenseTestCommonFields,
         },
       });
 

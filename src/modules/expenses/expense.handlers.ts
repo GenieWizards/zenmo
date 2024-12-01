@@ -7,10 +7,8 @@ import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import type { TCreateExpenseRoute } from "./expense.routes";
 
 import { getCategoryRepository } from "../categories/category.repository";
-import {
-  createExpenseRepositoryViaAdmin,
-  createExpenseRepositoryViaUser,
-} from "./expense.repository";
+import { getUserByIdRepository } from "../users/user.repository";
+import { createExpenseRepository } from "./expense.repository";
 
 export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
   c,
@@ -33,7 +31,23 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
   let expense;
   switch (user.role) {
     case AuthRoles.USER: {
-      const { categoryId } = payload;
+      const { categoryId, payerId } = payload;
+
+      // check if payerId is valid
+      if (payerId) {
+        const payerUser = await getUserByIdRepository(payerId);
+
+        if (!payerUser) {
+          logger.debug("Payer not found");
+          return c.json(
+            {
+              success: false,
+              message: "Payer not found",
+            },
+            HTTPStatusCodes.BAD_REQUEST,
+          );
+        }
+      }
 
       // check if category either belongs to user or global
       if (categoryId) {
@@ -51,17 +65,38 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
         }
       }
 
-      expense = await createExpenseRepositoryViaUser(payload, user?.id);
+      const expensePayload = {
+        ...payload,
+        payerId: payerId || user.id,
+        creatorId: user.id,
+      };
+
+      expense = await createExpenseRepository(expensePayload);
       break;
     }
     case AuthRoles.ADMIN: {
       const { payerId, categoryId } = payload;
+
+      // check if payerId exists
       if (!payerId) {
         logger.debug("Missing payer Id to create expense");
         return c.json(
           {
             success: false,
             message: "Missing payerId",
+          },
+          HTTPStatusCodes.BAD_REQUEST,
+        );
+      }
+
+      // check if payerId is valid
+      const payerUser = await getUserByIdRepository(payerId);
+      if (!payerUser) {
+        logger.debug("Payer not found");
+        return c.json(
+          {
+            success: false,
+            message: "Payer not found",
           },
           HTTPStatusCodes.BAD_REQUEST,
         );
@@ -83,11 +118,12 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
         }
       }
 
-      const adminPayload = {
+      const expensePayload = {
         ...payload,
         payerId,
+        creatorId: user.id,
       };
-      expense = await createExpenseRepositoryViaAdmin(adminPayload, user.id);
+      expense = await createExpenseRepository(expensePayload);
       break;
     }
   }
