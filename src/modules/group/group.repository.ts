@@ -50,6 +50,15 @@ export async function getAllGroupsRepository(queryParams: TGroupQuerySchema, use
   };
 }
 
+export async function getGroupByIdRepository(groupId: string) {
+  const [groupById] = await db
+    .select()
+    .from(groupModel)
+    .where(eq(groupModel.id, groupId));
+
+  return groupById;
+}
+
 export async function updateGroupRepository(updatePayload: Partial<TInsertGroupSchema>, groupId: string) {
   const [updatedGroup] = await db
     .update(groupModel)

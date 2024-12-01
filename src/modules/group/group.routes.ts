@@ -32,6 +32,7 @@ export const createGroupRoute = createRoute({
         status: true,
         createdAt: true,
         updatedAt: true,
+        creatorId: true,
       }),
       "Group creation",
     ),
@@ -104,6 +105,60 @@ export const getAllGroupsRoute = createRoute({
   },
 });
 
+export const getGroupById = createRoute({
+  tags,
+  method: "get",
+  path: "group/:id",
+  middleware: [
+    authMiddleware(),
+    requireAuth(),
+    checkRoleGuard(AuthRoles.ADMIN, AuthRoles.USER),
+  ] as const,
+  request: {
+    params: z.object({
+      id: z.string(),
+    }),
+  },
+  responses: {
+    [HTTPStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean().default(true),
+        message: z.string(),
+        data: selectGroupSchema,
+      }),
+      "Retrieved group data by ID successfully",
+    ),
+    [HTTPStatusCodes.NOT_FOUND]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Group with id does not exist",
+    ),
+    [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "You are not authorized, please login",
+    ),
+    [HTTPStatusCodes.FORBIDDEN]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "You are not allowed to perform this action",
+    ),
+    [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Something went wrong, please try again later",
+    ),
+  },
+});
+
 export const updateGroupRoute = createRoute({
   tags,
   method: "put",
@@ -111,7 +166,7 @@ export const updateGroupRoute = createRoute({
   middleware: [
     authMiddleware(),
     requireAuth(),
-    checkRoleGuard(AuthRoles.ADMIN, AuthRoles.USER),
+    checkRoleGuard(AuthRoles.USER),
   ] as const,
   request: {
     params: z.object({
@@ -222,5 +277,6 @@ export const deleteGroupRoute = createRoute({
 
 export type TCreateGroupRoute = typeof createGroupRoute;
 export type TGetAllGroupsRoute = typeof getAllGroupsRoute;
+export type TGetGroupById = typeof getGroupById;
 export type IUpdateGroupRoute = typeof updateGroupRoute;
 export type TDeleteGroupRoute = typeof deleteGroupRoute;

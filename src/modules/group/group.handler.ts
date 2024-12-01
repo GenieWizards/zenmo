@@ -1,4 +1,4 @@
-import { ActivityType } from "@/common/enums";
+import { ActivityType, AuthRoles } from "@/common/enums";
 import { logActivity } from "@/common/helpers/activity-log.helper";
 import { generateMetadata } from "@/common/helpers/metadata.helper";
 import type { AppRouteHandler } from "@/common/lib/types";
@@ -9,9 +9,10 @@ import {
   createGroupRepository,
   deleteGroupRepository,
   getAllGroupsRepository,
+  getGroupByIdRepository,
   updateGroupRepository,
 } from "./group.repository";
-import type { IUpdateGroupRoute, TCreateGroupRoute, TDeleteGroupRoute, TGetAllGroupsRoute } from "./group.routes";
+import type { IUpdateGroupRoute, TCreateGroupRoute, TDeleteGroupRoute, TGetAllGroupsRoute, TGetGroupById } from "./group.routes";
 
 export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   const user = c.get("user");
@@ -29,9 +30,7 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     );
   }
 
-  payload.creatorId = user.id;
-
-  const group: TSelectGroupSchema | null = await createGroupRepository(payload);
+  const group: TSelectGroupSchema | null = await createGroupRepository({ ...payload, creatorId: user.id });
 
   if (!group) {
     logger.error("Failed to create group");
@@ -103,13 +102,62 @@ export const getAllGroups: AppRouteHandler<TGetAllGroupsRoute> = async (c) => {
   );
 };
 
+export const getGroupById: AppRouteHandler<TGetGroupById> = async (c) => {
+  const user = c.get("user");
+  const { id } = c.req.valid("param");
+  const logger = c.get("logger");
+
+  if (!user) {
+    logger.error("User is not authorized to delete group");
+    return c.json(
+      {
+        success: false,
+        message: "You are not authorized, please login",
+      },
+      HTTPStatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  const groupById = await getGroupByIdRepository(id);
+
+  if (!groupById) {
+    logger.error(`Group with ${id} not found`);
+    return c.json(
+      {
+        success: false,
+        message: `Group with ${id} not found`,
+      },
+      HTTPStatusCodes.NOT_FOUND,
+    );
+  }
+
+  if (groupById.creatorId !== user.id && user.role === AuthRoles.USER) {
+    logger.error(`Group with ${id} cannot be accessed by the logged in user`);
+    return c.json(
+      {
+        success: false,
+        message: `Group with ${id} cannot be accessed by the logged in user`,
+      },
+      HTTPStatusCodes.FORBIDDEN,
+    );
+  }
+
+  logger.debug(`Group with ${id} retrieved successfully`);
+  return c.json(
+    {
+      success: true,
+      message: `Group with ${id} retrieved successfully`,
+      data: groupById,
+    },
+    HTTPStatusCodes.OK,
+  );
+};
+
 export const updateGroup: AppRouteHandler<IUpdateGroupRoute> = async (c) => {
   const user = c.get("user");
   const { id } = c.req.valid("param");
   const payload = c.req.valid("json");
   const logger = c.get("logger");
-
-  const updatedGroup = await updateGroupRepository(payload, id);
 
   if (!user) {
     logger.error("User is not logged in");
@@ -119,6 +167,31 @@ export const updateGroup: AppRouteHandler<IUpdateGroupRoute> = async (c) => {
         message: "Please login to perform this action",
       },
       HTTPStatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  const updatedGroup = await updateGroupRepository({ ...payload, creatorId: user.id }, id);
+  const groupById = await getGroupByIdRepository(id);
+
+  if (!updatedGroup) {
+    logger.error(`Group with ${id} not found`);
+    return c.json(
+      {
+        success: false,
+        message: `Group with ${id} not found`,
+      },
+      HTTPStatusCodes.NOT_FOUND,
+    );
+  }
+
+  if (groupById.creatorId !== user.id && user.role === AuthRoles.USER) {
+    logger.error(`Group with ${id} cannot be accessed by the logged in user`);
+    return c.json(
+      {
+        success: false,
+        message: `Group with ${id} cannot be accessed by the logged in user`,
+      },
+      HTTPStatusCodes.FORBIDDEN,
     );
   }
 
