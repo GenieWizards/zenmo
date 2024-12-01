@@ -2,6 +2,7 @@ import type { SQL } from "drizzle-orm";
 
 import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
 
+import { db } from "@/db/adapter";
 import type { TUserSchema } from "@/common/schema/user.schema";
 import type { TInsertGroupSchema } from "@/db/schemas/group.model";
 

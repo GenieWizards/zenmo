@@ -1,15 +1,12 @@
 import type { SQL } from "drizzle-orm";
-
 import { and, asc, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
-
-import type { TInsertCategorySchema } from "@/db/schemas/category.model";
 
 import { db } from "@/db/adapter";
 import { categoryModel } from "@/db/schemas";
+import type { TInsertCategorySchema } from "@/db/schemas/category.model";
 import { lower } from "@/db/schemas/user.model";
 
 import type { TCategoryQuery } from "./category.schema";
-
 import { categorySortBy } from "./category.util";
 
 export async function createCategoryRepository(

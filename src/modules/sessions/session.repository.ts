@@ -1,9 +1,8 @@
 import { eq } from "drizzle-orm";
 
-import type { TInsertSessionSchema } from "@/db/schemas/session.model";
-
 import { db } from "@/db/adapter";
 import { sessionModel } from "@/db/schemas";
+import type { TInsertSessionSchema } from "@/db/schemas/session.model";
 
 export async function createSessionReposiroty(
   sessionData: TInsertSessionSchema,

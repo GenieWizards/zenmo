@@ -1,2 +1,3 @@
 bun check-types
 bun lint:fix
+bun run test

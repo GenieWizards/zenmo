@@ -1,12 +1,4 @@
-import { $ } from "bun";
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from "bun:test";
+import { beforeAll, beforeEach, describe, expect, it } from "bun:test";
 import { testClient } from "hono/testing";
 
 import { createApp, createTestApp } from "@/common/lib/create-app.lib";
@@ -25,8 +17,6 @@ describe("Activities List", () => {
   let sessionToken = "";
 
   beforeAll(async () => {
-    await $`bun drizzle-kit push --force`;
-
     const testAuthRouter = createTestApp(authRouter);
 
     const userResponse = await testAuthRouter.request("/auth/register", {
@@ -42,10 +32,6 @@ describe("Activities List", () => {
 
     // @ts-expect-error session is available
     sessionToken = userResult.data.session;
-  });
-
-  afterAll(async () => {
-    await $`bun run db:clear`;
   });
 
   beforeEach(async () => {
@@ -110,8 +96,8 @@ describe("Activities List", () => {
     const response = await activityClient.activities.$get(
       {
         query: {
-          page: "1",
-          limit: "10",
+          page: 1,
+          limit: 10,
         },
       },
       {
@@ -154,8 +140,8 @@ describe("Activities List", () => {
     const response = await activityClient.activities.$get(
       {
         query: {
-          page: "2",
-          limit: "5",
+          page: 2,
+          limit: 5,
         },
       },
       {
@@ -177,8 +163,8 @@ describe("Activities List", () => {
     const response = await activityClient.activities.$get(
       {
         query: {
-          page: "-1",
-          limit: "10",
+          page: -1,
+          limit: 10,
         },
       },
       {

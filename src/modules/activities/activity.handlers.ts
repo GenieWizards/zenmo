@@ -1,12 +1,10 @@
-import type { AppRouteHandler } from "@/common/lib/types";
-
 import { AuthRoles } from "@/common/enums";
 import { generateMetadata } from "@/common/helpers/metadata.helper";
+import type { AppRouteHandler } from "@/common/lib/types";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
-import type { TGetActivitiesRoute } from "./activity.routes";
-
 import { getActivitiesRepository } from "./activity.repository";
+import type { TGetActivitiesRoute } from "./activity.routes";
 import { organizeActivities } from "./activity.utils";
 
 export const getActivities: AppRouteHandler<TGetActivitiesRoute> = async (
