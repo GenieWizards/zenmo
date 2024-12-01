@@ -1,5 +1,5 @@
 import { db } from "@/db/adapter";
-import { accountModel, categoryModel, sessionModel, userModel } from "@/db/schemas";
+import { accountModel, sessionModel, userModel } from "@/db/schemas";
 
 import { type AuthRole, AuthRoles } from "../enums";
 import { hashPassword } from "./crypto.lib";
@@ -55,22 +55,4 @@ export async function createTestUser({
   });
 
   return { ...result.user, session: result.session.id };
-}
-
-export async function createTestCategory({
-  name,
-  userId,
-}: {
-  name: string;
-  userId?: string;
-}) {
-  const [category] = await db
-    .insert(categoryModel)
-    .values({
-      name,
-      userId,
-    })
-    .returning();
-
-  return { ...category };
 }

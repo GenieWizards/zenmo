@@ -4,9 +4,10 @@ import { testClient } from "hono/testing";
 import { AuthRoles, SplitType } from "@/common/enums";
 import { createApp } from "@/common/lib/create-app.lib";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
-import { createTestCategory, createTestUser } from "@/common/utils/test.util";
+import { createTestUser } from "@/common/utils/test.util";
 import env from "@/env";
 
+import { createCategoryRepository } from "../categories/category.repository";
 import { expenseRouter } from "./expense.index";
 
 if (env.NODE_ENV !== "test") {
@@ -68,8 +69,8 @@ describe("expenses", () => {
       fullName: "Test Admin",
     });
 
-    testCategory = await createTestCategory({ name: "Test category" });
-    testCategory2 = await createTestCategory({ name: "Test category2", userId: testUser2.id });
+    testCategory = await createCategoryRepository({ name: "Test category" });
+    testCategory2 = await createCategoryRepository({ name: "Test category2" }, testUser2.id);
   });
 
   describe("POST /expenses", () => {
