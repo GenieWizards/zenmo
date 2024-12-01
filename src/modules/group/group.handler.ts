@@ -9,8 +9,9 @@ import {
   createGroupRepository,
   deleteGroupRepository,
   getAllGroupsRepository,
+  updateGroupRepository,
 } from "./group.repository";
-import type { TCreateGroupRoute, TDeleteGroupRoute, TGetAllGroupsRoute } from "./group.routes";
+import type { IUpdateGroupRoute, TCreateGroupRoute, TDeleteGroupRoute, TGetAllGroupsRoute } from "./group.routes";
 
 export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   const user = c.get("user");
@@ -97,6 +98,47 @@ export const getAllGroups: AppRouteHandler<TGetAllGroupsRoute> = async (c) => {
       message: "List of groups received successfully",
       data: groups,
       metadata,
+    },
+    HTTPStatusCodes.OK,
+  );
+};
+
+export const updateGroup: AppRouteHandler<IUpdateGroupRoute> = async (c) => {
+  const user = c.get("user");
+  const { id } = c.req.valid("param");
+  const payload = c.req.valid("json");
+  const logger = c.get("logger");
+
+  const updatedGroup = await updateGroupRepository(payload, id);
+
+  if (!user) {
+    logger.error("User is not logged in");
+    return c.json(
+      {
+        success: false,
+        message: "Please login to perform this action",
+      },
+      HTTPStatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  void logActivity({
+    type: ActivityType.GROUP_UPDATED,
+    metadata: {
+      action: "update",
+      resourceType: "group",
+      resourceName: updatedGroup.name,
+      actorId: user.id,
+      actorName: user.fullName || "",
+    },
+  });
+  logger.debug(`Group updated successfully with name ${updatedGroup.name}`);
+
+  return c.json(
+    {
+      success: true,
+      message: "Group updated successfully",
+      data: updatedGroup,
     },
     HTTPStatusCodes.OK,
   );
