@@ -1,3 +1,4 @@
+CREATE TYPE "public"."activityType" AS ENUM('category_created', 'category_updated', 'category_deleted', 'group_created', 'group_deleted', 'group_member_added', 'group_member_removed', 'expense_added', 'expense_updated', 'expense_deleted');--> statement-breakpoint
 CREATE TYPE "public"."splitType" AS ENUM('even', 'uneven', 'proportional');--> statement-breakpoint
 CREATE TYPE "public"."status" AS ENUM('settled', 'unsettled');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('user', 'admin');--> statement-breakpoint
@@ -18,8 +19,8 @@ CREATE TABLE IF NOT EXISTS "account" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "activity" (
 	"id" varchar(60) PRIMARY KEY NOT NULL,
-	"activity" text NOT NULL,
-	"user_id" varchar(60) NOT NULL,
+	"type" varchar(60) NOT NULL,
+	"metadata" jsonb NOT NULL,
 	"group_id" varchar(60),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
@@ -100,13 +101,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "activity" ADD CONSTRAINT "activity_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "activity" ADD CONSTRAINT "activity_group_id_group_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."group"("id") ON DELETE cascade ON UPDATE cascade;
+ ALTER TABLE "activity" ADD CONSTRAINT "activity_group_id_group_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."group"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

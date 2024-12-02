@@ -1,5 +1,5 @@
 {
-  "id": "a6f18855-b109-472e-b87a-5a44cd1b016d",
+  "id": "8fb066f1-9996-4499-823d-9f86259e2e06",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -751,6 +751,8 @@
         "category_created",
         "category_updated",
         "category_deleted",
+        "group_created",
+        "group_deleted",
         "group_member_added",
         "group_member_removed",
         "expense_added",

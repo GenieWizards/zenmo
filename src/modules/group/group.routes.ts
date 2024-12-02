@@ -18,7 +18,7 @@ const tags = ["Groups"];
 export const createGroupRoute = createRoute({
   tags,
   method: "post",
-  path: "/group",
+  path: "/groups",
   middleware: [
     authMiddleware(),
     requireAuth(),
@@ -75,7 +75,7 @@ export const createGroupRoute = createRoute({
 export const deleteGroupRoute = createRoute({
   tags,
   method: "delete",
-  path: "group/:id",
+  path: "groups/:id",
   middleware: [
     authMiddleware(),
     requireAuth(),
@@ -125,5 +125,71 @@ export const deleteGroupRoute = createRoute({
   },
 });
 
+export const addUsersToGroupRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/groups/:groupId/users",
+  middleware: [authMiddleware(), requireAuth()] as const,
+  request: {
+    body: jsonContentRequired(
+      z
+        .object({
+          userIds: z.array(z.string().min(32).max(60)).min(1).max(100),
+          usernames: z.array(z.string().min(3).max(100)).min(1).max(100),
+        })
+        .refine((r) => {
+          return r.userIds.length === r.usernames.length;
+        }),
+      "Group creation",
+    ),
+    params: z.object({
+      groupId: z.string().min(32).max(60),
+    }),
+  },
+  responses: {
+    [HTTPStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean().default(true),
+        message: z.string(),
+        data: selectGroupSchema,
+      }),
+      "Group created successfully",
+    ),
+    [HTTPStatusCodes.BAD_REQUEST]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Validation error(s)",
+    ),
+    [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "You are not authorized, please login",
+    ),
+    [HTTPStatusCodes.NOT_FOUND]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Group with id does not exist",
+    ),
+    [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(insertGroupSchema),
+      "The validation error(s)",
+    ),
+    [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Failed to add user(s) to the group",
+    ),
+  },
+});
+
 export type TCreateGroupRoute = typeof createGroupRoute;
 export type TDeleteGroupRoute = typeof deleteGroupRoute;
+export type TAddUsersToGroupRoute = typeof addUsersToGroupRoute;
