@@ -169,17 +169,19 @@ export const addUsersToGroup: AppRouteHandler<TAddUsersToGroupRoute> = async (
     );
   }
 
-  void logActivity({
-    type: ActivityType.GROUP_MEMBER_ADDED,
-    metadata: {
-      action: "update",
-      resourceType: "group",
-      resourceName: groupExists.name,
-      actorId: user.id,
-      actorName: user.fullName || "",
-      targetId: userIds.join(", "),
-      targetName: usernames.join(", "),
-    },
+  usernames.forEach((username) => {
+    void logActivity({
+      type: ActivityType.GROUP_MEMBER_ADDED,
+      metadata: {
+        action: "update",
+        resourceType: "group",
+        resourceName: groupExists.name,
+        actorId: user.id,
+        actorName: user.fullName || "",
+        targetId: groupExists.id,
+        targetName: username,
+      },
+    });
   });
 
   logger.debug("Users added to group successfully");
