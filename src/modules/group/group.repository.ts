@@ -1,8 +1,8 @@
 import { AuthRoles } from "@/common/enums";
-import type { TUserSchema } from "@/common/schema/user.schema";
 import { db } from "@/db/adapter";
 import type { TInsertGroupSchema } from "@/db/schemas/group.model";
 import groupModel from "@/db/schemas/group.model";
+import type { TSelectUserSchema } from "@/db/schemas/user.model";
 import type { SQL } from "drizzle-orm";
 import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
 
@@ -14,7 +14,7 @@ export async function createGroupRepository(groupPayload: TInsertGroupSchema) {
   return group;
 }
 
-export async function getAllGroupsRepository(queryParams: TGroupQuerySchema, userDetails: TUserSchema) {
+export async function getAllGroupsRepository(queryParams: TGroupQuerySchema, userDetails: TSelectUserSchema) {
   const { page, limit, status, sortOrder, search } = queryParams;
   const offset = (page - 1) * limit;
   const whereConditions: SQL<unknown>[] = [];
