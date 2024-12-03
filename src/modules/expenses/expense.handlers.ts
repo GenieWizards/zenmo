@@ -44,7 +44,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
               success: false,
               message: "Payer not found",
             },
-            HTTPStatusCodes.BAD_REQUEST,
+            HTTPStatusCodes.NOT_FOUND,
           );
         }
       }
@@ -58,7 +58,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
           return c.json(
             {
               success: false,
-              message: "Category does not belongs to user",
+              message: "Category does not belong to user",
             },
             HTTPStatusCodes.BAD_REQUEST,
           );
@@ -98,7 +98,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
             success: false,
             message: "Payer not found",
           },
-          HTTPStatusCodes.BAD_REQUEST,
+          HTTPStatusCodes.NOT_FOUND,
         );
       }
 

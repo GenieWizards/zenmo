@@ -74,7 +74,7 @@ describe("expenses", () => {
   });
 
   describe("POST /expenses", () => {
-    it("should create an expense as user ", async () => {
+    it("should create an expense as user", async () => {
       const response = await expenseClient.expenses.$post(
         {
           json: {

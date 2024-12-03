@@ -7,6 +7,7 @@ import {
   authMiddleware,
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
+import createErrorSchema from "@/common/schema/create-error.schema";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import {
   insertExpenseSchema,
@@ -62,11 +63,15 @@ export const createExpenseRoute = createRoute({
       "You are not authorized, please login",
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(insertExpenseSchema),
+      "The validation error(s)",
+    ),
+    [HTTPStatusCodes.NOT_FOUND]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Failed to create expense",
+      "The validation error(s)",
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
