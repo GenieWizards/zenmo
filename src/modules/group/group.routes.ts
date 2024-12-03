@@ -1,9 +1,7 @@
-import { AuthRoles } from "@/common/enums";
 import jsonContentRequired from "@/common/helpers/json-content-required.helper";
 import { jsonContent } from "@/common/helpers/json-content.helper";
 import {
   authMiddleware,
-  checkRoleGuard,
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
 import createErrorSchema from "@/common/schema/create-error.schema";
@@ -23,7 +21,6 @@ export const createGroupRoute = createRoute({
   middleware: [
     authMiddleware(),
     requireAuth(),
-    checkRoleGuard(AuthRoles.ADMIN, AuthRoles.USER),
   ] as const,
   request: {
     body: jsonContentRequired(
@@ -81,7 +78,6 @@ export const getAllGroupsRoute = createRoute({
   middleware: [
     authMiddleware(),
     requireAuth(),
-    checkRoleGuard(AuthRoles.ADMIN, AuthRoles.USER),
   ] as const,
   request: {
     query: groupQuerySchema,
@@ -112,7 +108,6 @@ export const getGroupById = createRoute({
   middleware: [
     authMiddleware(),
     requireAuth(),
-    checkRoleGuard(AuthRoles.ADMIN, AuthRoles.USER),
   ] as const,
   request: {
     params: z.object({
@@ -166,7 +161,6 @@ export const updateGroupRoute = createRoute({
   middleware: [
     authMiddleware(),
     requireAuth(),
-    checkRoleGuard(AuthRoles.USER),
   ] as const,
   request: {
     params: z.object({
@@ -229,7 +223,6 @@ export const deleteGroupRoute = createRoute({
   middleware: [
     authMiddleware(),
     requireAuth(),
-    checkRoleGuard(AuthRoles.USER),
   ] as const,
   request: {
     params: z.object({

@@ -2,6 +2,7 @@ import { ActivityType, AuthRoles } from "@/common/enums";
 import { logActivity } from "@/common/helpers/activity-log.helper";
 import { generateMetadata } from "@/common/helpers/metadata.helper";
 import type { AppRouteHandler } from "@/common/lib/types";
+import { LOGIN_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import type { TSelectGroupSchema } from "@/db/schemas/group.model";
 
@@ -24,7 +25,7 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: LOGIN_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
@@ -33,7 +34,7 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   const group: TSelectGroupSchema | null = await createGroupRepository({ ...payload, creatorId: user.id });
 
   if (!group) {
-    logger.error("Failed to create group");
+    logger.error("Failed to create group due to internal error");
     return c.json(
       {
         success: false,
@@ -75,7 +76,7 @@ export const getAllGroups: AppRouteHandler<TGetAllGroupsRoute> = async (c) => {
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: LOGIN_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
@@ -112,7 +113,7 @@ export const getGroupById: AppRouteHandler<TGetGroupById> = async (c) => {
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: LOGIN_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
@@ -164,7 +165,7 @@ export const updateGroup: AppRouteHandler<IUpdateGroupRoute> = async (c) => {
     return c.json(
       {
         success: false,
-        message: "Please login to perform this action",
+        message: LOGIN_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
@@ -227,7 +228,7 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: LOGIN_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
