@@ -1,5 +1,5 @@
 import type { SQL } from "drizzle-orm";
-import { and, asc, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, or, sql } from "drizzle-orm";
 
 import { db } from "@/db/adapter";
 import { categoryModel } from "@/db/schemas";
@@ -7,7 +7,7 @@ import type { TInsertCategorySchema } from "@/db/schemas/category.model";
 import { lower } from "@/db/schemas/user.model";
 
 import type { TCategoryQuery } from "./category.schema";
-import { categorySortBy } from "./category.util";
+import { categoryFullTextSearch, categorySortBy } from "./category.util";
 
 export async function createCategoryRepository(
   categoryPayload: TInsertCategorySchema,
@@ -43,9 +43,7 @@ export async function getAllCategoriesAdminRepository(
   const whereConditions: SQL<unknown>[] = [];
 
   if (search) {
-    whereConditions.push(
-      ilike(categoryModel.name, `%${search.toLowerCase()}%`),
-    );
+    whereConditions.push(categoryFullTextSearch(search));
   }
 
   if (isActive !== undefined) {
@@ -92,9 +90,7 @@ export async function getAllCategoriesUserRepository(
   ];
 
   if (search) {
-    whereConditions.push(
-      ilike(categoryModel.name, `%${search.toLowerCase()}%`),
-    );
+    whereConditions.push(categoryFullTextSearch(search));
   }
 
   const totalCount = await db
