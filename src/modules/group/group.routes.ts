@@ -104,7 +104,7 @@ export const getAllGroupsRoute = createRoute({
 export const getGroupById = createRoute({
   tags,
   method: "get",
-  path: "group/:id",
+  path: "/group/:id",
   middleware: [
     authMiddleware(),
     requireAuth(),
