@@ -2,7 +2,7 @@ import { ActivityType, AuthRoles } from "@/common/enums";
 import { logActivity } from "@/common/helpers/activity-log.helper";
 import { generateMetadata } from "@/common/helpers/metadata.helper";
 import type { AppRouteHandler } from "@/common/lib/types";
-import { LOGIN_ERROR_MESSAGE } from "@/common/utils/constants";
+import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import type { TSelectGroupSchema } from "@/db/schemas/group.model";
 
@@ -25,7 +25,7 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     return c.json(
       {
         success: false,
-        message: LOGIN_ERROR_MESSAGE,
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
@@ -76,19 +76,17 @@ export const getAllGroups: AppRouteHandler<TGetAllGroupsRoute> = async (c) => {
     return c.json(
       {
         success: false,
-        message: LOGIN_ERROR_MESSAGE,
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
   }
 
   const fetchedGroups = await getAllGroupsRepository(query, user);
-  const totalCount: number = fetchedGroups.totalCount;
-  const groups: TSelectGroupSchema[] | null = fetchedGroups.groups;
 
   const metadata = generateMetadata({
     ...query,
-    totalCount,
+    totalCount: fetchedGroups.totalCount,
   });
 
   logger.info("Groups data received successfully");
@@ -96,7 +94,7 @@ export const getAllGroups: AppRouteHandler<TGetAllGroupsRoute> = async (c) => {
     {
       success: true,
       message: "List of groups received successfully",
-      data: groups,
+      data: fetchedGroups.groups,
       metadata,
     },
     HTTPStatusCodes.OK,
@@ -113,7 +111,7 @@ export const getGroupById: AppRouteHandler<TGetGroupById> = async (c) => {
     return c.json(
       {
         success: false,
-        message: LOGIN_ERROR_MESSAGE,
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
@@ -165,7 +163,7 @@ export const updateGroup: AppRouteHandler<IUpdateGroupRoute> = async (c) => {
     return c.json(
       {
         success: false,
-        message: LOGIN_ERROR_MESSAGE,
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
@@ -228,7 +226,7 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
     return c.json(
       {
         success: false,
-        message: LOGIN_ERROR_MESSAGE,
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
