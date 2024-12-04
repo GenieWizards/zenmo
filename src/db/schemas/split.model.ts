@@ -1,5 +1,3 @@
-import type { z } from "zod";
-
 import {
   boolean,
   pgTable,
@@ -8,6 +6,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import type { z } from "zod";
 
 import expenseModel from "./expense.model";
 import userModel from "./user.model";

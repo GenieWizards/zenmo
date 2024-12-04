@@ -1,6 +1,5 @@
-import type { TInsertSessionSchema } from "@/db/schemas/session.model";
-
 import { generateSessionToken } from "@/common/utils/sessions.util";
+import type { TInsertSessionSchema } from "@/db/schemas/session.model";
 
 import { createSessionReposiroty } from "./session.repository";
 

@@ -1,7 +1,5 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 
-import type { AppBindings, AppOpenAPI } from "./types";
-
 import {
   notFoundMiddleware,
   onErrorMiddleware,
@@ -9,6 +7,7 @@ import {
   serveEmojiFavicon,
 } from "../middlewares";
 import { defaultHook } from "../utils/default-hook.util";
+import type { AppBindings, AppOpenAPI } from "./types";
 
 export function createRouter() {
   return new OpenAPIHono<AppBindings>({

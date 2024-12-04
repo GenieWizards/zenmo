@@ -1,8 +1,7 @@
-import type { z } from "zod";
-
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  index,
   pgTable,
   text,
   timestamp,
@@ -10,6 +9,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import type { z } from "zod";
 
 import userModel, { lower } from "./user.model";
 
@@ -37,6 +37,17 @@ const categoryModel = pgTable(
   },
   table => [
     uniqueIndex("unique_name_userId_idx").on(lower(table.name), table.userId),
+    /**
+     * This is a search index for pg full text search using gin index in multiple fields
+     * Set weights so that the search results have weights in ascending alphabetical order
+     */
+    index("search_index").using(
+      "gin",
+      sql`(
+      setweight(to_tsvector('english', ${table.name}), 'A') ||
+          setweight(to_tsvector('english', ${table.description}), 'B')
+    )`,
+    ),
   ],
 );
 

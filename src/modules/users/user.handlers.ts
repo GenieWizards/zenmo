@@ -1,10 +1,8 @@
 import type { AppRouteHandler } from "@/common/lib/types";
-
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
-import type { CreateUserRoute } from "./user.routes";
-
 import { createUserRepository } from "./user.repository";
+import type { CreateUserRoute } from "./user.routes";
 
 export const createUser: AppRouteHandler<CreateUserRoute> = async (c) => {
   const userPayload = c.req.valid("json");

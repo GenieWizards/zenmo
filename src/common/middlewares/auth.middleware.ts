@@ -1,11 +1,9 @@
 import type { MiddlewareHandler } from "hono";
-
 import { getCookie } from "hono/cookie";
 
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
 import type { AuthRole } from "../enums";
-
 import { validateSessionToken } from "../utils/sessions.util";
 
 export function authMiddleware(): MiddlewareHandler {

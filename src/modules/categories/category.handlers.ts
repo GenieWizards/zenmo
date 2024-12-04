@@ -1,18 +1,9 @@
-import type { AppRouteHandler } from "@/common/lib/types";
-import type { TSelectCategorySchema } from "@/db/schemas/category.model";
-
 import { ActivityType, AuthRoles } from "@/common/enums";
 import { logActivity } from "@/common/helpers/activity-log.helper";
 import { generateMetadata } from "@/common/helpers/metadata.helper";
+import type { AppRouteHandler } from "@/common/lib/types";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
-
-import type {
-  TCreateCategoryRoute,
-  TDeleteCategoryRoute,
-  TGetCategoriesRoute,
-  TGetCategoryRoute,
-  TUpdateCategoryRoute,
-} from "./category.routes";
+import type { TSelectCategorySchema } from "@/db/schemas/category.model";
 
 import {
   createCategoryRepository,
@@ -24,6 +15,13 @@ import {
   getCategoryRepository,
   updateCategoryByIdRepository,
 } from "./category.repository";
+import type {
+  TCreateCategoryRoute,
+  TDeleteCategoryRoute,
+  TGetCategoriesRoute,
+  TGetCategoryRoute,
+  TUpdateCategoryRoute,
+} from "./category.routes";
 
 export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
   c,
