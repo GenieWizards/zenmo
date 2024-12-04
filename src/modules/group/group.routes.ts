@@ -7,6 +7,7 @@ import {
 import createErrorSchema from "@/common/schema/create-error.schema";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertGroupSchema, selectGroupSchema } from "@/db/schemas/group.model";
+import { idSchema } from "@/db/schemas/id.model";
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 
@@ -111,7 +112,7 @@ export const getGroupById = createRoute({
   ] as const,
   request: {
     params: z.object({
-      id: z.string(),
+      id: idSchema,
     }),
   },
   responses: {
@@ -164,7 +165,7 @@ export const updateGroupRoute = createRoute({
   ] as const,
   request: {
     params: z.object({
-      id: z.string(),
+      id: idSchema,
     }),
     body: jsonContentRequired(
       insertGroupSchema.omit({
@@ -226,7 +227,7 @@ export const deleteGroupRoute = createRoute({
   ] as const,
   request: {
     params: z.object({
-      id: z.string(),
+      id: idSchema,
     }),
   },
   responses: {
