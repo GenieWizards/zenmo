@@ -1,3 +1,4 @@
+import { splitTypeArr } from "@/common/enums";
 import {
   pgEnum,
   pgTable,
@@ -8,8 +9,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { z } from "zod";
-
-import { splitTypeArr } from "@/common/enums";
 
 import categoryModel from "./category.model";
 import groupModel from "./group.model";
@@ -81,7 +80,7 @@ export const selectExpenseSchema = createSelectSchema(expenseModel, {
 export const insertExpenseSchema = createInsertSchema(expenseModel, {
   id: schema => schema.id.describe("Unique identifier for the expense"),
   payerId: schema =>
-    schema.payerId.describe("Reference to the user who paid for the expense. (Note: In case of admin user, this field is required.)"),
+    schema.payerId.describe("Reference to the user who paid for the expense. (Note: For admin users, this field is required.)"),
   categoryId: schema =>
     schema.categoryId.describe("Reference to the category of the expense"),
   groupId: schema =>
