@@ -5,6 +5,7 @@ import {
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
 import createErrorSchema from "@/common/schema/create-error.schema";
+import { AUTHORIZATION_ERROR_MESSAGE, FORBIDDEN_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertGroupSchema, selectGroupSchema } from "@/db/schemas/group.model";
 import { idSchema } from "@/db/schemas/id.model";
@@ -56,7 +57,7 @@ export const createGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertGroupSchema),
@@ -97,7 +98,7 @@ export const getAllGroupsRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
   },
 });
@@ -136,14 +137,14 @@ export const getGroupById = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.FORBIDDEN]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not allowed to perform this action",
+      FORBIDDEN_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
@@ -198,14 +199,14 @@ export const updateGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.FORBIDDEN]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not allowed to perform this action",
+      FORBIDDEN_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
@@ -250,14 +251,14 @@ export const deleteGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.FORBIDDEN]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not allowed to perform this action",
+      FORBIDDEN_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
