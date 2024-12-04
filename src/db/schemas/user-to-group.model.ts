@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, primaryKey, varchar } from "drizzle-orm/pg-core";
+import { pgTable, primaryKey, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { z } from "zod";
 
@@ -15,6 +15,8 @@ export const usersToGroupsModel = pgTable(
     groupId: varchar({ length: 60 })
       .notNull()
       .references(() => groupModel.id),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow(),
   },
   t => ({
     pk: primaryKey({ columns: [t.userId, t.groupId] }),
