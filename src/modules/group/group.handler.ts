@@ -140,7 +140,13 @@ export const addUsersToGroup: AppRouteHandler<TAddUsersToGroupRoute> = async (
     );
   }
 
-  const { userIds, usernames } = payload;
+  let userIds: string[] = [];
+  let usernames: string[] = [];
+
+  payload.forEach((userDetail) => {
+    userIds = [userDetail.userId, ...userIds];
+    usernames = [userDetail.username, ...usernames];
+  });
   const { groupId } = params;
 
   const groupExists = await getGroupByIdRepository(groupId);
@@ -169,7 +175,7 @@ export const addUsersToGroup: AppRouteHandler<TAddUsersToGroupRoute> = async (
     );
   }
 
-  usernames.forEach((username) => {
+  payload.forEach((userData) => {
     void logActivity({
       type: ActivityType.GROUP_MEMBER_ADDED,
       metadata: {
@@ -178,8 +184,9 @@ export const addUsersToGroup: AppRouteHandler<TAddUsersToGroupRoute> = async (
         resourceName: groupExists.name,
         actorId: user.id,
         actorName: user.fullName || "",
-        targetId: groupExists.id,
-        targetName: username,
+        targetId: userData.userId,
+        targetName: userData.username,
+        destinationId: groupExists.id,
       },
     });
   });

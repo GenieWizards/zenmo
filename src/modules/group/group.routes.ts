@@ -132,14 +132,12 @@ export const addUsersToGroupRoute = createRoute({
   middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     body: jsonContentRequired(
-      z
-        .object({
-          userIds: z.array(z.string().min(32).max(60)).min(1).max(100),
-          usernames: z.array(z.string().min(3).max(100)).min(1).max(100),
-        })
-        .refine((r) => {
-          return r.userIds.length === r.usernames.length;
+      z.array(
+        z.object({
+          userId: z.string().min(32).max(60),
+          username: z.string().min(3).max(100),
         }),
+      ),
       "Group creation",
     ),
     params: z.object({
