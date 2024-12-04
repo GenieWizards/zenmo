@@ -4,6 +4,7 @@ export interface IActivityMetadata {
   actorName: string;
   targetId?: string;
   targetName?: string;
+  destinationId?: string;
   amount?: number;
   resourceType?: string;
   resourceName?: string;
