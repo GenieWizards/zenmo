@@ -55,8 +55,8 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
       if (categoryId) {
         const category = await getCategoryRepository(categoryId);
 
-        if (!category.userId && category.userId !== user.id) {
-          logger.debug("Category does not belongs to user");
+        if (category.userId && category.userId !== user.id) {
+          logger.debug("Category does not belong to user");
           return c.json(
             {
               success: false,
@@ -95,12 +95,12 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
       if (categoryId) {
         const category = await getCategoryRepository(categoryId);
 
-        if (!category.userId && category.userId !== payerId) {
-          logger.debug("Category does not belongs to payer");
+        if (category.userId && category.userId !== payerId) {
+          logger.debug("Category does not belong to payer");
           return c.json(
             {
               success: false,
-              message: "Category does not belongs to payer",
+              message: "Category does not belong to payer",
             },
             HTTPStatusCodes.BAD_REQUEST,
           );
