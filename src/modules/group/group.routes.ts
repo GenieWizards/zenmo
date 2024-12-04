@@ -1,17 +1,18 @@
-import { createRoute } from "@hono/zod-openapi";
-import { z } from "zod";
-
-import { AuthRoles } from "@/common/enums";
 import jsonContentRequired from "@/common/helpers/json-content-required.helper";
 import { jsonContent } from "@/common/helpers/json-content.helper";
 import {
   authMiddleware,
-  checkRoleGuard,
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
 import createErrorSchema from "@/common/schema/create-error.schema";
+import { AUTHORIZATION_ERROR_MESSAGE, FORBIDDEN_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertGroupSchema, selectGroupSchema } from "@/db/schemas/group.model";
+import { idSchema } from "@/db/schemas/id.model";
+import { createRoute } from "@hono/zod-openapi";
+import { z } from "zod";
+
+import { groupQuerySchema } from "./group.schema";
 
 const tags = ["Groups"];
 
@@ -22,7 +23,6 @@ export const createGroupRoute = createRoute({
   middleware: [
     authMiddleware(),
     requireAuth(),
-    checkRoleGuard(AuthRoles.ADMIN, AuthRoles.USER),
   ] as const,
   request: {
     body: jsonContentRequired(
@@ -31,6 +31,7 @@ export const createGroupRoute = createRoute({
         status: true,
         createdAt: true,
         updatedAt: true,
+        creatorId: true,
       }),
       "Group creation",
     ),
@@ -56,7 +57,7 @@ export const createGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertGroupSchema),
@@ -72,6 +73,151 @@ export const createGroupRoute = createRoute({
   },
 });
 
+export const getAllGroupsRoute = createRoute({
+  tags,
+  method: "get",
+  path: "/groups",
+  middleware: [
+    authMiddleware(),
+    requireAuth(),
+  ] as const,
+  request: {
+    query: groupQuerySchema,
+  },
+  responses: {
+    [HTTPStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean().default(true),
+        message: z.string(),
+        data: z.array(selectGroupSchema),
+      }),
+      "List of Groups received successfully",
+    ),
+    [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      AUTHORIZATION_ERROR_MESSAGE,
+    ),
+  },
+});
+
+export const getGroupById = createRoute({
+  tags,
+  method: "get",
+  path: "/group/:id",
+  middleware: [
+    authMiddleware(),
+    requireAuth(),
+  ] as const,
+  request: {
+    params: z.object({
+      id: idSchema,
+    }),
+  },
+  responses: {
+    [HTTPStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean().default(true),
+        message: z.string(),
+        data: selectGroupSchema,
+      }),
+      "Retrieved group data by ID successfully",
+    ),
+    [HTTPStatusCodes.NOT_FOUND]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Group with id does not exist",
+    ),
+    [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      AUTHORIZATION_ERROR_MESSAGE,
+    ),
+    [HTTPStatusCodes.FORBIDDEN]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      FORBIDDEN_ERROR_MESSAGE,
+    ),
+    [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Something went wrong, please try again later",
+    ),
+  },
+});
+
+export const updateGroupRoute = createRoute({
+  tags,
+  method: "put",
+  path: "/group/:id",
+  middleware: [
+    authMiddleware(),
+    requireAuth(),
+  ] as const,
+  request: {
+    params: z.object({
+      id: idSchema,
+    }),
+    body: jsonContentRequired(
+      insertGroupSchema.omit({
+        id: true,
+        status: true,
+        createdAt: true,
+        creatorId: true,
+      }),
+      "Group update",
+    ),
+  },
+  responses: {
+    [HTTPStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean().default(true),
+        message: z.string(),
+        data: selectGroupSchema,
+      }),
+      "Group updated successfully",
+    ),
+    [HTTPStatusCodes.NOT_FOUND]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Group with id does not exist",
+    ),
+    [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      AUTHORIZATION_ERROR_MESSAGE,
+    ),
+    [HTTPStatusCodes.FORBIDDEN]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      FORBIDDEN_ERROR_MESSAGE,
+    ),
+    [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Something went wrong, please try again later",
+    ),
+  },
+});
+
 export const deleteGroupRoute = createRoute({
   tags,
   method: "delete",
@@ -79,11 +225,10 @@ export const deleteGroupRoute = createRoute({
   middleware: [
     authMiddleware(),
     requireAuth(),
-    checkRoleGuard(AuthRoles.ADMIN, AuthRoles.USER),
   ] as const,
   request: {
     params: z.object({
-      id: z.string(),
+      id: idSchema,
     }),
   },
   responses: {
@@ -106,14 +251,14 @@ export const deleteGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.FORBIDDEN]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not allowed to perform this action",
+      FORBIDDEN_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
@@ -189,5 +334,8 @@ export const addUsersToGroupRoute = createRoute({
 });
 
 export type TCreateGroupRoute = typeof createGroupRoute;
+export type TGetAllGroupsRoute = typeof getAllGroupsRoute;
+export type TGetGroupById = typeof getGroupById;
+export type IUpdateGroupRoute = typeof updateGroupRoute;
 export type TDeleteGroupRoute = typeof deleteGroupRoute;
 export type TAddUsersToGroupRoute = typeof addUsersToGroupRoute;

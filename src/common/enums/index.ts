@@ -53,6 +53,7 @@ export const activityTypeArr = [
   "category_deleted",
   "group_created",
   "group_deleted",
+  "group_updated",
   "group_member_added",
   "group_member_removed",
   "expense_added",
