@@ -295,7 +295,7 @@ export const addUsersToGroup: AppRouteHandler<TAddUsersToGroupRoute> = async (
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );

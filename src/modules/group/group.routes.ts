@@ -11,6 +11,8 @@ import createErrorSchema from "@/common/schema/create-error.schema";
 import {
   AUTHORIZATION_ERROR_MESSAGE,
   FORBIDDEN_ERROR_MESSAGE,
+  INTERNAL_SERVER_ERROR_MESSAGE,
+  VALIDATION_ERROR_MESSAGE,
 } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertGroupSchema, selectGroupSchema } from "@/db/schemas/group.model";
@@ -51,7 +53,7 @@ export const createGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
@@ -62,14 +64,14 @@ export const createGroupRoute = createRoute({
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertGroupSchema),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Failed to create the group",
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });
@@ -146,7 +148,7 @@ export const getGroupById = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Something went wrong, please try again later",
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });
@@ -205,7 +207,7 @@ export const updateGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Something went wrong, please try again later",
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });
@@ -254,7 +256,7 @@ export const deleteGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Something went wrong, please try again later",
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });
@@ -292,14 +294,14 @@ export const addUsersToGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.NOT_FOUND]: jsonContent(
       z.object({
@@ -310,14 +312,14 @@ export const addUsersToGroupRoute = createRoute({
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertGroupSchema),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Failed to add user(s) to the group",
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });
