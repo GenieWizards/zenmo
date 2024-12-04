@@ -231,6 +231,29 @@ describe("expenses", () => {
       }
     });
 
+    it("should return 400 when category not found", async () => {
+      const response = await expenseClient.expenses.$post(
+        {
+          json: {
+            ...expenseTestCommonFields,
+            categoryId: "invalid category id",
+          },
+        },
+        {
+          headers: {
+            session: testUser.session,
+          },
+        },
+      );
+
+      if (response.status === HTTPStatusCodes.BAD_REQUEST) {
+        const json = await response.json();
+
+        expect(json.success).toBe(false);
+        expect(json.message).toBe("Category not found");
+      }
+    });
+
     it("should return 400 when category does not belongs to user", async () => {
       const response = await expenseClient.expenses.$post(
         {
@@ -250,7 +273,7 @@ describe("expenses", () => {
         const json = await response.json();
 
         expect(json.success).toBe(false);
-        expect(json.message).toBe("Category does not belong to user");
+        expect(json.message).toBe("Category does not belong to valid category user");
       }
     });
 
@@ -274,7 +297,7 @@ describe("expenses", () => {
         const json = await response.json();
 
         expect(json.success).toBe(false);
-        expect(json.message).toBe("Category does not belong to payer");
+        expect(json.message).toBe("Category does not belong to valid category user");
       }
     });
 

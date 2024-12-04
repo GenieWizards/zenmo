@@ -46,27 +46,26 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
     }
   }
 
+  const { categoryId } = payload;
+  if (categoryId) {
+    const category = await getCategoryRepository(categoryId);
+
+    const validCategoryUserId = user.role === AuthRoles.ADMIN ? payerId : user.id;
+    if (category.userId && category.userId !== validCategoryUserId) {
+      logger.debug("Category does not belong to user");
+      return c.json(
+        {
+          success: false,
+          message: "Category does not belong to valid category user",
+        },
+        HTTPStatusCodes.BAD_REQUEST,
+      );
+    }
+  }
+
   let expense;
   switch (user.role) {
     case AuthRoles.USER: {
-      const { categoryId } = payload;
-
-      // check if category either belongs to user or global
-      if (categoryId) {
-        const category = await getCategoryRepository(categoryId);
-
-        if (category.userId && category.userId !== user.id) {
-          logger.debug("Category does not belong to user");
-          return c.json(
-            {
-              success: false,
-              message: "Category does not belong to user",
-            },
-            HTTPStatusCodes.BAD_REQUEST,
-          );
-        }
-      }
-
       const expensePayload = {
         ...payload,
         payerId: payerId || user.id,
@@ -77,8 +76,6 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
       break;
     }
     case AuthRoles.ADMIN: {
-      const { payerId, categoryId } = payload;
-
       // check if payerId exists
       if (!payerId) {
         logger.debug("Missing payer Id to create expense");
@@ -89,22 +86,6 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
           },
           HTTPStatusCodes.BAD_REQUEST,
         );
-      }
-
-      // check if category either belongs to user or global
-      if (categoryId) {
-        const category = await getCategoryRepository(categoryId);
-
-        if (category.userId && category.userId !== payerId) {
-          logger.debug("Category does not belong to payer");
-          return c.json(
-            {
-              success: false,
-              message: "Category does not belong to payer",
-            },
-            HTTPStatusCodes.BAD_REQUEST,
-          );
-        }
       }
 
       const expensePayload = {
