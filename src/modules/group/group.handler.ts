@@ -1,14 +1,19 @@
-import { ActivityType } from "@/common/enums";
+import { ActivityType, AuthRoles } from "@/common/enums";
 import { logActivity } from "@/common/helpers/activity-log.helper";
+import { generateMetadata } from "@/common/helpers/metadata.helper";
 import type { AppRouteHandler } from "@/common/lib/types";
+import { LOGIN_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import type { TSelectGroupSchema } from "@/db/schemas/group.model";
 
 import {
   createGroupRepository,
   deleteGroupRepository,
+  getAllGroupsRepository,
+  getGroupByIdRepository,
+  updateGroupRepository,
 } from "./group.repository";
-import type { TCreateGroupRoute, TDeleteGroupRoute } from "./group.routes";
+import type { IUpdateGroupRoute, TCreateGroupRoute, TDeleteGroupRoute, TGetAllGroupsRoute, TGetGroupById } from "./group.routes";
 
 export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   const user = c.get("user");
@@ -20,18 +25,16 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: LOGIN_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
   }
 
-  payload.creatorId = user.id;
-
-  const group: TSelectGroupSchema | null = await createGroupRepository(payload);
+  const group: TSelectGroupSchema | null = await createGroupRepository({ ...payload, creatorId: user.id });
 
   if (!group) {
-    logger.error("Failed to create group");
+    logger.error("Failed to create group due to internal error");
     return c.json(
       {
         success: false,
@@ -63,6 +66,158 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   );
 };
 
+export const getAllGroups: AppRouteHandler<TGetAllGroupsRoute> = async (c) => {
+  const user = c.get("user");
+  const query = c.req.valid("query");
+  const logger = c.get("logger");
+
+  if (!user) {
+    logger.error("User is not authorized to access group data");
+    return c.json(
+      {
+        success: false,
+        message: LOGIN_ERROR_MESSAGE,
+      },
+      HTTPStatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  const fetchedGroups = await getAllGroupsRepository(query, user);
+  const totalCount: number = fetchedGroups.totalCount;
+  const groups: TSelectGroupSchema[] | null = fetchedGroups.groups;
+
+  const metadata = generateMetadata({
+    ...query,
+    totalCount,
+  });
+
+  logger.info("Groups data received successfully");
+  return c.json(
+    {
+      success: true,
+      message: "List of groups received successfully",
+      data: groups,
+      metadata,
+    },
+    HTTPStatusCodes.OK,
+  );
+};
+
+export const getGroupById: AppRouteHandler<TGetGroupById> = async (c) => {
+  const user = c.get("user");
+  const { id } = c.req.valid("param");
+  const logger = c.get("logger");
+
+  if (!user) {
+    logger.error("User is not authorized to delete group");
+    return c.json(
+      {
+        success: false,
+        message: LOGIN_ERROR_MESSAGE,
+      },
+      HTTPStatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  const groupById = await getGroupByIdRepository(id);
+
+  if (!groupById) {
+    logger.error(`Group with ${id} not found`);
+    return c.json(
+      {
+        success: false,
+        message: `Group with ${id} not found`,
+      },
+      HTTPStatusCodes.NOT_FOUND,
+    );
+  }
+
+  if (groupById.creatorId !== user.id && user.role === AuthRoles.USER) {
+    logger.error(`Group with ${id} cannot be accessed by the logged in user`);
+    return c.json(
+      {
+        success: false,
+        message: `Group with ${id} cannot be accessed by the logged in user`,
+      },
+      HTTPStatusCodes.FORBIDDEN,
+    );
+  }
+
+  logger.debug(`Group with ${id} retrieved successfully`);
+  return c.json(
+    {
+      success: true,
+      message: `Group with ${id} retrieved successfully`,
+      data: groupById,
+    },
+    HTTPStatusCodes.OK,
+  );
+};
+
+export const updateGroup: AppRouteHandler<IUpdateGroupRoute> = async (c) => {
+  const user = c.get("user");
+  const { id } = c.req.valid("param");
+  const payload = c.req.valid("json");
+  const logger = c.get("logger");
+
+  if (!user) {
+    logger.error("User is not logged in");
+    return c.json(
+      {
+        success: false,
+        message: LOGIN_ERROR_MESSAGE,
+      },
+      HTTPStatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  const updatedGroup = await updateGroupRepository({ ...payload, creatorId: user.id }, id);
+  const groupById = await getGroupByIdRepository(id);
+
+  if (!updatedGroup) {
+    logger.error(`Group with ${id} not found`);
+    return c.json(
+      {
+        success: false,
+        message: `Group with ${id} not found`,
+      },
+      HTTPStatusCodes.NOT_FOUND,
+    );
+  }
+
+  if (groupById.creatorId !== user.id && user.role === AuthRoles.USER) {
+    logger.error(`Group with ${id} cannot be accessed by the logged in user`);
+    return c.json(
+      {
+        success: false,
+        message: `Group with ${id} cannot be accessed by the logged in user`,
+      },
+      HTTPStatusCodes.FORBIDDEN,
+    );
+  }
+
+  void logActivity({
+    type: ActivityType.GROUP_UPDATED,
+    metadata: {
+      action: "update",
+      resourceType: "group",
+      resourceName: updatedGroup.name,
+      actorId: user.id,
+      actorName: user.fullName || "",
+    },
+  });
+  logger.debug(`Group updated successfully with name ${updatedGroup.name}`);
+
+  return c.json(
+    {
+      success: true,
+      message: "Group updated successfully",
+      data: updatedGroup,
+    },
+    HTTPStatusCodes.OK,
+  );
+};
+
 export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
   const user = c.get("user");
   const params = c.req.valid("param");
@@ -73,7 +228,7 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: LOGIN_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );

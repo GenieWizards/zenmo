@@ -1,8 +1,7 @@
+import { GroupStatus, groupStatusArr } from "@/common/enums";
 import { pgEnum, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { z } from "zod";
-
-import { GroupStatus, groupStatusArr } from "@/common/enums";
 
 import userModel from "./user.model";
 
