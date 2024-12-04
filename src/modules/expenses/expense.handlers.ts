@@ -28,26 +28,28 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
     );
   }
 
+  const { payerId } = payload;
+
+  // check if payerId is valid
+  if (payerId) {
+    const payerUser = await getUserByIdRepository(payerId);
+
+    if (!payerUser) {
+      logger.debug("Payer not found");
+      return c.json(
+        {
+          success: false,
+          message: "Payer not found",
+        },
+        HTTPStatusCodes.NOT_FOUND,
+      );
+    }
+  }
+
   let expense;
   switch (user.role) {
     case AuthRoles.USER: {
-      const { categoryId, payerId } = payload;
-
-      // check if payerId is valid
-      if (payerId) {
-        const payerUser = await getUserByIdRepository(payerId);
-
-        if (!payerUser) {
-          logger.debug("Payer not found");
-          return c.json(
-            {
-              success: false,
-              message: "Payer not found",
-            },
-            HTTPStatusCodes.NOT_FOUND,
-          );
-        }
-      }
+      const { categoryId } = payload;
 
       // check if category either belongs to user or global
       if (categoryId) {
@@ -86,19 +88,6 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
             message: "Missing payerId",
           },
           HTTPStatusCodes.BAD_REQUEST,
-        );
-      }
-
-      // check if payerId is valid
-      const payerUser = await getUserByIdRepository(payerId);
-      if (!payerUser) {
-        logger.debug("Payer not found");
-        return c.json(
-          {
-            success: false,
-            message: "Payer not found",
-          },
-          HTTPStatusCodes.NOT_FOUND,
         );
       }
 
