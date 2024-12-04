@@ -15,6 +15,7 @@ import {
   updateGroupRepository,
 } from "./group.repository";
 import type {
+  IUpdateGroupRoute,
   TAddUsersToGroupRoute,
   TCreateGroupRoute,
   TDeleteGroupRoute,
@@ -38,7 +39,10 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     );
   }
 
-  const group: TSelectGroupSchema | null = await createGroupRepository({ ...payload, creatorId: user.id });
+  const group: TSelectGroupSchema | null = await createGroupRepository({
+    ...payload,
+    creatorId: user.id,
+  });
 
   if (!group) {
     logger.error("Failed to create group due to internal error");
@@ -176,7 +180,10 @@ export const updateGroup: AppRouteHandler<IUpdateGroupRoute> = async (c) => {
     );
   }
 
-  const updatedGroup = await updateGroupRepository({ ...payload, creatorId: user.id }, id);
+  const updatedGroup = await updateGroupRepository(
+    { ...payload, creatorId: user.id },
+    id,
+  );
   const groupById = await getGroupByIdRepository(id);
 
   if (!updatedGroup) {
