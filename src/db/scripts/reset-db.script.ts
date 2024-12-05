@@ -18,7 +18,7 @@ async function main() {
     console.log(`Database reset successfully in ${env.NODE_ENV} environment`);
     process.exit(0);
   } catch (error) {
-    console.log(`Error resetting the database: ${error.message}`);
+    console.log("Error resetting the database: ", error);
   }
 }
 
