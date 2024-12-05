@@ -3,6 +3,7 @@ import { testClient } from "hono/testing";
 
 import { AuthRoles } from "@/common/enums";
 import { createApp } from "@/common/lib/create-app.lib";
+import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import { createTestUser } from "@/common/utils/test.util";
 import env from "@/env";
 
@@ -113,7 +114,7 @@ describe("categories", () => {
         const json = await response.json();
 
         expect(json.success).toBe(false);
-        expect(json.message).toBe("You are not authorized, please login");
+        expect(json.message).toBe(AUTHORIZATION_ERROR_MESSAGE);
       }
     });
 
@@ -494,7 +495,7 @@ describe("categories", () => {
         const json = await response.json();
 
         expect(json.success).toBe(false);
-        expect(json.message).toBe("You are not authorized, please login");
+        expect(json.message).toBe(AUTHORIZATION_ERROR_MESSAGE);
       }
     });
 
@@ -945,7 +946,7 @@ describe("categories", () => {
       if (response.status === 401) {
         const json = await response.json();
         expect(json.success).toBe(false);
-        expect(json.message).toBe("You are not authorized, please login");
+        expect(json.message).toBe(AUTHORIZATION_ERROR_MESSAGE);
       }
     });
 

@@ -7,13 +7,21 @@ import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import type { TSelectGroupSchema } from "@/db/schemas/group.model";
 
 import {
+  addUsersToGroupRepository,
   createGroupRepository,
   deleteGroupRepository,
   getAllGroupsRepository,
   getGroupByIdRepository,
   updateGroupRepository,
 } from "./group.repository";
-import type { IUpdateGroupRoute, TCreateGroupRoute, TDeleteGroupRoute, TGetAllGroupsRoute, TGetGroupById } from "./group.routes";
+import type {
+  IUpdateGroupRoute,
+  TAddUsersToGroupRoute,
+  TCreateGroupRoute,
+  TDeleteGroupRoute,
+  TGetAllGroupsRoute,
+  TGetGroupById,
+} from "./group.routes";
 
 export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
   const user = c.get("user");
@@ -31,7 +39,10 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     );
   }
 
-  const group: TSelectGroupSchema | null = await createGroupRepository({ ...payload, creatorId: user.id });
+  const group: TSelectGroupSchema | null = await createGroupRepository({
+    ...payload,
+    creatorId: user.id,
+  });
 
   if (!group) {
     logger.error("Failed to create group due to internal error");
@@ -169,7 +180,10 @@ export const updateGroup: AppRouteHandler<IUpdateGroupRoute> = async (c) => {
     );
   }
 
-  const updatedGroup = await updateGroupRepository({ ...payload, creatorId: user.id }, id);
+  const updatedGroup = await updateGroupRepository(
+    { ...payload, creatorId: user.id },
+    id,
+  );
   const groupById = await getGroupByIdRepository(id);
 
   if (!updatedGroup) {
@@ -261,6 +275,89 @@ export const deleteGroup: AppRouteHandler<TDeleteGroupRoute> = async (c) => {
     {
       success: true,
       message: `Group ${deletedGroup.name} deleted successfully`,
+    },
+    HTTPStatusCodes.OK,
+  );
+};
+
+export const addUsersToGroup: AppRouteHandler<TAddUsersToGroupRoute> = async (
+  c,
+) => {
+  const user = c.get("user");
+  const payload = c.req.valid("json");
+  const params = c.req.valid("param");
+  const logger = c.get("logger");
+
+  logger.debug(params, "GroupId");
+
+  if (!user) {
+    logger.error("User is not authorized");
+    return c.json(
+      {
+        success: false,
+        message: AUTHORIZATION_ERROR_MESSAGE,
+      },
+      HTTPStatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  let userIds: string[] = [];
+  let usernames: string[] = [];
+
+  payload.forEach((userDetail) => {
+    userIds = [userDetail.userId, ...userIds];
+    usernames = [userDetail.username, ...usernames];
+  });
+  const { groupId } = params;
+
+  const groupExists = await getGroupByIdRepository(groupId);
+
+  if (!groupExists) {
+    logger.error(`Group with ${groupId} not found`);
+    return c.json(
+      {
+        success: false,
+        message: `Group with ${groupId} not found`,
+      },
+      HTTPStatusCodes.NOT_FOUND,
+    );
+  }
+
+  const addUsersToGroupResp = await addUsersToGroupRepository(groupId, userIds);
+
+  if (!addUsersToGroupResp) {
+    logger.error("Failed to add users to group");
+    return c.json(
+      {
+        success: false,
+        message: "Failed to add users to group",
+      },
+      HTTPStatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  payload.forEach((userData) => {
+    void logActivity({
+      type: ActivityType.GROUP_MEMBER_ADDED,
+      metadata: {
+        action: "update",
+        resourceType: "group",
+        resourceName: groupExists.name,
+        actorId: user.id,
+        actorName: user.fullName || "",
+        targetId: userData.userId,
+        targetName: userData.username,
+        destinationId: groupExists.id,
+      },
+    });
+  });
+
+  logger.debug("Users added to group successfully");
+  return c.json(
+    {
+      success: true,
+      message: "Users added to group successfully",
+      data: groupExists,
     },
     HTTPStatusCodes.OK,
   );

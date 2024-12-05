@@ -1,3 +1,6 @@
+import { createRoute } from "@hono/zod-openapi";
+import { z } from "zod";
+
 import jsonContentRequired from "@/common/helpers/json-content-required.helper";
 import { jsonContent } from "@/common/helpers/json-content.helper";
 import {
@@ -5,12 +8,15 @@ import {
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
 import createErrorSchema from "@/common/schema/create-error.schema";
-import { AUTHORIZATION_ERROR_MESSAGE, FORBIDDEN_ERROR_MESSAGE } from "@/common/utils/constants";
+import {
+  AUTHORIZATION_ERROR_MESSAGE,
+  FORBIDDEN_ERROR_MESSAGE,
+  INTERNAL_SERVER_ERROR_MESSAGE,
+  VALIDATION_ERROR_MESSAGE,
+} from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertGroupSchema, selectGroupSchema } from "@/db/schemas/group.model";
 import { idSchema } from "@/db/schemas/id.model";
-import { createRoute } from "@hono/zod-openapi";
-import { z } from "zod";
 
 import { groupQuerySchema } from "./group.schema";
 
@@ -19,11 +25,8 @@ const tags = ["Groups"];
 export const createGroupRoute = createRoute({
   tags,
   method: "post",
-  path: "/group",
-  middleware: [
-    authMiddleware(),
-    requireAuth(),
-  ] as const,
+  path: "/groups",
+  middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     body: jsonContentRequired(
       insertGroupSchema.omit({
@@ -50,7 +53,7 @@ export const createGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
@@ -61,14 +64,14 @@ export const createGroupRoute = createRoute({
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertGroupSchema),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Failed to create the group",
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });
@@ -77,10 +80,7 @@ export const getAllGroupsRoute = createRoute({
   tags,
   method: "get",
   path: "/groups",
-  middleware: [
-    authMiddleware(),
-    requireAuth(),
-  ] as const,
+  middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     query: groupQuerySchema,
   },
@@ -107,10 +107,7 @@ export const getGroupById = createRoute({
   tags,
   method: "get",
   path: "/group/:id",
-  middleware: [
-    authMiddleware(),
-    requireAuth(),
-  ] as const,
+  middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     params: z.object({
       id: idSchema,
@@ -151,7 +148,7 @@ export const getGroupById = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Something went wrong, please try again later",
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });
@@ -160,10 +157,7 @@ export const updateGroupRoute = createRoute({
   tags,
   method: "put",
   path: "/group/:id",
-  middleware: [
-    authMiddleware(),
-    requireAuth(),
-  ] as const,
+  middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     params: z.object({
       id: idSchema,
@@ -213,7 +207,7 @@ export const updateGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Something went wrong, please try again later",
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });
@@ -221,11 +215,8 @@ export const updateGroupRoute = createRoute({
 export const deleteGroupRoute = createRoute({
   tags,
   method: "delete",
-  path: "group/:id",
-  middleware: [
-    authMiddleware(),
-    requireAuth(),
-  ] as const,
+  path: "groups/:id",
+  middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     params: z.object({
       id: idSchema,
@@ -265,7 +256,70 @@ export const deleteGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Something went wrong, please try again later",
+      INTERNAL_SERVER_ERROR_MESSAGE,
+    ),
+  },
+});
+
+export const addUsersToGroupRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/groups/:groupId/users",
+  middleware: [authMiddleware(), requireAuth()] as const,
+  request: {
+    body: jsonContentRequired(
+      z.array(
+        z.object({
+          userId: z.string().min(32).max(60),
+          username: z.string().min(3).max(100),
+        }),
+      ),
+      "Group creation",
+    ),
+    params: z.object({
+      groupId: z.string().min(32).max(60),
+    }),
+  },
+  responses: {
+    [HTTPStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean().default(true),
+        message: z.string(),
+        data: selectGroupSchema,
+      }),
+      "Group created successfully",
+    ),
+    [HTTPStatusCodes.BAD_REQUEST]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      VALIDATION_ERROR_MESSAGE,
+    ),
+    [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      AUTHORIZATION_ERROR_MESSAGE,
+    ),
+    [HTTPStatusCodes.NOT_FOUND]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Group with id does not exist",
+    ),
+    [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(insertGroupSchema),
+      VALIDATION_ERROR_MESSAGE,
+    ),
+    [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });
@@ -275,3 +329,4 @@ export type TGetAllGroupsRoute = typeof getAllGroupsRoute;
 export type TGetGroupById = typeof getGroupById;
 export type IUpdateGroupRoute = typeof updateGroupRoute;
 export type TDeleteGroupRoute = typeof deleteGroupRoute;
+export type TAddUsersToGroupRoute = typeof addUsersToGroupRoute;

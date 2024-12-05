@@ -4,6 +4,10 @@ import { getCookie } from "hono/cookie";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
 import type { AuthRole } from "../enums";
+import {
+  AUTHORIZATION_ERROR_MESSAGE,
+  FORBIDDEN_ERROR_MESSAGE,
+} from "../utils/constants";
 import { validateSessionToken } from "../utils/sessions.util";
 
 export function authMiddleware(): MiddlewareHandler {
@@ -40,7 +44,7 @@ export function requireAuth(): MiddlewareHandler {
       return c.json(
         {
           success: false,
-          message: "You are not authorized, please login",
+          message: AUTHORIZATION_ERROR_MESSAGE,
         },
         HTTPStatusCodes.UNAUTHORIZED,
       );
@@ -58,7 +62,7 @@ export function checkRoleGuard(...allowedRoles: AuthRole[]): MiddlewareHandler {
       return c.json(
         {
           success: false,
-          message: "You are not authorized, please login",
+          message: AUTHORIZATION_ERROR_MESSAGE,
         },
         HTTPStatusCodes.UNAUTHORIZED,
       );
@@ -68,7 +72,7 @@ export function checkRoleGuard(...allowedRoles: AuthRole[]): MiddlewareHandler {
       return c.json(
         {
           success: false,
-          message: "You are not allowed to perform this action",
+          message: FORBIDDEN_ERROR_MESSAGE,
         },
         HTTPStatusCodes.FORBIDDEN,
       );
@@ -78,7 +82,7 @@ export function checkRoleGuard(...allowedRoles: AuthRole[]): MiddlewareHandler {
       return c.json(
         {
           success: false,
-          message: "You are not allowed to perform this action",
+          message: FORBIDDEN_ERROR_MESSAGE,
         },
         HTTPStatusCodes.FORBIDDEN,
       );
