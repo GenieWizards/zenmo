@@ -13,9 +13,9 @@ async function main() {
   }
 
   try {
-    console.log("Resetting the database");
+    console.log(`Resetting the database in ${env.NODE_ENV} environment`);
     await reset(db, schema);
-    console.log("Database reset successfully....");
+    console.log(`Database reset successfully in ${env.NODE_ENV} environment`);
     process.exit(0);
   } catch (error) {
     console.log("Something went wrong in resetting the database", error);
