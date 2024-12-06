@@ -2,6 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it } from "bun:test";
 import { testClient } from "hono/testing";
 
 import { createApp, createTestApp } from "@/common/lib/create-app.lib";
+import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import env from "@/env";
 
 import { authRouter } from "../auth/auth.index";
@@ -88,7 +89,7 @@ describe("Activities List", () => {
     if (response.status === 401) {
       const json = await response.json();
 
-      expect(json.message).toBe("You are not authorized, please login");
+      expect(json.message).toBe(AUTHORIZATION_ERROR_MESSAGE);
     }
   });
 

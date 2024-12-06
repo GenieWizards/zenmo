@@ -8,4 +8,5 @@ export const groupRouters = createRouter()
   .openapi(routes.getAllGroupsRoute, handlers.getAllGroups)
   .openapi(routes.getGroupById, handlers.getGroupById)
   .openapi(routes.updateGroupRoute, handlers.updateGroup)
-  .openapi(routes.deleteGroupRoute, handlers.deleteGroup);
+  .openapi(routes.deleteGroupRoute, handlers.deleteGroup)
+  .openapi(routes.addUsersToGroupRoute, handlers.addUsersToGroup);
