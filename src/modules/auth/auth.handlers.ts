@@ -2,6 +2,7 @@ import { deleteCookie, setCookie } from "hono/cookie";
 
 import { AuthRoles } from "@/common/enums";
 import type { AppRouteHandler } from "@/common/lib/types";
+import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import {
   hashPassword,
   verifyPasswordHash,
@@ -199,7 +200,7 @@ export const logout: AppRouteHandler<TLogoutRoute> = async (c) => {
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
@@ -233,7 +234,7 @@ export const loggedInUserDetails: AppRouteHandler<
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
@@ -247,7 +248,7 @@ export const loggedInUserDetails: AppRouteHandler<
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );

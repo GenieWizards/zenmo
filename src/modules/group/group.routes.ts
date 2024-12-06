@@ -11,6 +11,7 @@ import createErrorSchema from "@/common/schema/create-error.schema";
 import {
   AUTHORIZATION_ERROR_MESSAGE,
   FORBIDDEN_ERROR_MESSAGE,
+  GROUP_DOESNT_EXIST,
   INTERNAL_SERVER_ERROR_MESSAGE,
   VALIDATION_ERROR_MESSAGE,
 } from "@/common/utils/constants";
@@ -127,7 +128,7 @@ export const getGroupById = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Group with id does not exist",
+      GROUP_DOESNT_EXIST,
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
@@ -186,7 +187,7 @@ export const updateGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Group with id does not exist",
+      GROUP_DOESNT_EXIST,
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
@@ -235,7 +236,7 @@ export const deleteGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Group with id does not exist",
+      GROUP_DOESNT_EXIST,
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
@@ -308,7 +309,7 @@ export const addUsersToGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Group with id does not exist",
+      GROUP_DOESNT_EXIST,
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertGroupSchema),

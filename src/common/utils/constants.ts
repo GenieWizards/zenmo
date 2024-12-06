@@ -10,3 +10,6 @@ export const FORBIDDEN_ERROR_MESSAGE
 export const INTERNAL_SERVER_ERROR_MESSAGE
   = "Something went wrong, please try again later";
 export const VALIDATION_ERROR_MESSAGE = "The validation error(s)";
+export const SERVER_ERROR = "Server side error(s)";
+export const GROUP_DOESNT_EXIST = "Group with id does not exist";
+export const NOT_AUTHORIZED = "User is not authorized";
