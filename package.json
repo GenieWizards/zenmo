@@ -22,6 +22,7 @@
     "db:seed": "NODE_ENV=development bun run src/db/scripts/seed-db.script.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:reset": "bun run src/db/scripts/reset-db.script.ts",
     "deps:update": "npx npm-check-updates --interactive --format group",
     "prepare": "husky || true",
     "check-types": "tsc --noEmit",
