@@ -10,3 +10,4 @@ export const FORBIDDEN_ERROR_MESSAGE
 export const INTERNAL_SERVER_ERROR_MESSAGE
   = "Something went wrong, please try again later";
 export const VALIDATION_ERROR_MESSAGE = "The validation error(s)";
+export const NOT_FOUND_ERROR_MESSAGE = "Not found error(s)";

@@ -8,7 +8,7 @@ import {
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
 import createErrorSchema from "@/common/schema/create-error.schema";
-import { AUTHORIZATION_ERROR_MESSAGE, INTERNAL_SERVER_ERROR_MESSAGE, VALIDATION_ERROR_MESSAGE } from "@/common/utils/constants";
+import { AUTHORIZATION_ERROR_MESSAGE, INTERNAL_SERVER_ERROR_MESSAGE, NOT_FOUND_ERROR_MESSAGE, VALIDATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import {
   insertExpenseSchema,
@@ -72,7 +72,7 @@ export const createExpenseRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      VALIDATION_ERROR_MESSAGE,
+      NOT_FOUND_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
