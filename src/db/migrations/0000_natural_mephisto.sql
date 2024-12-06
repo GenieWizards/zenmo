@@ -1,4 +1,4 @@
-CREATE TYPE "public"."activityType" AS ENUM('category_created', 'category_updated', 'category_deleted', 'group_created', 'group_deleted', 'group_member_added', 'group_member_removed', 'expense_added', 'expense_updated', 'expense_deleted');--> statement-breakpoint
+CREATE TYPE "public"."activityType" AS ENUM('category_created', 'category_updated', 'category_deleted', 'group_created', 'group_deleted', 'group_updated', 'group_member_added', 'group_member_removed', 'expense_added', 'expense_updated', 'expense_deleted');--> statement-breakpoint
 CREATE TYPE "public"."splitType" AS ENUM('even', 'uneven', 'proportional');--> statement-breakpoint
 CREATE TYPE "public"."status" AS ENUM('settled', 'unsettled');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('user', 'admin');--> statement-breakpoint
@@ -91,6 +91,8 @@ CREATE TABLE IF NOT EXISTS "users" (
 CREATE TABLE IF NOT EXISTS "users_to_groups" (
 	"user_id" varchar(60) NOT NULL,
 	"group_id" varchar(60) NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_to_groups_user_id_group_id_pk" PRIMARY KEY("user_id","group_id")
 );
 --> statement-breakpoint
@@ -167,4 +169,8 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "unique_name_userId_idx" ON "category" USING btree (lower("name"),"user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "search_index" ON "category" USING gin ((
+      setweight(to_tsvector('english', "name"), 'A') ||
+          setweight(to_tsvector('english', "description"), 'B')
+    ));--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "unique_email_idx" ON "users" USING btree (lower("email"));

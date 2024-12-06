@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1733153074926,
-      "tag": "0000_optimal_warlock",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1732967145615,
-      "tag": "0001_red_korvac",
+      "when": 1733501291825,
+      "tag": "0000_natural_mephisto",
       "breakpoints": true
     }
   ]
