@@ -90,6 +90,7 @@ describe("expenses", () => {
         },
       );
 
+      expect(response.status).toBe(HTTPStatusCodes.CREATED);
       if (response.status === HTTPStatusCodes.CREATED) {
         const json = await response.json();
 
@@ -119,6 +120,7 @@ describe("expenses", () => {
         },
       );
 
+      expect(response.status).toBe(HTTPStatusCodes.CREATED);
       if (response.status === HTTPStatusCodes.CREATED) {
         const json = await response.json();
 
@@ -148,6 +150,7 @@ describe("expenses", () => {
         },
       );
 
+      expect(response.status).toBe(HTTPStatusCodes.CREATED);
       if (response.status === HTTPStatusCodes.CREATED) {
         const json = await response.json();
 
@@ -159,54 +162,6 @@ describe("expenses", () => {
         expect(json.data).toHaveProperty("creatorId", adminUser.id);
         expect(json.data).toHaveProperty("categoryId", testCategory.id);
         expect(json.data).toHaveProperty("payerId", testUser.id);
-      }
-    });
-
-    it("should return 400 when user creates expense with an invalid payer id", async () => {
-      const response = await expenseClient.expenses.$post(
-        {
-          json: {
-            ...expenseTestCommonFields,
-            categoryId: testCategory.id,
-            payerId: "invalid payer id",
-          },
-        },
-        {
-          headers: {
-            session: testUser.session,
-          },
-        },
-      );
-
-      if (response.status === HTTPStatusCodes.BAD_REQUEST) {
-        const json = await response.json();
-
-        expect(json.success).toBe(false);
-        expect(json.message).toBe("Payer not found");
-      }
-    });
-
-    it("should return 400 when admin creates expense with an invalid payer id", async () => {
-      const response = await expenseClient.expenses.$post(
-        {
-          json: {
-            ...expenseTestCommonFields,
-            categoryId: testCategory.id,
-            payerId: "invalid payer id",
-          },
-        },
-        {
-          headers: {
-            session: adminUser.session,
-          },
-        },
-      );
-
-      if (response.status === HTTPStatusCodes.BAD_REQUEST) {
-        const json = await response.json();
-
-        expect(json.success).toBe(false);
-        expect(json.message).toBe("Payer not found");
       }
     });
 
@@ -224,6 +179,7 @@ describe("expenses", () => {
         },
       );
 
+      expect(response.status).toBe(HTTPStatusCodes.BAD_REQUEST);
       if (response.status === HTTPStatusCodes.BAD_REQUEST) {
         const json = await response.json();
 
@@ -232,7 +188,31 @@ describe("expenses", () => {
       }
     });
 
-    it("should return 400 when category not found", async () => {
+    it("should return 404 when payer not found", async () => {
+      const response = await expenseClient.expenses.$post(
+        {
+          json: {
+            ...expenseTestCommonFields,
+            payerId: "invalid payer id",
+          },
+        },
+        {
+          headers: {
+            session: testUser.session,
+          },
+        },
+      );
+
+      expect(response.status).toBe(HTTPStatusCodes.NOT_FOUND);
+      if (response.status === HTTPStatusCodes.NOT_FOUND) {
+        const json = await response.json();
+
+        expect(json.success).toBe(false);
+        expect(json.message).toBe("Payer not found");
+      }
+    });
+
+    it("should return 404 when category not found", async () => {
       const response = await expenseClient.expenses.$post(
         {
           json: {
@@ -247,7 +227,8 @@ describe("expenses", () => {
         },
       );
 
-      if (response.status === HTTPStatusCodes.BAD_REQUEST) {
+      expect(response.status).toBe(HTTPStatusCodes.NOT_FOUND);
+      if (response.status === HTTPStatusCodes.NOT_FOUND) {
         const json = await response.json();
 
         expect(json.success).toBe(false);
@@ -270,6 +251,7 @@ describe("expenses", () => {
         },
       );
 
+      expect(response.status).toBe(HTTPStatusCodes.BAD_REQUEST);
       if (response.status === HTTPStatusCodes.BAD_REQUEST) {
         const json = await response.json();
 
@@ -294,6 +276,7 @@ describe("expenses", () => {
         },
       );
 
+      expect(response.status).toBe(HTTPStatusCodes.BAD_REQUEST);
       if (response.status === HTTPStatusCodes.BAD_REQUEST) {
         const json = await response.json();
 

@@ -48,6 +48,17 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
   if (categoryId) {
     const category = await getCategoryRepository(categoryId);
 
+    if (!category) {
+      logger.debug("Category not found");
+      return c.json(
+        {
+          success: false,
+          message: "Category not found",
+        },
+        HTTPStatusCodes.NOT_FOUND,
+      );
+    }
+
     const validCategoryUserId = user.role === AuthRoles.ADMIN ? payerId : user.id;
     if (category.userId && category.userId !== validCategoryUserId) {
       logger.debug("Category does not belong to user");
