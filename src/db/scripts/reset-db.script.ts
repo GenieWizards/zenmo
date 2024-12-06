@@ -19,6 +19,7 @@ async function main() {
     process.exit(0);
   } catch (error) {
     console.log("Error resetting the database: ", error);
+    process.exit(1);
   }
 }
 
