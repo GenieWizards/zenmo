@@ -8,6 +8,7 @@ import {
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
 import createErrorSchema from "@/common/schema/create-error.schema";
+import { AUTHORIZATION_ERROR_MESSAGE, INTERNAL_SERVER_ERROR_MESSAGE, VALIDATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import {
   insertExpenseSchema,
@@ -53,32 +54,32 @@ export const createExpenseRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertExpenseSchema),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.NOT_FOUND]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Failed to create expense",
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });

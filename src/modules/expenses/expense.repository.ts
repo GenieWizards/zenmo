@@ -1,6 +1,5 @@
-import type { TInsertExpenseSchema } from "@/db/schemas/expense.model";
-
 import { db } from "@/db/adapter";
+import type { TInsertExpenseSchema } from "@/db/schemas/expense.model";
 import expenseModel from "@/db/schemas/expense.model";
 
 type TExpensePayload = Omit<TInsertExpenseSchema, "id" | "createdAt" | "updatedAt" | "groupId" >;

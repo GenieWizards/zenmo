@@ -1,4 +1,3 @@
-import { splitTypeArr } from "@/common/enums";
 import {
   pgEnum,
   pgTable,
@@ -9,6 +8,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { z } from "zod";
+
+import { splitTypeArr } from "@/common/enums";
 
 import categoryModel from "./category.model";
 import groupModel from "./group.model";

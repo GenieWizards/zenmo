@@ -3,6 +3,7 @@ import { testClient } from "hono/testing";
 
 import { AuthRoles, SplitType } from "@/common/enums";
 import { createApp } from "@/common/lib/create-app.lib";
+import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { createTestUser } from "@/common/utils/test.util";
 import env from "@/env";
@@ -312,7 +313,7 @@ describe("expenses", () => {
         const json = await response.json();
 
         expect(json.success).toBe(false);
-        expect(json.message).toBe("You are not authorized, please login");
+        expect(json.message).toBe(AUTHORIZATION_ERROR_MESSAGE);
       }
     });
   });

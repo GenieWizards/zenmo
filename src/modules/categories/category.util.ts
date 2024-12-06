@@ -1,6 +1,7 @@
+import { sql } from "drizzle-orm";
+
 import { categoryModel } from "@/db/schemas";
 import type { TInsertCategorySchema } from "@/db/schemas/category.model";
-import { sql } from "drizzle-orm";
 
 export function categorySortBy(sortBy: string | undefined) {
   if (sortBy === "name") {

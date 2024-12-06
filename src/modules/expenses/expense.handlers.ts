@@ -1,14 +1,13 @@
-import type { AppRouteHandler } from "@/common/lib/types";
-
 import { ActivityType, AuthRoles } from "@/common/enums";
 import { logActivity } from "@/common/helpers/activity-log.helper";
+import type { AppRouteHandler } from "@/common/lib/types";
+import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
-
-import type { TCreateExpenseRoute } from "./expense.routes";
 
 import { getCategoryRepository } from "../categories/category.repository";
 import { getUserByIdRepository } from "../users/user.repository";
 import { createExpenseRepository } from "./expense.repository";
+import type { TCreateExpenseRoute } from "./expense.routes";
 
 export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
   c,
@@ -22,13 +21,13 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
   }
 
-  const { payerId } = payload;
+  const { payerId, categoryId } = payload;
 
   // check if payerId is valid
   if (payerId) {
@@ -46,7 +45,6 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
     }
   }
 
-  const { categoryId } = payload;
   if (categoryId) {
     const category = await getCategoryRepository(categoryId);
 
@@ -116,6 +114,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
       resourceType: "expense",
       actorId: user.id,
       targetId: expense.id,
+      destinationId: expense.id,
       actorName: user.fullName || "",
       msg: "expense created",
     },
