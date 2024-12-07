@@ -5,9 +5,8 @@ import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
 import { getUserByIdRepository } from "../users/user.repository";
-import { createExpenseRepository } from "./expense.repository";
+import { createExpenseRepository, isCategoryValidToCreateExpense } from "./expense.repository";
 import type { TCreateExpenseRoute } from "./expense.routes";
-import { isCategoryValidToCreateExpense } from "./expense.util";
 
 export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
   c,
