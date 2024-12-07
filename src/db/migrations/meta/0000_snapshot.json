@@ -1,5 +1,5 @@
 {
-  "id": "8fb066f1-9996-4499-823d-9f86259e2e06",
+  "id": "96948455-b2cc-46ab-9feb-e58e24a224ed",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -249,6 +249,21 @@
           "isUnique": true,
           "concurrently": false,
           "method": "btree",
+          "with": {}
+        },
+        "search_index": {
+          "name": "search_index",
+          "columns": [
+            {
+              "expression": "(\n      setweight(to_tsvector('english', \"name\"), 'A') ||\n          setweight(to_tsvector('english', \"description\"), 'B')\n    )",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
           "with": {}
         }
       },
@@ -697,6 +712,20 @@
           "type": "varchar(60)",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -753,6 +782,7 @@
         "category_deleted",
         "group_created",
         "group_deleted",
+        "group_updated",
         "group_member_added",
         "group_member_removed",
         "expense_added",
