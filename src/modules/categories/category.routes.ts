@@ -11,6 +11,7 @@ import {
 } from "@/common/middlewares/auth.middleware";
 import createErrorSchema from "@/common/schema/create-error.schema";
 import { metadataSchema } from "@/common/schema/metadata.schema";
+import { AUTHORIZATION_ERROR_MESSAGE, FORBIDDEN_ERROR_MESSAGE, VALIDATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import {
   insertCategorySchema,
@@ -55,14 +56,14 @@ export const createCategoryRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.CONFLICT]: jsonContent(
       z.object({
@@ -73,7 +74,7 @@ export const createCategoryRoute = createRoute({
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertCategorySchema),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
@@ -181,21 +182,21 @@ export const updateCategoryRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.FORBIDDEN]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not allowed to perform this action",
+      FORBIDDEN_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
@@ -242,14 +243,14 @@ export const deleteCategoryRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.FORBIDDEN]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not allowed to perform this action",
+      FORBIDDEN_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({

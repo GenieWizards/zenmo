@@ -8,6 +8,7 @@ import {
 } from "@/common/middlewares/auth.middleware";
 import createErrorSchema from "@/common/schema/create-error.schema";
 import { metadataSchema } from "@/common/schema/metadata.schema";
+import { AUTHORIZATION_ERROR_MESSAGE, VALIDATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
 import { activityQuerySchema } from "./activity.schema";
@@ -42,11 +43,11 @@ export const getActivitiesRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(activityQuerySchema),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
   },
 });

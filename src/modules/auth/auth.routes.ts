@@ -7,6 +7,7 @@ import {
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
 import createErrorSchema from "@/common/schema/create-error.schema";
+import { AUTHORIZATION_ERROR_MESSAGE, SERVER_ERROR, VALIDATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertUserSchema, selectUserSchema } from "@/db/schemas/user.model";
 
@@ -48,7 +49,7 @@ export const registerRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.CONFLICT]: jsonContent(
       z.object({
@@ -63,14 +64,14 @@ export const registerRoute = createRoute({
           password: z.string().min(8).max(60),
         }),
       ),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Server side error(s)",
+      SERVER_ERROR,
     ),
   },
 });
@@ -112,14 +113,14 @@ export const loginRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "The validation error(s)",
+      VALIDATION_ERROR_MESSAGE,
     ),
     [HTTPStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "Server side error(s)",
+      SERVER_ERROR,
     ),
   },
 });
@@ -142,7 +143,7 @@ export const logoutRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
   },
 });
@@ -166,7 +167,7 @@ export const loggedinUserDetails = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "You are not authorized, please login",
+      AUTHORIZATION_ERROR_MESSAGE,
     ),
   },
 });

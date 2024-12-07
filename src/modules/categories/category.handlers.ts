@@ -2,6 +2,7 @@ import { ActivityType, AuthRoles } from "@/common/enums";
 import { logActivity } from "@/common/helpers/activity-log.helper";
 import { generateMetadata } from "@/common/helpers/metadata.helper";
 import type { AppRouteHandler } from "@/common/lib/types";
+import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import type { TSelectCategorySchema } from "@/db/schemas/category.model";
 
@@ -35,7 +36,7 @@ export const createCategory: AppRouteHandler<TCreateCategoryRoute> = async (
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );

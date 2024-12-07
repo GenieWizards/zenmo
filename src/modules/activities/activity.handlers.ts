@@ -1,6 +1,7 @@
 import { AuthRoles } from "@/common/enums";
 import { generateMetadata } from "@/common/helpers/metadata.helper";
 import type { AppRouteHandler } from "@/common/lib/types";
+import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
 import { getActivitiesRepository } from "./activity.repository";
@@ -19,7 +20,7 @@ export const getActivities: AppRouteHandler<TGetActivitiesRoute> = async (
     return c.json(
       {
         success: false,
-        message: "You are not authorized, please login",
+        message: AUTHORIZATION_ERROR_MESSAGE,
       },
       HTTPStatusCodes.UNAUTHORIZED,
     );
