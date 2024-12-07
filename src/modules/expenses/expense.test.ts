@@ -256,7 +256,7 @@ describe("expenses", () => {
         const json = await response.json();
 
         expect(json.success).toBe(false);
-        expect(json.message).toBe("Category does not belong to valid category user");
+        expect(json.message).toBe("Category does not belong to the user or the specified payer");
       }
     });
 
@@ -281,7 +281,7 @@ describe("expenses", () => {
         const json = await response.json();
 
         expect(json.success).toBe(false);
-        expect(json.message).toBe("Category does not belong to valid category user");
+        expect(json.message).toBe("Category does not belong to the user or the specified payer");
       }
     });
 

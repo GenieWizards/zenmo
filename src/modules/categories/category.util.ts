@@ -1,7 +1,6 @@
 import { sql } from "drizzle-orm";
 
 import { categoryModel } from "@/db/schemas";
-import type { TInsertCategorySchema } from "@/db/schemas/category.model";
 
 export function categorySortBy(sortBy: string | undefined) {
   if (sortBy === "name") {
@@ -45,15 +44,4 @@ export function categoryFullTextSearch(search: string) {
   `;
 
   return data;
-}
-
-/**
- * Check if category either belongs to user or should not have any user assigned(global).
- */
-export function isCategoryValidForUser(category: TInsertCategorySchema, userId: string) {
-  if (category.userId === userId || !category.userId) {
-    return true;
-  } else {
-    return false;
-  }
 }

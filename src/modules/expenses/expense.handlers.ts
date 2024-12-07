@@ -4,10 +4,10 @@ import type { AppRouteHandler } from "@/common/lib/types";
 import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
-import { getCategoryRepository } from "../categories/category.repository";
 import { getUserByIdRepository } from "../users/user.repository";
 import { createExpenseRepository } from "./expense.repository";
 import type { TCreateExpenseRoute } from "./expense.routes";
+import { isCategoryValidToCreateExpense } from "./expense.util";
 
 export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
   c,
@@ -17,7 +17,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
   const payload = c.req.valid("json");
 
   if (!user) {
-    logger.debug("User is not authorized to create expense");
+    logger.debug("createExpense: User is not authorized to create expense");
     return c.json(
       {
         success: false,
@@ -34,7 +34,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
     const payerUser = await getUserByIdRepository(payerId);
 
     if (!payerUser) {
-      logger.debug("Payer not found");
+      logger.debug("createExpense: Payer not found");
       return c.json(
         {
           success: false,
@@ -46,10 +46,10 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
   }
 
   if (categoryId) {
-    const category = await getCategoryRepository(categoryId);
+    const { category, isValid } = await isCategoryValidToCreateExpense(categoryId, payerId, user);
 
     if (!category) {
-      logger.debug("Category not found");
+      logger.debug("createExpense: Category not found");
       return c.json(
         {
           success: false,
@@ -59,13 +59,12 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
       );
     }
 
-    const validCategoryUserId = user.role === AuthRoles.ADMIN ? payerId : user.id;
-    if (category.userId && category.userId !== validCategoryUserId) {
-      logger.debug("Category does not belong to user");
+    if (!isValid) {
+      logger.debug("createExpense: Category does not belong to the user or the specified payer");
       return c.json(
         {
           success: false,
-          message: "Category does not belong to valid category user",
+          message: "Category does not belong to the user or the specified payer",
         },
         HTTPStatusCodes.BAD_REQUEST,
       );
@@ -87,7 +86,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
     case AuthRoles.ADMIN: {
       // check if payerId exists
       if (!payerId) {
-        logger.debug("Missing payer Id to create expense");
+        logger.debug("createExpense: Missing payer Id to create expense");
         return c.json(
           {
             success: false,
