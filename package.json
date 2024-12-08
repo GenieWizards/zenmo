@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target bun",
-    "dev": "bun run --watch --inspect src/index.ts",
+    "dev": "bun run --watch --inspect=0.0.0.0:6499 src/index.ts",
     "lint": "eslint .",
     "lint:fix": "bun lint --fix",
     "start": "bun src/index.ts",
