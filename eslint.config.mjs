@@ -13,6 +13,7 @@ export default antfu(
       semi: true,
       quotes: "double",
     },
+    ignores: [".github/ISSUE_TEMPLATE"],
   },
   {
     rules: {
