@@ -8,6 +8,8 @@ services:
       - /usr/src/app/node_modules
     ports:
       - "8998:8998"
+      - "8999:8999"
+      - "6499:6499"
     env_file:
       - .env
     environment:
