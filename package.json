@@ -37,7 +37,7 @@
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@scalar/hono-api-reference": "^0.5.163",
-    "drizzle-kit": "^0.28.1",
+    "drizzle-kit": "^0.30.0",
     "drizzle-orm": "^0.37.0",
     "drizzle-seed": "^0.1.2",
     "drizzle-zod": "^0.5.1",
