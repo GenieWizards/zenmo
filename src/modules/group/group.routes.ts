@@ -1,6 +1,3 @@
-import { createRoute } from "@hono/zod-openapi";
-import { z } from "zod";
-
 import jsonContentRequired from "@/common/helpers/json-content-required.helper";
 import { jsonContent } from "@/common/helpers/json-content.helper";
 import {
@@ -17,6 +14,8 @@ import {
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertGroupSchema, selectGroupSchema } from "@/db/schemas/group.model";
 import { idSchema } from "@/db/schemas/id.model";
+import { createRoute } from "@hono/zod-openapi";
+import { z } from "zod";
 
 import { groupQuerySchema } from "./group.schema";
 
