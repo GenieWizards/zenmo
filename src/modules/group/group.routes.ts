@@ -11,8 +11,8 @@ import createErrorSchema from "@/common/schema/create-error.schema";
 import {
   AUTHORIZATION_ERROR_MESSAGE,
   FORBIDDEN_ERROR_MESSAGE,
-  GROUP_DOESNT_EXIST,
   INTERNAL_SERVER_ERROR_MESSAGE,
+  RESOURCE_NOT_FOUND,
   VALIDATION_ERROR_MESSAGE,
 } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
@@ -128,7 +128,7 @@ export const getGroupById = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      GROUP_DOESNT_EXIST,
+      RESOURCE_NOT_FOUND("group", idSchema),
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
@@ -187,7 +187,7 @@ export const updateGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      GROUP_DOESNT_EXIST,
+      RESOURCE_NOT_FOUND("group", idSchema),
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
@@ -236,7 +236,7 @@ export const deleteGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      GROUP_DOESNT_EXIST,
+      RESOURCE_NOT_FOUND("group", idSchema),
     ),
     [HTTPStatusCodes.UNAUTHORIZED]: jsonContent(
       z.object({
@@ -309,7 +309,7 @@ export const addUsersToGroupRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      GROUP_DOESNT_EXIST,
+      RESOURCE_NOT_FOUND("group", idSchema),
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertGroupSchema),

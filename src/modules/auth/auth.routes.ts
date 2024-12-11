@@ -7,7 +7,7 @@ import {
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
 import createErrorSchema from "@/common/schema/create-error.schema";
-import { AUTHORIZATION_ERROR_MESSAGE, SERVER_ERROR, VALIDATION_ERROR_MESSAGE } from "@/common/utils/constants";
+import { AUTHORIZATION_ERROR_MESSAGE, INTERNAL_SERVER_ERROR_MESSAGE, VALIDATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertUserSchema, selectUserSchema } from "@/db/schemas/user.model";
 
@@ -71,7 +71,7 @@ export const registerRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      SERVER_ERROR,
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });
@@ -120,7 +120,7 @@ export const loginRoute = createRoute({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      SERVER_ERROR,
+      INTERNAL_SERVER_ERROR_MESSAGE,
     ),
   },
 });

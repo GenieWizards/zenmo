@@ -1,3 +1,5 @@
+import type { ZodString } from "zod";
+
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_LIMIT = 10;
 export const MAX_LIMIT = 100;
@@ -8,8 +10,7 @@ export const AUTHORIZATION_ERROR_MESSAGE
 export const FORBIDDEN_ERROR_MESSAGE
   = "You are not allowed to perform this action.";
 export const INTERNAL_SERVER_ERROR_MESSAGE
-  = "Something went wrong, please try again later";
+  = "Something went wrong, please try again later.";
 export const VALIDATION_ERROR_MESSAGE = "The validation error(s)";
-export const SERVER_ERROR = "Server side error(s)";
-export const GROUP_DOESNT_EXIST = "Group with id does not exist";
 export const NOT_AUTHORIZED = "User is not authorized";
+export const RESOURCE_NOT_FOUND = (resourceName: string, resourceId: ZodString) => `${resourceName} with id ${resourceId} does not exist`;
