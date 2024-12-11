@@ -1,12 +1,12 @@
-import type { SQL } from "drizzle-orm";
-import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
-
 import { AuthRoles } from "@/common/enums";
 import { db } from "@/db/adapter";
 import type { TInsertGroupSchema } from "@/db/schemas/group.model";
 import groupModel from "@/db/schemas/group.model";
 import { usersToGroupsModel } from "@/db/schemas/user-to-group.model";
 import type { TSelectUserSchema } from "@/db/schemas/user.model";
+import userModel from "@/db/schemas/user.model";
+import type { SQL } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
 
 import type { TGroupQuerySchema } from "./group.schema";
 
@@ -60,13 +60,29 @@ export async function getAllGroupsRepository(
 }
 
 export async function getGroupByIdRepository(groupId: string) {
-  const [groupById] = await db
-    .select()
+  const result = await db
+    .select({
+      group: groupModel,
+      users: {
+        userId: userModel.id,
+        userName: userModel.fullName,
+      },
+    })
     .from(groupModel)
-    .where(eq(groupModel.id, groupId))
-    .limit(1);
+    .innerJoin(usersToGroupsModel, eq(groupModel.id, usersToGroupsModel.groupId))
+    .innerJoin(userModel, eq(usersToGroupsModel.userId, userModel.id))
+    .where(eq(groupModel.id, groupId));
 
-  return groupById;
+  const group = result[0]?.group;
+  if (!group)
+    return null;
+
+  const userIds = result.map(row => ({
+    userId: row.users.userId,
+    userName: row.users.userName,
+  })).filter(user => user.userId !== null);
+
+  return { ...group, userIds };
 }
 
 export async function updateGroupRepository(

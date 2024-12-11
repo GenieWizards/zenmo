@@ -155,11 +155,11 @@ export const getGroupById = createRoute({
 export const updateGroupRoute = createRoute({
   tags,
   method: "put",
-  path: "/group/:id",
+  path: "/group/:groupId",
   middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     params: z.object({
-      id: idSchema,
+      groupId: idSchema,
     }),
     body: jsonContentRequired(
       insertGroupSchema.omit({
@@ -176,7 +176,6 @@ export const updateGroupRoute = createRoute({
       z.object({
         success: z.boolean().default(true),
         message: z.string(),
-        data: selectGroupSchema,
       }),
       "Group updated successfully",
     ),

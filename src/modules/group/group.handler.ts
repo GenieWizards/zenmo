@@ -4,11 +4,12 @@ import { generateMetadata } from "@/common/helpers/metadata.helper";
 import type { AppRouteHandler } from "@/common/lib/types";
 import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
-import type { TSelectGroupSchema } from "@/db/schemas/group.model";
+import { db } from "@/db/adapter";
+import groupModel from "@/db/schemas/group.model";
+import { usersToGroupsModel } from "@/db/schemas/user-to-group.model";
 
 import {
   addUsersToGroupRepository,
-  createGroupRepository,
   deleteGroupRepository,
   getAllGroupsRepository,
   getGroupByIdRepository,
@@ -39,12 +40,27 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     );
   }
 
-  const group: TSelectGroupSchema | null = await createGroupRepository({
-    ...payload,
-    creatorId: user.id,
+  const result = await db.transaction(async (tx) => {
+    // Create group
+    const [group] = await tx
+      .insert(groupModel)
+      .values({
+        ...payload,
+        creatorId: user.id,
+      })
+      .returning();
+
+    // Adding logged in user to the created group
+    const [addedUsers] = await tx
+      .insert(usersToGroupsModel)
+      .values([{ userId: user.id, groupId: group.id }])
+      .onConflictDoNothing()
+      .returning();
+
+    return { group, addedUsers };
   });
 
-  if (!group) {
+  if (!result.group) {
     logger.error("Failed to create group due to internal error");
     return c.json(
       {
@@ -60,18 +76,18 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     metadata: {
       action: "create",
       resourceType: "group",
-      resourceName: group.name,
+      resourceName: result.group.name,
       actorId: user.id,
       actorName: user.fullName || "",
     },
   });
-  logger.debug(`Group created successfully with name ${group.name}`);
+  logger.debug(`Group created successfully with name ${result.group.name}`);
 
   return c.json(
     {
       success: true,
       message: "Group created successfully",
-      data: group,
+      data: result.group,
     },
     HTTPStatusCodes.CREATED,
   );
@@ -141,7 +157,7 @@ export const getGroupById: AppRouteHandler<TGetGroupById> = async (c) => {
     );
   }
 
-  if (groupById.creatorId !== user.id && user.role === AuthRoles.USER) {
+  if (user.role === AuthRoles.USER && !groupById.userIds?.map(userId => userId.userId).includes(user.id)) {
     logger.error(`Group with ${id} cannot be accessed by the logged in user`);
     return c.json(
       {
@@ -165,7 +181,7 @@ export const getGroupById: AppRouteHandler<TGetGroupById> = async (c) => {
 
 export const updateGroup: AppRouteHandler<IUpdateGroupRoute> = async (c) => {
   const user = c.get("user");
-  const { id } = c.req.valid("param");
+  const { groupId } = c.req.valid("param");
   const payload = c.req.valid("json");
   const logger = c.get("logger");
 
@@ -180,33 +196,34 @@ export const updateGroup: AppRouteHandler<IUpdateGroupRoute> = async (c) => {
     );
   }
 
-  const updatedGroup = await updateGroupRepository(
-    { ...payload, creatorId: user.id },
-    id,
-  );
-  const groupById = await getGroupByIdRepository(id);
+  const groupById = await getGroupByIdRepository(groupId);
 
-  if (!updatedGroup) {
-    logger.error(`Group with ${id} not found`);
+  if (!groupById) {
+    logger.error(`Group with ${groupId} not found`);
     return c.json(
       {
         success: false,
-        message: `Group with ${id} not found`,
+        message: `Group with ${groupId} not found`,
       },
       HTTPStatusCodes.NOT_FOUND,
     );
   }
 
-  if (groupById.creatorId !== user.id && user.role === AuthRoles.USER) {
-    logger.error(`Group with ${id} cannot be accessed by the logged in user`);
+  if (user.role === AuthRoles.USER && !groupById.userIds?.map(userId => userId.userId).includes(user.id)) {
+    logger.error(`Group with ${groupId} cannot be accessed by the logged in user`);
     return c.json(
       {
         success: false,
-        message: `Group with ${id} cannot be accessed by the logged in user`,
+        message: `Group with ${groupId} cannot be accessed by the logged in user`,
       },
       HTTPStatusCodes.FORBIDDEN,
     );
   }
+
+  const updatedGroup = await updateGroupRepository(
+    { ...payload, creatorId: user.id },
+    groupId,
+  );
 
   void logActivity({
     type: ActivityType.GROUP_UPDATED,
@@ -224,7 +241,6 @@ export const updateGroup: AppRouteHandler<IUpdateGroupRoute> = async (c) => {
     {
       success: true,
       message: "Group updated successfully",
-      data: updatedGroup,
     },
     HTTPStatusCodes.OK,
   );
