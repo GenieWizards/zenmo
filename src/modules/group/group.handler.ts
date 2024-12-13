@@ -51,16 +51,16 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
       .returning();
 
     // Adding logged in user to the created group
-    const [addedUsers] = await tx
+    await tx
       .insert(usersToGroupsModel)
       .values([{ userId: user.id, groupId: group.id }])
       .onConflictDoNothing()
       .returning();
 
-    return { group, addedUsers };
+    return { ...group, userName: user.fullName };
   });
 
-  if (!result.group) {
+  if (!result) {
     logger.error("Failed to create group due to internal error");
     return c.json(
       {
@@ -76,18 +76,18 @@ export const createGroup: AppRouteHandler<TCreateGroupRoute> = async (c) => {
     metadata: {
       action: "create",
       resourceType: "group",
-      resourceName: result.group.name,
+      resourceName: result.name,
       actorId: user.id,
       actorName: user.fullName || "",
     },
   });
-  logger.debug(`Group created successfully with name ${result.group.name}`);
+  logger.debug(`Group created successfully with name ${result.name}`);
 
   return c.json(
     {
       success: true,
       message: "Group created successfully",
-      data: result.group,
+      data: result,
     },
     HTTPStatusCodes.CREATED,
   );

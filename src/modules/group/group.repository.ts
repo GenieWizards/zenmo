@@ -6,7 +6,7 @@ import { usersToGroupsModel } from "@/db/schemas/user-to-group.model";
 import type { TSelectUserSchema } from "@/db/schemas/user.model";
 import userModel from "@/db/schemas/user.model";
 import type { SQL } from "drizzle-orm";
-import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 
 import type { TGroupQuerySchema } from "./group.schema";
 
@@ -25,7 +25,17 @@ export async function getAllGroupsRepository(
   const whereConditions: SQL<unknown>[] = [];
 
   if (userDetails.role === AuthRoles.USER) {
-    whereConditions.push(eq(groupModel.creatorId, userDetails.id));
+    whereConditions.push(
+      inArray(
+        groupModel.id,
+        db
+          .select({
+            groupId: usersToGroupsModel.groupId,
+          })
+          .from(usersToGroupsModel)
+          .where(eq(usersToGroupsModel.userId, userDetails.id)),
+      ),
+    );
   }
 
   if (status !== undefined) {
