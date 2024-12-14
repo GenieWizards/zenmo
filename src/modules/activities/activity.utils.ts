@@ -48,21 +48,24 @@ function formatCategoryActivity(
   activityMetadata: IActivityMetadata,
   userId: string | undefined,
 ) {
+  const isActor = userId === activityMetadata.actorId; // Add actorId to your metadata type
+  const actor = isActor ? "You" : activityMetadata.actorName || "Someone";
+
   switch (activityMetadata.action) {
     case "create":
       return {
         id,
-        message: `${userId ? activityMetadata.actorName : "You"} created a new category "${activityMetadata.resourceName}"`,
+        message: `${actor} created a new category "${activityMetadata.resourceName}"`,
       };
     case "update":
       return {
         id,
-        message: `${userId ? activityMetadata.actorName : "You"} updated the category "${activityMetadata.resourceName}"`,
+        message: `${actor} updated the category "${activityMetadata.resourceName}"`,
       };
     case "delete":
       return {
         id,
-        message: `${userId ? activityMetadata.actorName : "You"} deleted the category "${activityMetadata.resourceName}"`,
+        message: `${actor} deleted the category "${activityMetadata.resourceName}"`,
       };
     default:
       return { id: "", message: "Unknown category activityMetadata" };
@@ -75,10 +78,13 @@ function formatGroupActivity(
   userId: string | undefined,
   activityType: string,
 ) {
+  const isActor = userId === activityMetadata.actorId; // Add actorId to your metadata type
+  const actor = isActor ? "You" : activityMetadata.actorName || "Someone";
+
   if (activityType === ActivityType.GROUP_MEMBER_ADDED) {
     return {
       id,
-      message: `${userId ? activityMetadata.actorName : "You"} added ${activityMetadata.targetName} to the Group "${activityMetadata.resourceName}"`,
+      message: `${actor} added ${activityMetadata.targetName} to the Group "${activityMetadata.resourceName}"`,
     };
   }
 
@@ -86,17 +92,17 @@ function formatGroupActivity(
     case "create":
       return {
         id,
-        message: `${userId ? activityMetadata.actorName : "You"} created a new Group "${activityMetadata.resourceName}"`,
+        message: `${actor} created a new Group "${activityMetadata.resourceName}"`,
       };
     case "update":
       return {
         id,
-        message: `${userId ? activityMetadata.actorName : "You"} updated the Group "${activityMetadata.resourceName}"`,
+        message: `${actor} updated the Group "${activityMetadata.resourceName}"`,
       };
     case "delete":
       return {
         id,
-        message: `${userId ? activityMetadata.actorName : "You"} deleted the Group "${activityMetadata.resourceName}"`,
+        message: `${actor} deleted the Group "${activityMetadata.resourceName}"`,
       };
     default:
       return { id: "", message: "Unknown group activityMetadata" };
