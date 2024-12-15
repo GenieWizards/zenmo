@@ -195,5 +195,48 @@ describe("group Handler", () => {
         expect(json.message).toBe(AUTHORIZATION_ERROR_MESSAGE);
       }
     });
+
+    it("should return 409 when adding user that already exists in group", async () => {
+      await groupClient.groups[":groupId"].users.$post(
+        {
+          json: testUsers.map(user => ({
+            userId: user.id,
+            username: user.username,
+          })),
+          param: { groupId },
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      const response = await groupClient.groups[":groupId"].users.$post(
+        {
+          json: testUsers.map(user => ({
+            userId: user.id,
+            username: user.username,
+          })),
+          param: { groupId },
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      expect(response.status).toBe(HTTPStatusCodes.CONFLICT);
+
+      if (response.status === HTTPStatusCodes.CONFLICT) {
+        const json = await response.json();
+
+        expect(json.success).toBe(false);
+        expect(json.message).toBe(
+          "Some or all of the users you are trying to add already exist in the group",
+        );
+      }
+    });
   });
 });

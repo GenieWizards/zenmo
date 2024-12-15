@@ -339,7 +339,7 @@ export const addUsersToGroup: AppRouteHandler<TAddUsersToGroupRoute> = async (
       {
         success: false,
         message:
-          "Some or all the Users you are trying to add already exists in group",
+          "Some or all of the users you are trying to add already exist in the group",
       },
       HTTPStatusCodes.CONFLICT,
     );
