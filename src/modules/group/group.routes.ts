@@ -316,6 +316,13 @@ export const addUsersToGroupRoute = createRoute({
       }),
       "Group with id does not exist",
     ),
+    [HTTPStatusCodes.CONFLICT]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "User(s) already exists in group",
+    ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertGroupSchema),
       VALIDATION_ERROR_MESSAGE,
