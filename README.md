@@ -40,7 +40,7 @@ This project uses Docker for both development and production environments. Below
 
 ### Prerequisites
 
-- Docker and Docker Compose installed on your machine.
+- Docker and Docker Compose installed on your machine
 - Make (usually pre-installed on macOS/Linux)
 
 ### Available Make Commands
