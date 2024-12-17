@@ -31,7 +31,7 @@
     "db:studio": "drizzle-kit studio --port=4000"
   },
   "dependencies": {
-    "@commitlint/cli": "^19.6.0",
+    "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
     "@hono/zod-openapi": "^0.18.3",
     "@oslojs/crypto": "^1.0.1",
