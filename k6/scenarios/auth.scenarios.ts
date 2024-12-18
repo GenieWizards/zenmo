@@ -27,10 +27,11 @@ export const options = {
 };
 
 const BASE_URL = "http://localhost:8998";
+// Add real emails and passwords here during load testing
 const TEST_CREDENTIALS = [
-  { email: "user1@yopmail.com", password: "12345678" },
-  { email: "user2@yopmail.com", password: "12345678" },
-  { email: "admin1@yopmail.com", password: "12345678" },
+  { email: "user1@yopmail.com", password: "********" },
+  { email: "user2@yopmail.com", password: "********" },
+  { email: "admin1@yopmail.com", password: "********" },
 ];
 
 export function setup() {
