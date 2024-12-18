@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "./dist/k6",
+    "rootDir": "./k6",
+    "types": ["k6"]
+  },
+  "include": ["k6/**/*.ts"]
+}

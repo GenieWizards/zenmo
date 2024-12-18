@@ -28,7 +28,9 @@
     "commit": "cz",
     "check-types": "tsc --noEmit",
     "test": "LOG_LEVEL=silent bun test",
-    "db:studio": "drizzle-kit studio --port=4000"
+    "db:studio": "drizzle-kit studio --port=4000",
+    "k6:compile": "rm -rf dist && bun tsc -p tsconfig.k6.json",
+    "test:load": "npx tsc -p tsconfig.k6.json && k6 run dist/k6/scenarios/auth.scenarios.ts"
   },
   "dependencies": {
     "@commitlint/cli": "^19.6.1",
@@ -50,6 +52,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^3.12.0",
     "@types/bun": "latest",
+    "@types/k6": "^0.54.2",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^9.17.0",
