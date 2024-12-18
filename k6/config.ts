@@ -4,7 +4,6 @@ export const API_VERSION = "v1";
 export const ENDPOINTS = {
   AUTH: {
     LOGIN: `/api/${API_VERSION}/auth/login`,
-    REGISTER: `/api/${API_VERSION}/auth/register`,
     LOGOUT: `/api/${API_VERSION}/auth/logout`,
   },
   CATEGORIES: {
