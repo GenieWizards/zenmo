@@ -5,7 +5,8 @@ on:
       - main
 
 permissions:
-  contents: read # for checkout
+  contents: write
+  pull-requests: write
 
 jobs:
   release:
