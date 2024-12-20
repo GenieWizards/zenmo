@@ -25,8 +25,8 @@ jobs:
         with:
           node-version: "18"
       - name: Install Plugins
-        run: npm i -g semantic-release @semantic-release/changelog @semantic-release/commit-analyzer conventional-changelog-conventionalcommits
+        run: npm i -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github @semantic-release/commit-analyzer conventional-changelog-conventionalcommits
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npx semantic-release;
+        run: npx semantic-release --debug;
