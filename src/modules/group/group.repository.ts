@@ -1,5 +1,5 @@
 import type { SQL } from "drizzle-orm";
-import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 
 import { AuthRoles } from "@/common/enums";
 import { db } from "@/db/adapter";
@@ -116,4 +116,21 @@ export async function getGroupMembersByIdRepository(groupId: string) {
     .where(eq(usersToGroupsModel.groupId, groupId));
 
   return groupMembers;
+}
+
+export async function usersExistsInGroupRepository(
+  groupId: string,
+  userIds: string[],
+) {
+  const userExistsInGroup = await db
+    .select()
+    .from(usersToGroupsModel)
+    .where(
+      and(
+        eq(usersToGroupsModel.groupId, groupId),
+        inArray(usersToGroupsModel.userId, userIds),
+      ),
+    );
+
+  return userExistsInGroup;
 }
