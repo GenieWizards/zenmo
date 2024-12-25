@@ -10,32 +10,17 @@ import type { z } from "zod";
 
 import { splitTypeArr } from "@/common/enums";
 
-import groupModel from "./group.model";
-import userModel from "./user.model";
-
 export const splitTypeEnum = pgEnum("splitType", splitTypeArr);
 
 const settlementModel = pgTable("settlement", {
   id: varchar({ length: 60 })
     .$defaultFn(() => Bun.randomUUIDv7())
-    .primaryKey()
+    .primaryKey(),
+  senderId: varchar({ length: 60 })
     .notNull(),
-  payerId: varchar({ length: 60 })
-    .notNull()
-    .references(() => userModel.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
   receiverId: varchar({ length: 60 })
-    .notNull()
-    .references(() => userModel.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
-  groupId: varchar({ length: 60 }).references(() => groupModel.id, {
-    onDelete: "cascade",
-    onUpdate: "cascade",
-  }),
+    .notNull(),
+  groupId: varchar({ length: 60 }),
   amount: real().notNull(),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
@@ -44,10 +29,10 @@ const settlementModel = pgTable("settlement", {
 // Schema for selecting/inserting a settlement
 export const selectSettlementSchema = createSelectSchema(settlementModel, {
   id: schema => schema.id.describe("Unique identifier for the settlement"),
-  payerId: schema =>
-    schema.payerId.describe("Reference to the user who is payer"),
+  senderId: schema =>
+    schema.senderId.describe("Reference to the user who is payer"),
   receiverId: schema =>
-    schema.payerId.describe("Reference to the user who ower "),
+    schema.receiverId.describe("Reference to the user who is ower "),
   groupId: schema =>
     schema.groupId.describe(
       "Reference to the group the settlement belongs to",
@@ -61,10 +46,10 @@ export const selectSettlementSchema = createSelectSchema(settlementModel, {
 
 export const insertSettlementSchema = createInsertSchema(settlementModel, {
   id: schema => schema.id.describe("Unique identifier for the settlement"),
-  payerId: schema =>
-    schema.payerId.describe("Reference to the user who is payer"),
+  senderId: schema =>
+    schema.senderId.describe("Reference to the user who is payer"),
   receiverId: schema =>
-    schema.payerId.describe("Reference to the user who is ower "),
+    schema.receiverId.describe("Reference to the user who is ower "),
   groupId: schema =>
     schema.groupId.describe(
       "Reference to the group the settlement belongs to",
@@ -76,7 +61,7 @@ export const insertSettlementSchema = createInsertSchema(settlementModel, {
     schema.updatedAt.describe("Timestamp when the settlement was last updated"),
 });
 
-export type TSelectExpenseSchema = z.infer<typeof selectSettlementSchema>;
-export type TInsertExpenseSchema = z.infer<typeof insertSettlementSchema>;
+export type TSelectSettlementSchema = z.infer<typeof selectSettlementSchema>;
+export type TInsertSettlementSchema = z.infer<typeof insertSettlementSchema>;
 
 export default settlementModel;
