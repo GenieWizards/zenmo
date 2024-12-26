@@ -1,2 +1,3 @@
 [test]
 preload = [ "./src/common/utils/setup-test.util.ts" ] # This file sets global level beforeAll and afterAll hooks
+install.saveTextLockfile = true

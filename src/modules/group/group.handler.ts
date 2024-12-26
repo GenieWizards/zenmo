@@ -14,6 +14,7 @@ import {
   getAllGroupsRepository,
   getGroupByIdRepository,
   updateGroupRepository,
+  usersExistsInGroupRepository,
 } from "./group.repository";
 import type {
   IUpdateGroupRoute,
@@ -324,8 +325,8 @@ export const addUsersToGroup: AppRouteHandler<TAddUsersToGroupRoute> = async (
     userIds = [userDetail.userId, ...userIds];
     usernames = [userDetail.username, ...usernames];
   });
-  const { groupId } = params;
 
+  const { groupId } = params;
   const groupExists = await getGroupByIdRepository(groupId);
 
   if (!groupExists) {
@@ -336,6 +337,27 @@ export const addUsersToGroup: AppRouteHandler<TAddUsersToGroupRoute> = async (
         message: `Group with ${groupId} not found`,
       },
       HTTPStatusCodes.NOT_FOUND,
+    );
+  }
+
+  const usersExistsInGroup = await usersExistsInGroupRepository(
+    groupId,
+    userIds,
+  );
+
+  if (usersExistsInGroup.length) {
+    const existingUserIds = usersExistsInGroup.map(user => user.userId);
+
+    logger.error(
+      `Users with the following ids: ${existingUserIds.join(" ,")} already exists in group`,
+    );
+    return c.json(
+      {
+        success: false,
+        message:
+          "Some or all of the users you are trying to add already exist in the group",
+      },
+      HTTPStatusCodes.CONFLICT,
     );
   }
 
@@ -368,11 +390,13 @@ export const addUsersToGroup: AppRouteHandler<TAddUsersToGroupRoute> = async (
     });
   });
 
+  const msg = userIds.length > 1 ? "Users" : "User";
+
   logger.debug("Users added to group successfully");
   return c.json(
     {
       success: true,
-      message: "Users added to group successfully",
+      message: `${msg} added to group successfully`,
       data: groupExists,
     },
     HTTPStatusCodes.OK,

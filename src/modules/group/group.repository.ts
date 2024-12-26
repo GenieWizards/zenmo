@@ -143,3 +143,20 @@ export async function getGroupMembersByIdRepository(groupId: string) {
 
   return groupMembers;
 }
+
+export async function usersExistsInGroupRepository(
+  groupId: string,
+  userIds: string[],
+) {
+  const userExistsInGroup = await db
+    .select()
+    .from(usersToGroupsModel)
+    .where(
+      and(
+        eq(usersToGroupsModel.groupId, groupId),
+        inArray(usersToGroupsModel.userId, userIds),
+      ),
+    );
+
+  return userExistsInGroup;
+}

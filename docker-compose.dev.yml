@@ -39,6 +39,13 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    command: >
+      bash -c "
+        docker-entrypoint.sh postgres &
+        sleep 10
+        psql -U root -d postgres -c \"CREATE DATABASE \\\"finance-management-api-test\\\"\"
+        wait
+      "
 
 networks:
   finance-management-api-dev-network:

@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 
 # Development stage - new addition
 FROM base AS development
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 RUN bun install
 COPY ./src ./src
 COPY ./package.json .
@@ -17,13 +17,13 @@ CMD ["bun", "--hot", "run", "src/index.ts"]
 # this will cache them and speed up future builds
 FROM base AS install
 RUN mkdir -p /temp/dev
-COPY package.json bun.lockb /temp/dev/
+COPY package.json bun.lock /temp/dev/
 WORKDIR /temp/dev
 RUN bun install --frozen-lockfile
 
 # install with --production flag to avoid installing dev dependencies
 RUN mkdir -p /temp/prod
-COPY package.json bun.lockb /temp/prod/
+COPY package.json bun.lock /temp/prod/
 WORKDIR /temp/prod
 RUN bun install --frozen-lockfile --production
 
@@ -60,4 +60,3 @@ exec bun run src/index.ts
 EOF
 
 ENTRYPOINT [ "/usr/src/app/start.sh" ]
-

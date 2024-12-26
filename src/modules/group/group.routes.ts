@@ -25,6 +25,7 @@ export const createGroupRoute = createRoute({
   tags,
   method: "post",
   path: "/groups",
+  summary: "Create a new group",
   middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     body: jsonContentRequired(
@@ -79,6 +80,7 @@ export const getAllGroupsRoute = createRoute({
   tags,
   method: "get",
   path: "/groups",
+  summary: "Get all groups",
   middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     query: groupQuerySchema,
@@ -106,6 +108,7 @@ export const getGroupById = createRoute({
   tags,
   method: "get",
   path: "/group/:id",
+  summary: "Get group by ID",
   middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     params: z.object({
@@ -156,6 +159,7 @@ export const updateGroupRoute = createRoute({
   tags,
   method: "put",
   path: "/group/:groupId",
+  summary: "Update group by ID",
   middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     params: z.object({
@@ -214,6 +218,7 @@ export const deleteGroupRoute = createRoute({
   tags,
   method: "delete",
   path: "groups/:id",
+  summary: "Delete group by ID",
   middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     params: z.object({
@@ -263,6 +268,7 @@ export const addUsersToGroupRoute = createRoute({
   tags,
   method: "post",
   path: "/groups/:groupId/users",
+  summary: "Add users to group",
   middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     body: jsonContentRequired(
@@ -307,6 +313,13 @@ export const addUsersToGroupRoute = createRoute({
         message: z.string(),
       }),
       "Group with id does not exist",
+    ),
+    [HTTPStatusCodes.CONFLICT]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "User(s) already exists in group",
     ),
     [HTTPStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertGroupSchema),
