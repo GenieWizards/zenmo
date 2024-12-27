@@ -9,7 +9,6 @@ import env from "@/env";
 
 import { groupRouters } from "./group.index";
 import {
-  createGroupRepository,
   getGroupMembersByIdRepository,
 } from "./group.repository";
 
@@ -22,7 +21,6 @@ const groupClient = testClient(createApp().route("/", groupRouters));
 describe("group Handler", () => {
   let userSessionToken = "";
   // let adminSessionToken = "";
-  let groupId = "";
   let testUsers: Array<{ id: string; username: string }> = [];
 
   beforeAll(async () => {
@@ -54,24 +52,43 @@ describe("group Handler", () => {
       fullName: "User Two",
     });
 
+    const user3 = await createTestUser({
+      email: "user3@example.com",
+      password: "password123",
+      fullName: "User Three",
+    });
+
     testUsers = [
       { id: user1.id, username: user1.fullName || "" },
       { id: user2.id, username: user2.fullName || "" },
+      { id: user3.id, username: user3.fullName || "" },
     ];
   });
 
-  beforeEach(async () => {
-    // Create a fresh group before each test
-    const group = await createGroupRepository({
-      name: "Test Group",
-      creatorId: testUsers[0].id,
-      status: "unsettled",
+  describe("POST /groups/:groupId/users", () => {
+    let groupId = "";
+
+    beforeEach(async () => {
+      // Create a fresh group before each test
+      const response = await groupClient.groups.$post(
+        {
+          json: {
+            name: "Test Group",
+          },
+        },
+        {
+          headers: {
+            session: userSessionToken,
+          },
+        },
+      );
+
+      if (response.ok) {
+        const json = await response.json();
+        groupId = json.data.id;
+      }
     });
 
-    groupId = group.id;
-  });
-
-  describe("POST /groups/:groupId/users", () => {
     it("should successfully add users to a group", async () => {
       const response = await groupClient.groups[":groupId"].users.$post(
         {
@@ -98,7 +115,7 @@ describe("group Handler", () => {
         // Verify users were actually added to the group
         const groupMembers = await getGroupMembersByIdRepository(groupId);
 
-        expect(groupMembers).toHaveLength(testUsers.length);
+        expect(groupMembers).toHaveLength(testUsers.length + 1); // +1 to include creator also
         expect(groupMembers.map(m => m.userId)).toEqual(
           expect.arrayContaining(testUsers.map(u => u.id)),
         );
