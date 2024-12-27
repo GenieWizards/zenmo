@@ -1,6 +1,3 @@
-import { createRoute } from "@hono/zod-openapi";
-import { z } from "zod";
-
 import jsonContentRequired from "@/common/helpers/json-content-required.helper";
 import { jsonContent } from "@/common/helpers/json-content.helper";
 import {
@@ -17,6 +14,8 @@ import {
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertGroupSchema, selectGroupSchema } from "@/db/schemas/group.model";
 import { idSchema } from "@/db/schemas/id.model";
+import { createRoute } from "@hono/zod-openapi";
+import { z } from "zod";
 
 import { groupQuerySchema } from "./group.schema";
 
@@ -159,12 +158,12 @@ export const getGroupById = createRoute({
 export const updateGroupRoute = createRoute({
   tags,
   method: "put",
-  path: "/group/:id",
+  path: "/group/:groupId",
   summary: "Update group by ID",
   middleware: [authMiddleware(), requireAuth()] as const,
   request: {
     params: z.object({
-      id: idSchema,
+      groupId: idSchema,
     }),
     body: jsonContentRequired(
       insertGroupSchema.omit({
@@ -181,7 +180,6 @@ export const updateGroupRoute = createRoute({
       z.object({
         success: z.boolean().default(true),
         message: z.string(),
-        data: selectGroupSchema,
       }),
       "Group updated successfully",
     ),

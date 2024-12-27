@@ -8,6 +8,13 @@
       "when": 1733501291825,
       "tag": "0000_natural_mephisto",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1733737956040,
+      "tag": "0001_parallel_red_hulk",
+      "breakpoints": true
     }
   ]
 }
