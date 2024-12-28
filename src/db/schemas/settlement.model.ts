@@ -1,10 +1,4 @@
-import {
-  pgEnum,
-  pgTable,
-  real,
-  timestamp,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, real, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { z } from "zod";
 
@@ -16,10 +10,8 @@ const settlementModel = pgTable("settlement", {
   id: varchar({ length: 60 })
     .$defaultFn(() => Bun.randomUUIDv7())
     .primaryKey(),
-  senderId: varchar({ length: 60 })
-    .notNull(),
-  receiverId: varchar({ length: 60 })
-    .notNull(),
+  senderId: varchar({ length: 60 }).notNull(),
+  receiverId: varchar({ length: 60 }).notNull(),
   groupId: varchar({ length: 60 }),
   amount: real().notNull(),
   createdAt: timestamp().notNull().defaultNow(),
@@ -30,13 +22,20 @@ const settlementModel = pgTable("settlement", {
 export const selectSettlementSchema = createSelectSchema(settlementModel, {
   id: schema => schema.id.describe("Unique identifier for the settlement"),
   senderId: schema =>
-    schema.senderId.describe("Reference to the user who is payer"),
+    schema.senderId
+      .min(60)
+      .max(60)
+      .describe("Reference to the user who is payer"),
   receiverId: schema =>
-    schema.receiverId.describe("Reference to the user who is ower "),
+    schema.receiverId
+      .min(60)
+      .max(60)
+      .describe("Reference to the user who is ower "),
   groupId: schema =>
-    schema.groupId.describe(
-      "Reference to the group the settlement belongs to",
-    ),
+    schema.groupId
+      .min(60)
+      .max(60)
+      .describe("Reference to the group the settlement belongs to"),
   amount: schema => schema.amount.describe("Amount of the settlement"),
   createdAt: schema =>
     schema.createdAt.describe("Timestamp when the settlement was created"),
@@ -47,13 +46,20 @@ export const selectSettlementSchema = createSelectSchema(settlementModel, {
 export const insertSettlementSchema = createInsertSchema(settlementModel, {
   id: schema => schema.id.describe("Unique identifier for the settlement"),
   senderId: schema =>
-    schema.senderId.describe("Reference to the user who is payer"),
+    schema.senderId
+      .min(60)
+      .max(60)
+      .describe("Reference to the user who is payer"),
   receiverId: schema =>
-    schema.receiverId.describe("Reference to the user who is ower "),
+    schema.receiverId
+      .min(60)
+      .max(60)
+      .describe("Reference to the user who is ower "),
   groupId: schema =>
-    schema.groupId.describe(
-      "Reference to the group the settlement belongs to",
-    ),
+    schema.groupId
+      .min(60)
+      .max(60)
+      .describe("Reference to the group the settlement belongs to"),
   amount: schema => schema.amount.describe("Amount of the settlement"),
   createdAt: schema =>
     schema.createdAt.describe("Timestamp when the settlement was created"),
