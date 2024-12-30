@@ -1,3 +1,6 @@
+import { createRoute } from "@hono/zod-openapi";
+import { z } from "zod";
+
 import jsonContentRequired from "@/common/helpers/json-content-required.helper";
 import { jsonContent } from "@/common/helpers/json-content.helper";
 import {
@@ -5,6 +8,7 @@ import {
   requireAuth,
 } from "@/common/middlewares/auth.middleware";
 import createErrorSchema from "@/common/schema/create-error.schema";
+import { idSchema } from "@/common/schema/id.model";
 import {
   AUTHORIZATION_ERROR_MESSAGE,
   FORBIDDEN_ERROR_MESSAGE,
@@ -13,9 +17,6 @@ import {
 } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { insertGroupSchema, selectGroupSchema } from "@/db/schemas/group.model";
-import { idSchema } from "@/db/schemas/id.model";
-import { createRoute } from "@hono/zod-openapi";
-import { z } from "zod";
 
 import { groupQuerySchema } from "./group.schema";
 
