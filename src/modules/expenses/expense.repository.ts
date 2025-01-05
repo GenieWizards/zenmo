@@ -190,18 +190,19 @@ export async function generateSettlementsRepository(splits: TSplit[], payerUserI
   splits?.forEach((split) => {
     const settlement = currentSettlements.find(s => s.senderId === split.userId || s.receiverId === split.userId);
     if (settlement) {
-      let updatedAmount = settlement.amount;
+      let settlementAmount: number;
+      let senderId: string;
+      let receiverId: string;
+
       if (settlement?.senderId === payerUserId) {
-        updatedAmount = settlement?.amount + split.amount;
-        newSettlements.push({ id: settlement.id, senderId: payerUserId, receiverId: split.userId, groupId, amount: updatedAmount });
+        settlementAmount = settlement?.amount + split.amount;
+        [senderId, receiverId] = [payerUserId, split.userId];
       } else {
-        updatedAmount = settlement?.amount - split.amount;
-        if (updatedAmount < 0) {
-          newSettlements.push({ id: settlement.id, senderId: split.userId, receiverId: payerUserId, groupId, amount: Math.abs(updatedAmount) });
-        } else {
-          newSettlements.push({ id: settlement.id, senderId: payerUserId, receiverId: split.userId, groupId, amount: Math.abs(updatedAmount) });
-        }
+        settlementAmount = settlement?.amount - split.amount;
+        [senderId, receiverId] = settlementAmount < 0 ? [split.userId, payerUserId] : [payerUserId, split.userId];
       }
+
+      newSettlements.push({ id: settlement.id, senderId, receiverId, groupId, amount: Math.abs(settlementAmount) });
     } else {
       newSettlements.push({ senderId: payerUserId, receiverId: split.userId, groupId, amount: split.amount });
     }
