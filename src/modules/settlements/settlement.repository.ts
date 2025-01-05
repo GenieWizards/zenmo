@@ -3,7 +3,7 @@ import { and, eq, or } from "drizzle-orm";
 import { db } from "@/db/adapter";
 import settlementModel from "@/db/schemas/settlement.model";
 
-export async function getUserSettlementsByGroupIdRepository(
+export async function getUserSettlementsForGroupRepository(
   userId: string,
   groupId: string,
 ) {

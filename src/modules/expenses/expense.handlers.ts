@@ -1,12 +1,10 @@
-import { ActivityType, AuthRoles } from "@/common/enums";
+import { ActivityType } from "@/common/enums";
 import { logActivity } from "@/common/helpers/activity-log.helper";
 import type { AppRouteHandler } from "@/common/lib/types";
 import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
-import { getGroupByIdRepository } from "../group/group.repository";
-import { getUserByIdRepository } from "../users/user.repository";
-import { createExpenseRepository, createExpenseWithSplits, isCategoryValidToCreateExpense, validateSplits } from "./expense.repository";
+import { createExpenseWithSplitsRepository, createStandaloneExpenseRepository, validateExpensePayloadRepository } from "./expense.repository";
 import type { TCreateExpenseRoute } from "./expense.routes";
 
 export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (c) => {
@@ -14,7 +12,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (c) => 
   const user = c.get("user");
   const payload = c.req.valid("json");
 
-  const { groupId, payerId, categoryId, splitUsers } = payload;
+  const { groupId, payerId, splits, amount, splitType, currency } = payload;
   let expense;
 
   // validate user
@@ -29,122 +27,41 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (c) => 
     );
   }
 
-  // validate payer
-  if (user.role === AuthRoles.ADMIN && !payerId) {
-    logger.debug("createExpense: Missing payerId");
+  const result = await validateExpensePayloadRepository(payload, user);
+  if (!result.success) {
+    logger.debug(`createExpense: ${result.message}`);
     return c.json(
       {
         success: false,
-        message: "Missing payerId",
+        message: result.message,
       },
-      HTTPStatusCodes.BAD_REQUEST,
+      result.code as 500,
     );
   }
 
-  if (payerId) {
-    const payerUser = await getUserByIdRepository(payerId);
-    if (!payerUser) {
-      logger.debug("createExpense: Payer not found");
-      return c.json(
-        {
-          success: false,
-          message: "Payer not found",
-        },
-        HTTPStatusCodes.NOT_FOUND,
-      );
-    }
-  }
-
-  // validate category
-  if (categoryId) {
-    const { category, isValid } = await isCategoryValidToCreateExpense(categoryId, payerId, user);
-
-    if (!category) {
-      logger.debug("createExpense: Category not found");
-      return c.json(
-        {
-          success: false,
-          message: "Category not found",
-        },
-        HTTPStatusCodes.NOT_FOUND,
-      );
-    }
-
-    if (!isValid) {
-      logger.debug("createExpense: Category does not belong to the user or the specified payer");
-      return c.json(
-        {
-          success: false,
-          message: "Category does not belong to the user or the specified payer",
-        },
-        HTTPStatusCodes.BAD_REQUEST,
-      );
-    }
-  }
-
-  // validate group
-  if (groupId) {
-    const group = await getGroupByIdRepository(groupId);
-    if (!group) {
-      logger.debug("createExpense: Group not found");
-      return c.json(
-        {
-          success: false,
-          message: "Group not found",
-        },
-        HTTPStatusCodes.NOT_FOUND,
-      );
-    }
-  }
-
   const payerUserId = payerId || user.id;
-  const expensePayload = {
-    ...payload,
-    payerId: payerUserId,
-    creatorId: user.id,
-  };
 
   // Create expense with splits.
-  if (groupId || splitUsers) {
-    // validate group
-    if (!groupId) {
-      logger.debug("createExpense: Missing groupId");
-      return c.json(
-        {
-          success: false,
-          message: "Missing groupId",
-        },
-        HTTPStatusCodes.BAD_REQUEST,
-      );
-    }
+  if (groupId && splits?.length && splitType) {
+    const expensePayload = {
+      ...payload,
+      payerId: payerUserId,
+      creatorId: user.id,
+      groupId,
+      splitType,
+    };
 
-    if (!splitUsers?.length) {
-      logger.debug("createExpense: Missing split users");
-      return c.json(
-        {
-          success: false,
-          message: "Missing split users",
-        },
-        HTTPStatusCodes.BAD_REQUEST,
-      );
-    }
-
-    // validate splits
-    const isSplitValid = await validateSplits(splitUsers, groupId);
-    if (!isSplitValid?.success) {
-      logger.debug(`createExpense: ${isSplitValid.message}`);
-      return c.json(
-        {
-          success: false,
-          message: isSplitValid.message,
-        },
-        HTTPStatusCodes.BAD_REQUEST,
-      );
-    }
-
-    expense = await createExpenseWithSplits(expensePayload, splitUsers, payerUserId, groupId);
+    expense = await createExpenseWithSplitsRepository(expensePayload, splits);
   } else {
-    expense = await createExpenseRepository(expensePayload);
+    const expensePayload = {
+      ...payload,
+      payerId: payerUserId,
+      creatorId: user.id,
+      amount,
+      currency,
+    };
+
+    expense = await createStandaloneExpenseRepository(expensePayload);
   }
 
   if (!expense) {

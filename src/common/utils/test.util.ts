@@ -56,3 +56,9 @@ export async function createTestUser({
 
   return { ...result.user, session: result.session.id };
 }
+
+export function createRandomEmail() {
+  const domain = "gmail.com";
+  const randomNumber = Math.floor(Math.random() * 10000);
+  return `user${randomNumber}@${domain}`;
+}

@@ -11,15 +11,25 @@ export const createExpenseBodySchema = insertExpenseSchema
   })
   .partial({
     payerId: true,
+    groupId: true,
+    splitType: true,
   })
   .extend({
-    splitUsers: z.object({
+    splits: z.object({
       userId: z.string(),
       amount: z.number(),
     })
       .array()
+      .nonempty()
       .optional(),
-    groupId: z.string().optional(),
-  });
+  })
+  .refine(
+    data =>
+      (data.splits && data.groupId && data.splitType)
+      || (!data.splits && !data.groupId && !data.splitType),
+    {
+      message: "Missing either of fields 'splits', 'splitType', 'groupId'",
+    },
+  ); ;
 
 export type TCreateExpenseBody = z.infer<typeof createExpenseBodySchema>;

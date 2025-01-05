@@ -1,25 +1,32 @@
+import { sql } from "drizzle-orm";
+import type { StatusCode } from "hono/utils/http-status";
+
 import { AuthRoles } from "@/common/enums";
-import { conflictUpdateSet } from "@/common/helpers/drizzel.helpers";
+import type { MakeNonNullable } from "@/common/utils/app.types";
+import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 import { db } from "@/db/adapter";
 import { splitModel } from "@/db/schemas";
 import type { TInsertExpenseSchema } from "@/db/schemas/expense.model";
 import expenseModel from "@/db/schemas/expense.model";
 import type { TInsertSettlementSchema } from "@/db/schemas/settlement.model";
 import settlementModel from "@/db/schemas/settlement.model";
+import type { TInsertSplitSchema } from "@/db/schemas/split.model";
 import type { TSelectUserSchema } from "@/db/schemas/user.model";
 
 import { getCategoryRepository } from "../categories/category.repository";
-import { getGroupMembersByIdRepository } from "../group/group.repository";
-import { getUserSettlementsByGroupIdRepository } from "../settlements/settlement.repository";
+import { getGroupByIdRepository } from "../group/group.repository";
+import { getUserSettlementsForGroupRepository } from "../settlements/settlement.repository";
+import { getUserByIdRepository } from "../users/user.repository";
+import type { TCreateExpenseBody } from "./expense.validations";
 
-type TExpensePayload = Omit<TInsertExpenseSchema, "id" | "createdAt" | "updatedAt" | "groupId" >;
-interface TSplitUser {
-  userId: string;
-  amount: number;
-}
+type TStandaloneExpensePayload = Omit<TInsertExpenseSchema, "id" | "createdAt" | "updatedAt" | "groupId" | "splitType" >;
+type TExpenseWithSplitsPayload = TStandaloneExpensePayload & Required<MakeNonNullable<TInsertExpenseSchema, "groupId" | "splitType">>;
+type TSplit = Required<Pick<TInsertSplitSchema, "userId" | "amount">>;
+type TUpsertSettlement = Pick<TInsertSettlementSchema, "id" | "senderId" | "receiverId" | "groupId" | "amount">;
 
-export async function createExpenseRepository(
-  expensePayload: TExpensePayload,
+// Create a expense with no group, no splits
+export async function createStandaloneExpenseRepository(
+  expensePayload: TStandaloneExpensePayload,
 ) {
   const [expense] = await db
     .insert(expenseModel)
@@ -29,12 +36,13 @@ export async function createExpenseRepository(
   return expense;
 }
 
-export async function createExpenseWithSplits(
-  expensePayload: TExpensePayload,
-  splitUsers: TSplitUser[],
-  payerUserId: string,
-  groupId: string,
+// Create a expense with group and splits
+export async function createExpenseWithSplitsRepository(
+  expensePayload: TExpenseWithSplitsPayload,
+  splits: TSplit[],
 ) {
+  const { groupId, payerId } = expensePayload;
+
   const expense = await db.transaction(async (tx) => {
     // insert expense
     const [expense] = await tx
@@ -43,7 +51,7 @@ export async function createExpenseWithSplits(
       .returning();
 
     // insert splits
-    const splitRecords = splitUsers?.map((split) => {
+    const splitRecords = splits?.map((split) => {
       return { userId: split.userId, amount: split.amount, expenseId: expense.id };
     });
 
@@ -53,92 +61,151 @@ export async function createExpenseWithSplits(
       .returning();
 
     // insert/update settlements
-    const insertSettlements = await generateSettlementsBasedOnSplits(splitUsers, payerUserId, groupId);
+    const settlementRecords = await generateSettlementsRepository(splits, payerId, groupId);
     await tx
       .insert(settlementModel)
-      .values(insertSettlements)
+      .values(settlementRecords)
       .onConflictDoUpdate({
         target: settlementModel.id,
-        set: conflictUpdateSet(settlementModel, ["senderId", "receiverId", "amount"]),
+        set: {
+          senderId: sql.raw(`excluded.sender_id`),
+          receiverId: sql.raw(`excluded.receiver_id`),
+          amount: sql.raw(`excluded.amount`),
+        },
       });
-
     return expense;
   });
 
   return expense;
 }
 
-/*
-  1. Admin create expense - category should either belong to payer or global.
-  2. User create self paid expense - category should either belong to user or global.
-  3. User create expense for another payer - category should belong to payer.
-*/
-export async function isCategoryValidToCreateExpense(categoryId: string, payerId: string | undefined, user: TSelectUserSchema) {
-  const category = await getCategoryRepository(categoryId);
-  let isValid = false;
-
-  if (!category) {
-    return { category: null, isValid };
-  }
-
-  if (user.role === AuthRoles.ADMIN) {
-    isValid = category.userId === null || category.userId === payerId;
-  } else {
-    isValid = payerId ? category.userId === null : (category.userId === null || category.userId === user.id);
-  }
-
-  return { category, isValid };
-}
-
-export async function validateSplits(splitUsers: TSplitUser[], groupId: string): Promise<{
+export async function validateExpensePayloadRepository(payload: TCreateExpenseBody, user: TSelectUserSchema): Promise<{
   success: boolean;
   message: string;
+  code: StatusCode;
 }> {
-  // validate users are part of group
-  const groupMembers = await getGroupMembersByIdRepository(groupId);
-  const groupUserIds = groupMembers.map(user => user.userId);
-  const isAnyUserInvalid = splitUsers.some((user) => {
-    return !groupUserIds.includes(user.userId);
-  });
-  if (isAnyUserInvalid) {
+  const { groupId, payerId, categoryId, splits, splitType, amount } = payload;
+  const payerUserId = payerId || user.id;
+
+  // payerId is required for ADMIN
+  if (user.role === AuthRoles.ADMIN && !payerId) {
     return {
       success: false,
-      message: "Some split users does not belong to group",
+      message: "Missing payerId",
+      code: HTTPStatusCodes.BAD_REQUEST,
     };
   }
 
-  // TODO: Add validation related to split types
+  // validate payer user
+  const payerUser = await getUserByIdRepository(payerUserId);
+  if (!payerUser) {
+    return {
+      success: false,
+      message: "Payer not found",
+      code: HTTPStatusCodes.NOT_FOUND,
+    };
+  }
+
+  // validate group and split users
+  if (groupId && splits?.length && splitType) {
+    // group not found
+    const group = await getGroupByIdRepository(groupId);
+    if (!group) {
+      return {
+        success: false,
+        message: "Group not found",
+        code: HTTPStatusCodes.NOT_FOUND,
+      };
+    }
+
+    const groupUserIds = group.userIds.map(user => user.userId);
+    for (const split of splits) {
+    // split user must belong to group
+      if (!groupUserIds.includes(split.userId)) {
+        return {
+          success: false,
+          message: `User ${split.userId} does not belong to the specified group`,
+          code: HTTPStatusCodes.BAD_REQUEST,
+        };
+      }
+
+      // validate even split
+      if (splitType === "even" && split.amount !== amount / (splits.length + 1)) {
+        return {
+          success: false,
+          message: `Split amount is unequal provided split type is ${splitType}`,
+          code: HTTPStatusCodes.BAD_REQUEST,
+        };
+      }
+    }
+
+    // validate total split amount
+    const totalSplitAmount = splits.reduce((acc, split) => {
+      return acc + split.amount;
+    }, 0);
+
+    if (totalSplitAmount > amount) {
+      return {
+        success: false,
+        message: `Split total is greater then amount paid`,
+        code: HTTPStatusCodes.BAD_REQUEST,
+      };
+    }
+  }
+
+  // validate category
+  if (categoryId) {
+    const category = await getCategoryRepository(categoryId);
+    if (!category) {
+      return {
+        success: false,
+        message: "Category not found",
+        code: HTTPStatusCodes.NOT_FOUND,
+      };
+    }
+
+    // category should either belongs to the payer or should be global.
+    const isCategoryNotGlobal = !!category.userId;
+    const isCategoryNotBelongsToPayer = category.userId !== payerUserId;
+    if (isCategoryNotGlobal && isCategoryNotBelongsToPayer) {
+      return {
+        success: false,
+        message: "Category does not belong to the user or the specified payer",
+        code: HTTPStatusCodes.BAD_REQUEST,
+      };
+    }
+  }
 
   return {
     success: true,
     message: "Validation success",
+    code: HTTPStatusCodes.OK,
   };
 }
 
-export async function generateSettlementsBasedOnSplits(splitUsers: TSplitUser[], payerUserId: string, groupId: string) {
-  const userSettlements = await getUserSettlementsByGroupIdRepository(payerUserId, groupId);
-  const insertSettlements: TInsertSettlementSchema[] = [];
+export async function generateSettlementsRepository(splits: TSplit[], payerUserId: string, groupId: string) {
+  const currentSettlements = await getUserSettlementsForGroupRepository(payerUserId, groupId);
+  const newSettlements: TUpsertSettlement[] = [];
 
-  splitUsers?.forEach((split) => {
-    const settlement = userSettlements.find(s => s.senderId === split.userId || s.receiverId === split.userId);
-
+  splits?.forEach((split) => {
+    const settlement = currentSettlements.find(s => s.senderId === split.userId || s.receiverId === split.userId);
     if (settlement) {
       let updatedAmount = settlement.amount;
       if (settlement?.senderId === payerUserId) {
         updatedAmount = settlement?.amount + split.amount;
-        insertSettlements.push({ id: settlement.id, senderId: payerUserId, receiverId: split.userId, groupId, amount: updatedAmount });
+        newSettlements.push({ id: settlement.id, senderId: payerUserId, receiverId: split.userId, groupId, amount: updatedAmount });
       } else {
         updatedAmount = settlement?.amount - split.amount;
         if (updatedAmount < 0) {
-          insertSettlements.push({ id: settlement.id, senderId: split.userId, receiverId: payerUserId, groupId, amount: Math.abs(updatedAmount) });
+          newSettlements.push({ id: settlement.id, senderId: split.userId, receiverId: payerUserId, groupId, amount: Math.abs(updatedAmount) });
         } else {
-          insertSettlements.push({ id: settlement.id, senderId: payerUserId, receiverId: split.userId, groupId, amount: Math.abs(updatedAmount) });
+          newSettlements.push({ id: settlement.id, senderId: payerUserId, receiverId: split.userId, groupId, amount: Math.abs(updatedAmount) });
         }
       }
     } else {
-      insertSettlements.push({ senderId: payerUserId, receiverId: split.userId, groupId, amount: split.amount });
+      newSettlements.push({ senderId: payerUserId, receiverId: split.userId, groupId, amount: split.amount });
     }
   });
 
-  return insertSettlements;
+  return newSettlements;
 }

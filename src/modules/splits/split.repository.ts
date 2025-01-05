@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { db } from "@/db/adapter";
 import type { TInsertSplitSchema } from "@/db/schemas/split.model";
@@ -17,14 +17,13 @@ export async function createSplitRepository(
   return expense;
 }
 
-export async function getUserSplitsByExpenseId(
-  userId: string,
+export async function getSplitsByExpenseIdRepository(
   expenseId: string,
 ) {
-  const [expense] = await db
+  const splits = await db
     .select()
     .from(splitModel)
-    .where(and(eq(splitModel.userId, userId), eq(splitModel.expenseId, expenseId)));
+    .where(eq(splitModel.expenseId, expenseId));
 
-  return expense;
+  return splits;
 }
