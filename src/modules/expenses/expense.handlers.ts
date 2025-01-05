@@ -12,7 +12,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (c) => 
   const user = c.get("user");
   const payload = c.req.valid("json");
 
-  const { groupId, payerId, splits, amount, splitType, currency } = payload;
+  const { groupId, payerId, splits, splitType } = payload;
   let expense;
 
   // validate user
@@ -57,8 +57,6 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (c) => 
       ...payload,
       payerId: payerUserId,
       creatorId: user.id,
-      amount,
-      currency,
     };
 
     expense = await createStandaloneExpenseRepository(expensePayload);
