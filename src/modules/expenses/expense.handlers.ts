@@ -27,6 +27,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (c) => 
     );
   }
 
+  // validate payload
   const result = await validateExpensePayloadRepository(payload, user);
   if (!result.success) {
     logger.debug(`createExpense: ${result.message}`);
@@ -41,8 +42,8 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (c) => 
 
   const payerUserId = payerId || user.id;
 
-  // Create expense with splits.
   if (groupId && splits?.length && splitType) {
+    // Create expense with group and splits.
     const expensePayload = {
       ...payload,
       payerId: payerUserId,
@@ -53,6 +54,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (c) => 
 
     expense = await createExpenseWithSplitsRepository(expensePayload, splits);
   } else {
+    // Create standalone expense (no group, no splits)
     const expensePayload = {
       ...payload,
       payerId: payerUserId,

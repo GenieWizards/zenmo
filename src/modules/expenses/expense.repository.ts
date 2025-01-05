@@ -24,7 +24,7 @@ type TExpenseWithSplitsPayload = TStandaloneExpensePayload & Required<MakeNonNul
 type TSplit = Required<Pick<TInsertSplitSchema, "userId" | "amount">>;
 type TUpsertSettlement = Pick<TInsertSettlementSchema, "id" | "senderId" | "receiverId" | "groupId" | "amount">;
 
-// Create a expense with no group, no splits
+// create a expense with no group, no splits
 export async function createStandaloneExpenseRepository(
   expensePayload: TStandaloneExpensePayload,
 ) {
@@ -36,7 +36,7 @@ export async function createStandaloneExpenseRepository(
   return expense;
 }
 
-// Create a expense with group and splits
+// create a expense with group and splits
 export async function createExpenseWithSplitsRepository(
   expensePayload: TExpenseWithSplitsPayload,
   splits: TSplit[],
@@ -79,6 +79,7 @@ export async function createExpenseWithSplitsRepository(
   return expense;
 }
 
+// validate expense payload
 export async function validateExpensePayloadRepository(payload: TCreateExpenseBody, user: TSelectUserSchema): Promise<{
   success: boolean;
   message: string;
@@ -183,6 +184,7 @@ export async function validateExpensePayloadRepository(payload: TCreateExpenseBo
   };
 }
 
+// generate settlements based on splits
 export async function generateSettlementsRepository(splits: TSplit[], payerUserId: string, groupId: string) {
   const currentSettlements = await getUserSettlementsForGroupRepository(payerUserId, groupId);
   const newSettlements: TUpsertSettlement[] = [];
@@ -190,20 +192,24 @@ export async function generateSettlementsRepository(splits: TSplit[], payerUserI
   splits?.forEach((split) => {
     const settlement = currentSettlements.find(s => s.senderId === split.userId || s.receiverId === split.userId);
     if (settlement) {
+      // if the settlement already exists between paying user and split user
       let settlementAmount: number;
       let senderId: string;
       let receiverId: string;
 
       if (settlement?.senderId === payerUserId) {
+        // if the paying user currently lents the split user
         settlementAmount = settlement?.amount + split.amount;
         [senderId, receiverId] = [payerUserId, split.userId];
       } else {
+        // if the paying user currently owes the split user
         settlementAmount = settlement?.amount - split.amount;
         [senderId, receiverId] = settlementAmount < 0 ? [split.userId, payerUserId] : [payerUserId, split.userId];
       }
 
       newSettlements.push({ id: settlement.id, senderId, receiverId, groupId, amount: Math.abs(settlementAmount) });
     } else {
+      // if the settlement doest exists between paying user and split user
       newSettlements.push({ senderId: payerUserId, receiverId: split.userId, groupId, amount: split.amount });
     }
   });
