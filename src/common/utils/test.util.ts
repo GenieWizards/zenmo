@@ -56,3 +56,9 @@ export async function createTestUser({
 
   return { ...result.user, session: result.session.id };
 }
+
+export function createRandomEmail() {
+  const domain = "gmail.com";
+  const randomId = Bun.randomUUIDv7();
+  return `user${randomId}@${domain}`;
+}

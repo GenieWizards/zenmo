@@ -220,7 +220,7 @@ export const logout: AppRouteHandler<TLogoutRoute> = async (c) => {
       success: true,
       message: "Logout successful",
     },
-    HTTPStatusCodes.NO_CONTENT,
+    HTTPStatusCodes.OK,
   );
 };
 
