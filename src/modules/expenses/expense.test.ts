@@ -225,7 +225,10 @@ describe("expenses", () => {
 
         // check splits
         const expenseSplits = await getSplitsByExpenseIdRepository(json.data.id);
-        const expectedSplits = splits as TSplit[];
+        const expectedSplits = splits.concat([{
+          userId: primaryUser.id,
+          amount: 30,
+        }]) as TSplit[];
         const actualSplits = expenseSplits.map((u) => {
           return {
             userId: u.userId,
@@ -294,7 +297,10 @@ describe("expenses", () => {
 
         // check splits
         const expenseSplits = await getSplitsByExpenseIdRepository(json.data.id);
-        const expectedSplits = splits as TSplit[];
+        const expectedSplits = splits.concat([{
+          userId: primaryUser.id,
+          amount: 20,
+        }]) as TSplit[];
         const actualSplits = expenseSplits.map((u) => {
           return {
             userId: u.userId,
@@ -455,7 +461,7 @@ describe("expenses", () => {
       }
     });
 
-    it("should return 404 when split user is not part of group", async () => {
+    it("should return 404 when split user (excluding payer) is not part of group", async () => {
       const splits: [TSplit, ...TSplit[]] = [
         { userId: groupUsers[0].id, amount: 30 },
         { userId: "invalid user id", amount: 30 },
@@ -483,6 +489,37 @@ describe("expenses", () => {
 
         expect(json.success).toBe(false);
         expect(json.message).toBe(`User ${splits[1].userId} does not belong to the specified group`);
+      }
+    });
+
+    it("should return 400 when payer user not part of found", async () => {
+      const splits: [TSplit, ...TSplit[]] = [
+        { userId: groupUsers[0].id, amount: 30 },
+        { userId: groupUsers[1].id, amount: 30 },
+      ];
+
+      const response = await expenseClient.expenses.$post(
+        {
+          json: {
+            ...expenseTestCommonFields,
+            splits,
+            splitType: SplitType.EVEN,
+            groupId: testGroup.id,
+          },
+        },
+        {
+          headers: {
+            session: secondaryUser.session,
+          },
+        },
+      );
+
+      expect(response.status).toBe(HTTPStatusCodes.BAD_REQUEST);
+      if (response.status === HTTPStatusCodes.BAD_REQUEST) {
+        const json = await response.json();
+
+        expect(json.success).toBe(false);
+        expect(json.message).toBe("Payer user does not belong to the specified group");
       }
     });
 
@@ -667,7 +704,10 @@ describe("expenses", () => {
 
         // check splits
         const expenseSplits = await getSplitsByExpenseIdRepository(json.data.id);
-        const expectedSplits = splits as TSplit[];
+        const expectedSplits = splits.concat([{
+          userId: primaryUser.id,
+          amount: 30,
+        }]) as TSplit[];
         const actualSplits = expenseSplits.map((u) => {
           return {
             userId: u.userId,

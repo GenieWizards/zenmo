@@ -1,5 +1,3 @@
-import crypto from "node:crypto";
-
 import { db } from "@/db/adapter";
 import { accountModel, sessionModel, userModel } from "@/db/schemas";
 
@@ -61,7 +59,6 @@ export async function createTestUser({
 
 export function createRandomEmail() {
   const domain = "gmail.com";
-  const randomBytes = crypto.randomBytes(4); // Generate 4 random bytes
-  const randomNumber = Number.parseInt(randomBytes.toString("hex"), 16) % 10000;
-  return `user${randomNumber}@${domain}`;
+  const randomId = Bun.randomUUIDv7();
+  return `user${randomId}@${domain}`;
 }

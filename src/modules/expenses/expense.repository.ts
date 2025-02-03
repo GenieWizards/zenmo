@@ -65,7 +65,16 @@ export async function createExpenseWithSplitsRepository(
       };
     });
 
-    await tx.insert(splitModel).values(splitRecords).returning();
+    // split total (excluding payer amount)
+    const splitTotal = splits.reduce((prev, curr) => prev + curr.amount, 0);
+
+    // add payer split
+    splitRecords.push({ userId: payerId, amount: expensePayload.amount - splitTotal, expenseId: expense.id });
+
+    await tx
+      .insert(splitModel)
+      .values(splitRecords)
+      .returning();
 
     // insert/update settlements
     const settlementRecords = await generateSettlementsRepository(
@@ -130,7 +139,7 @@ export async function validateExpensePayloadRepository(
 
   // validate group and split users
   if (groupId && splits?.length && splitType) {
-    // group not found
+  // group not found
     const group = await getGroupByIdRepository(groupId);
     if (!group) {
       return {
@@ -147,6 +156,15 @@ export async function validateExpensePayloadRepository(
         return {
           success: false,
           message: `User ${split.userId} does not belong to the specified group`,
+          code: HTTPStatusCodes.BAD_REQUEST,
+        };
+      }
+
+      // payer user must belong to group
+      if (!groupUserIds.includes(payerUserId)) {
+        return {
+          success: false,
+          message: `Payer user does not belong to the specified group`,
           code: HTTPStatusCodes.BAD_REQUEST,
         };
       }
