@@ -228,7 +228,7 @@ describe("expenses", () => {
         const expectedSplits = splits.concat([{
           userId: primaryUser.id,
           amount: 30,
-        }]) as TSplit[];
+        }]);
         const actualSplits = expenseSplits.map((u) => {
           return {
             userId: u.userId,
@@ -300,7 +300,7 @@ describe("expenses", () => {
         const expectedSplits = splits.concat([{
           userId: primaryUser.id,
           amount: 20,
-        }]) as TSplit[];
+        }]);
         const actualSplits = expenseSplits.map((u) => {
           return {
             userId: u.userId,
@@ -707,7 +707,7 @@ describe("expenses", () => {
         const expectedSplits = splits.concat([{
           userId: primaryUser.id,
           amount: 30,
-        }]) as TSplit[];
+        }]);
         const actualSplits = expenseSplits.map((u) => {
           return {
             userId: u.userId,
