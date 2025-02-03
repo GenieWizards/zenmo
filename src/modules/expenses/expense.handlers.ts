@@ -4,10 +4,16 @@ import type { AppRouteHandler } from "@/common/lib/types";
 import { AUTHORIZATION_ERROR_MESSAGE } from "@/common/utils/constants";
 import * as HTTPStatusCodes from "@/common/utils/http-status-codes.util";
 
-import { createExpenseWithSplitsRepository, createStandaloneExpenseRepository, validateExpensePayloadRepository } from "./expense.repository";
+import {
+  createExpenseWithSplitsRepository,
+  createStandaloneExpenseRepository,
+  validateExpensePayloadRepository,
+} from "./expense.repository";
 import type { TCreateExpenseRoute } from "./expense.routes";
 
-export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (c) => {
+export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (
+  c,
+) => {
   const logger = c.get("logger");
   const user = c.get("user");
   const payload = c.req.valid("json");
@@ -36,7 +42,7 @@ export const createExpense: AppRouteHandler<TCreateExpenseRoute> = async (c) => 
         success: false,
         message: result.message,
       },
-      result.code as 500,
+      result.code,
     );
   }
 

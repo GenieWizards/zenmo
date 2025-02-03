@@ -1,5 +1,4 @@
 import { sql } from "drizzle-orm";
-import type { StatusCode } from "hono/utils/http-status";
 
 import { AuthRoles } from "@/common/enums";
 import type { MakeNonNullable } from "@/common/utils/app.types";
@@ -19,10 +18,17 @@ import { getUserSettlementsForGroupRepository } from "../settlements/settlement.
 import { getUserByIdRepository } from "../users/user.repository";
 import type { TCreateExpenseBody } from "./expense.validations";
 
-type TStandaloneExpensePayload = Omit<TInsertExpenseSchema, "id" | "createdAt" | "updatedAt" | "groupId" | "splitType" >;
-type TExpenseWithSplitsPayload = TStandaloneExpensePayload & Required<MakeNonNullable<TInsertExpenseSchema, "groupId" | "splitType">>;
+type TStandaloneExpensePayload = Omit<
+  TInsertExpenseSchema,
+  "id" | "createdAt" | "updatedAt" | "groupId" | "splitType"
+>;
+type TExpenseWithSplitsPayload = TStandaloneExpensePayload &
+  Required<MakeNonNullable<TInsertExpenseSchema, "groupId" | "splitType">>;
 type TSplit = Required<Pick<TInsertSplitSchema, "userId" | "amount">>;
-type TUpsertSettlement = Pick<TInsertSettlementSchema, "id" | "senderId" | "receiverId" | "groupId" | "amount">;
+type TUpsertSettlement = Pick<
+  TInsertSettlementSchema,
+  "id" | "senderId" | "receiverId" | "groupId" | "amount"
+>;
 
 // create a expense with no group, no splits
 export async function createStandaloneExpenseRepository(
@@ -52,16 +58,21 @@ export async function createExpenseWithSplitsRepository(
 
     // insert splits
     const splitRecords = splits?.map((split) => {
-      return { userId: split.userId, amount: split.amount, expenseId: expense.id };
+      return {
+        userId: split.userId,
+        amount: split.amount,
+        expenseId: expense.id,
+      };
     });
 
-    await tx
-      .insert(splitModel)
-      .values(splitRecords)
-      .returning();
+    await tx.insert(splitModel).values(splitRecords).returning();
 
     // insert/update settlements
-    const settlementRecords = await generateSettlementsRepository(splits, payerId, groupId);
+    const settlementRecords = await generateSettlementsRepository(
+      splits,
+      payerId,
+      groupId,
+    );
     await tx
       .insert(settlementModel)
       .values(settlementRecords)
@@ -79,12 +90,22 @@ export async function createExpenseWithSplitsRepository(
   return expense;
 }
 
-// validate expense payload
-export async function validateExpensePayloadRepository(payload: TCreateExpenseBody, user: TSelectUserSchema): Promise<{
-  success: boolean;
+interface ValidationError {
+  success: false;
   message: string;
-  code: StatusCode;
-}> {
+  code: typeof HTTPStatusCodes.BAD_REQUEST | typeof HTTPStatusCodes.NOT_FOUND;
+}
+
+interface ValidationSuccess {
+  success: true;
+  message: string;
+}
+
+// validate expense payload
+export async function validateExpensePayloadRepository(
+  payload: TCreateExpenseBody,
+  user: TSelectUserSchema,
+): Promise<ValidationError | ValidationSuccess> {
   const { groupId, payerId, categoryId, splits, splitType, amount } = payload;
   const payerUserId = payerId || user.id;
 
@@ -121,7 +142,7 @@ export async function validateExpensePayloadRepository(payload: TCreateExpenseBo
 
     const groupUserIds = group.userIds.map(user => user.userId);
     for (const split of splits) {
-    // split user must belong to group
+      // split user must belong to group
       if (!groupUserIds.includes(split.userId)) {
         return {
           success: false,
@@ -131,7 +152,10 @@ export async function validateExpensePayloadRepository(payload: TCreateExpenseBo
       }
 
       // validate even split
-      if (splitType === "even" && split.amount !== amount / (splits.length + 1)) {
+      if (
+        splitType === "even"
+        && split.amount !== amount / (splits.length + 1)
+      ) {
         return {
           success: false,
           message: `Split amount is unequal provided split type is ${splitType}`,
@@ -180,17 +204,25 @@ export async function validateExpensePayloadRepository(payload: TCreateExpenseBo
   return {
     success: true,
     message: "Validation success",
-    code: HTTPStatusCodes.OK,
   };
 }
 
 // generate settlements based on splits
-export async function generateSettlementsRepository(splits: TSplit[], payerUserId: string, groupId: string) {
-  const currentSettlements = await getUserSettlementsForGroupRepository(payerUserId, groupId);
+export async function generateSettlementsRepository(
+  splits: TSplit[],
+  payerUserId: string,
+  groupId: string,
+) {
+  const currentSettlements = await getUserSettlementsForGroupRepository(
+    payerUserId,
+    groupId,
+  );
   const newSettlements: TUpsertSettlement[] = [];
 
   splits?.forEach((split) => {
-    const settlement = currentSettlements.find(s => s.senderId === split.userId || s.receiverId === split.userId);
+    const settlement = currentSettlements.find(
+      s => s.senderId === split.userId || s.receiverId === split.userId,
+    );
     if (settlement) {
       // if the settlement already exists between paying user and split user
       let settlementAmount: number;
@@ -204,13 +236,27 @@ export async function generateSettlementsRepository(splits: TSplit[], payerUserI
       } else {
         // if the paying user currently owes the split user
         settlementAmount = settlement?.amount - split.amount;
-        [senderId, receiverId] = settlementAmount < 0 ? [split.userId, payerUserId] : [payerUserId, split.userId];
+        [senderId, receiverId]
+          = settlementAmount < 0
+            ? [split.userId, payerUserId]
+            : [payerUserId, split.userId];
       }
 
-      newSettlements.push({ id: settlement.id, senderId, receiverId, groupId, amount: Math.abs(settlementAmount) });
+      newSettlements.push({
+        id: settlement.id,
+        senderId,
+        receiverId,
+        groupId,
+        amount: Math.abs(settlementAmount),
+      });
     } else {
       // if the settlement doest exists between paying user and split user
-      newSettlements.push({ senderId: payerUserId, receiverId: split.userId, groupId, amount: split.amount });
+      newSettlements.push({
+        senderId: payerUserId,
+        receiverId: split.userId,
+        groupId,
+        amount: split.amount,
+      });
     }
   });
 
