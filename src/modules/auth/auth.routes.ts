@@ -130,7 +130,7 @@ export const logoutRoute = createRoute({
   path: "/auth/logout",
   middleware: [authMiddleware(), requireAuth()] as const,
   responses: {
-    [HTTPStatusCodes.NO_CONTENT]: jsonContent(
+    [HTTPStatusCodes.OK]: jsonContent(
       z.object({
         success: z.boolean().default(true),
         message: z.string(),
