@@ -17,8 +17,8 @@ const settlementsClient = testClient(createApp().route("/", settlementsRouter));
 
 describe("settlements", () => {
   let userSessionToken = "";
-  let adminSessionToken = "";
-  const settlementId = "";
+  // let adminSessionToken = "";
+  const settlementId = "non-existent-id-thirty-two-character";
 
   beforeAll(async () => {
     const testUser = await createTestUser({
@@ -30,30 +30,39 @@ describe("settlements", () => {
 
     userSessionToken = testUser.session;
 
-    const adminUser = await createTestUser({
-      email: "settlementsAdmin@sample.com",
-      password: "12345678",
-      role: AuthRoles.ADMIN,
-      fullName: "Test Admin",
-    });
+    // const adminUser = await createTestUser({
+    //   email: "settlementsAdmin@sample.com",
+    //   password: "12345678",
+    //   role: AuthRoles.ADMIN,
+    //   fullName: "Test Admin",
+    // });
 
-    adminSessionToken = adminUser.session;
+    // adminSessionToken = adminUser.session;
   });
 
   describe("PATCH /settlements/:settlementId", () => {
     it("should return 404 when settlement with given id not found", async () => {
       const response = await settlementsClient.settlements[
         ":settlementId"
-      ].$patch({
-        param: {
-          settlementId,
+      ].$patch(
+        {
+          param: {
+            settlementId,
+          },
+          json: {
+            amount: 100,
+            receiverId:
+              "123456789123456789123456789123456789123456789123456789123121",
+            senderId:
+              "123456789123456789123456789123456789123456789123456789123122",
+          },
         },
-        json: {
-          amount: 100,
-          receiverId: "123",
-          senderId: "456",
+        {
+          headers: {
+            session: userSessionToken,
+          },
         },
-      });
+      );
 
       expect(response.status).toBe(404);
 
@@ -74,8 +83,10 @@ describe("settlements", () => {
         },
         json: {
           amount: 100,
-          receiverId: "123",
-          senderId: "456",
+          receiverId:
+            "123456789123456789123456789123456789123456789123456789123121",
+          senderId:
+            "123456789123456789123456789123456789123456789123456789123122",
         },
       });
 
