@@ -26,17 +26,17 @@ export const selectSettlementSchema = createSelectSchema(settlementModel, {
   id: schema => schema.id.describe("Unique identifier for the settlement"),
   senderId: schema =>
     schema.senderId
-      .min(60)
+      .min(36)
       .max(60)
       .describe("Reference to the user who is payer"),
   receiverId: schema =>
     schema.receiverId
-      .min(60)
+      .min(36)
       .max(60)
       .describe("Reference to the user who is ower "),
   groupId: schema =>
     schema.groupId
-      .min(60)
+      .min(36)
       .max(60)
       .describe("Reference to the group the settlement belongs to"),
   amount: schema => schema.amount.describe("Amount of the settlement"),
@@ -50,17 +50,17 @@ export const insertSettlementSchema = createInsertSchema(settlementModel, {
   id: schema => schema.id.describe("Unique identifier for the settlement"),
   senderId: schema =>
     schema.senderId
-      .min(60)
+      .min(36)
       .max(60)
       .describe("Reference to the user who is payer"),
   receiverId: schema =>
     schema.receiverId
-      .min(60)
+      .min(36)
       .max(60)
       .describe("Reference to the user who is ower "),
   groupId: schema =>
     schema.groupId
-      .min(60)
+      .min(36)
       .max(60)
       .describe("Reference to the group the settlement belongs to"),
   amount: schema => schema.amount.describe("Amount of the settlement"),

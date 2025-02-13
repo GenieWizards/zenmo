@@ -1,1 +1,0 @@
-ALTER TABLE "expense" ALTER COLUMN "split_type" DROP NOT NULL;
