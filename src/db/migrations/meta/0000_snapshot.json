@@ -1,5 +1,5 @@
 {
-  "id": "96948455-b2cc-46ab-9feb-e58e24a224ed",
+  "id": "4e2657ae-b676-410a-a3b3-52e34a789ae0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -304,11 +304,17 @@
           "primaryKey": false,
           "notNull": true
         },
+        "creator_id": {
+          "name": "creator_id",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "category_id": {
           "name": "category_id",
           "type": "varchar(60)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "group_id": {
           "name": "group_id",
@@ -333,7 +339,7 @@
           "type": "splitType",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "description": {
           "name": "description",
@@ -364,6 +370,19 @@
           "tableTo": "users",
           "columnsFrom": [
             "payer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "expense_creator_id_users_id_fk": {
+          "name": "expense_creator_id_users_id_fk",
+          "tableFrom": "expense",
+          "tableTo": "users",
+          "columnsFrom": [
+            "creator_id"
           ],
           "columnsTo": [
             "id"
@@ -556,13 +575,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "is_settled": {
-          "name": "is_settled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -693,6 +705,63 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.settlement": {
+      "name": "settlement",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(60)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sender_id": {
+          "name": "sender_id",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "receiver_id": {
+          "name": "receiver_id",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "group_id": {
+          "name": "group_id",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
