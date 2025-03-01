@@ -14,7 +14,9 @@ const EnvSchema = z.object({
   ]),
   API_TITLE: z.string().default("Finance Management API"),
   DATABASE_URL: z.string().url(),
-  ALLOWED_ORIGINS: z.string(),
+  ALLOWED_ORIGINS: z
+    .string()
+    .default("http://localhost:3000,http://localhost:4173"),
 });
 
 export type env = z.infer<typeof EnvSchema>;
