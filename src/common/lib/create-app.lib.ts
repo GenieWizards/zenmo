@@ -25,7 +25,7 @@ export function createApp() {
   // built-in middlewares
   app.use(
     cors({
-      origin: env.ALLOWED_ORIGINS.split(","),
+      origin: env.ALLOWED_ORIGINS.split(",").map(origin => origin.trim()),
       // allowHeaders: ["X-Custom-Header", "Upgrade-Insecure-Requests"],
       // allowMethods: ["POST", "GET", "OPTIONS"],
       // exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
