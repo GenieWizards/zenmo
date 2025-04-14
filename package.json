@@ -35,7 +35,7 @@
   "dependencies": {
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
-    "@hono/zod-openapi": "^0.18.3",
+    "@hono/zod-openapi": "^0.19.4",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@scalar/hono-api-reference": "^0.5.163",
